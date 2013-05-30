@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Id:</b>
+  <%= @donor.id %>
+</p>
+
+<p>
+  <b>Name:</b>
+  <%= @donor.name %>
+</p>
+
+<p>
+  <b>Email:</b>
+  <%= @donor.email %>
+</p>
+
+<p>
+  <b>Facebook ID:</b>
+  <%= @donor.facebook_id %>
+</p>
+
+
+<%= link_to 'Edit', edit_donor_path(@donor) %> |
+<%= link_to 'Back', donors_path %>
