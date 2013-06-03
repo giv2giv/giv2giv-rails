@@ -7,9 +7,10 @@ gem 'bcrypt-ruby'
 gem 'nokogiri'
 
 gem "neo4j", ">= 2.2.3"#, :path => 'vendor/gems/neo4j'
-gem 'neo4j-community', '1.9.M03' # FIXME - Why use milestone release?
-gem 'neo4j-advanced', '1.9.M03' # FIXME - Why use milestone release?
-gem 'neo4j-enterprise', '1.9.M03' # FIXME - Why use milestone release?
+#gem "neo4j-core", :path => 'vendor/gems/neo4j-core'
+gem 'neo4j-community', '1.9.M03'# :path => 'vendor/gems/neo4j-community' #'1.9.M03' # FIXME - Why use milestone release?
+gem 'neo4j-advanced', '1.9.M03'#:path => 'vendor/gems/neo4j-advanced' #'1.9.M03' # FIXME - Why use milestone release?
+gem 'neo4j-enterprise', '1.9.M03'#:path => 'vendor/gems/neo4j-enterprise' #'1.9.M03' # FIXME - Why use milestone release?
 
 # To use debugger
 # gem 'debugger'
