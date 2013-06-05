@@ -35,6 +35,10 @@ class CharityImporter
       files.each {|file| read_excel(file)}
     end
 
+    def import_single_file(file_name)
+      read_excel(file_name)
+    end
+
   private
 
     def get_irs_page
@@ -75,8 +79,12 @@ class CharityImporter
     end
 
     def read_excel(file)
+      file_with_dir = charity_excel_dir + file
+      raise ArgumentError, "File not found: #{file_with_dir}" if !File.exists?(file_with_dir)
+
       puts "Reading spreadsheet: #{file}" if @@verbose
-      book = POI::Workbook.open(charity_excel_dir + file)
+
+      book = POI::Workbook.open(file_with_dir)
       sheet = book.worksheets[0] # use the first sheet
       rows = sheet.rows
       rows.each_with_index do |row, i|
