@@ -15,7 +15,7 @@ describe CharityImporter do
 
   describe "run" do
     it "should allow skipping downloads" do
-      CharityImporter.should_not_recieve(:get_irs_page)
+      CharityImporter.should_not_receive(:get_irs_page)
       CharityImporter.should_receive(:files_from_dir).once {['file.xls']}
       CharityImporter.should_receive(:read_excel).once
       CharityImporter.run(true, true, true)

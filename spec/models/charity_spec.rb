@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-valid_charity_attributes = {:name => 'BYOB',
-                            :ein => 91817}
-
 describe Charity do
+
+  valid_charity_attributes = {:name => 'BYOB',
+                              :ein => 91817}
 
   before(:each) do
     @charity = Charity.new

@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe CharityGroup do
+
   before(:each) do
     @cg = CharityGroup.new
   end

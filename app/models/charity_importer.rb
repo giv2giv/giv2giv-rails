@@ -52,7 +52,7 @@ class CharityImporter
     end
 
     def charity_excel_dir
-      Rails.root + EXCEL_DIRECTORY
+      Rails.root.join(EXCEL_DIRECTORY)
     end
 
     def files_from_dir

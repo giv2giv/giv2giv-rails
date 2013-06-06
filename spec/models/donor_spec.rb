@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-valid_donor_attributes = {:email => 'kmiller@ltc.com',
-                          :name => 'Kendal',
-                          :password => 'thepassword'}
-
 describe Donor do
+
+  valid_donor_attributes = {:email => 'kmiller@ltc.com',
+                            :name => 'Kendal',
+                            :password => 'thepassword'}
 
   before(:each) do
     @donor = Donor.new
@@ -110,25 +110,18 @@ describe Donor do
       @donor.updated_at.should_not be_nil
       @donor.updated_at.should be_within(2.seconds).of(Time.now)
     end
-  end # end behavior
 
-  describe "donating" do
-    it "should raise exception if no payment processor has been set up" do
-      @donor.attributes = valid_donor_attributes
-      @donor.dwolla_token.should be_nil
-      expect {@donor.donate}.to raise_error
-    end
-
-    it "should create a donation on success" do
+    it "should link donor and donation" do
       @donor.attributes = valid_donor_attributes.merge(:dwolla_token => 'token', :email => 'nocoll4@ltc.com')
       @donor.should be_valid
       @donor.dwolla_token.should_not be_nil
       # mock out dwolla stuff
-      donation = @donor.donate(5, 12345)
+      donation = @donor.donations.build(:amount => 5, :transaction_id => 12345, :transaction_processor => 'me')
       donation.should be_valid
       donation.donor.should == @donor # did the relationship get created?
       @donor.donations.should include(donation)
     end
-  end # end donating
+
+  end # end behavior
 
 end

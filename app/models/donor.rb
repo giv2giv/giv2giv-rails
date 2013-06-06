@@ -1,10 +1,7 @@
 require 'bcrypt'
-require 'ruby-debug'
+
 class Donor < Neo4j::Rails::Model
   include BCrypt
-
-  class DonorException < Exception; end
-  class PaymentProcessorBlank < DonorException; end
 
   property :name, :index => :fulltext
   property :email, :index => :fulltext # for case insensitive validation
@@ -20,10 +17,8 @@ class Donor < Neo4j::Rails::Model
   property :country
   property :phone_number
 
-  # do other payment processing vendors use token?
-  property :dwolla_token
-
   has_n(:donations).to(Donation)
+  has_one(:payment_account).to(PaymentAccount)
 
   EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
 
@@ -54,19 +49,6 @@ class Donor < Neo4j::Rails::Model
   def password=(new_password)
     @password = Password.create(new_password)
     self.password_hash = @password
-  end
-
-  def donate(amount, charity_group_id)
-    raise PaymentProcessorBlank if dwolla_token.nil?
-
-    # call out to dwolla
-    # should amount be after processing fee(s)? seems like no
-    donation = donations.build(:amount => amount,
-                               :charity_group_id => charity_group_id,
-                               :transaction_id => 1,
-                               :transaction_provider => 'Dwolla')
-    donation.save(false)
-    donation
   end
 
 end
