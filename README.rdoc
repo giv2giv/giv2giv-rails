@@ -2,7 +2,7 @@ Welcome to the giv2giv API
 ===========================
 This API provides simple REST endpoints for features shared by the front end applications (located next to this repo on GitHub, under the giv2giv organization).
 
-You can jump into our <a href="https://lightcastle.campfirenow.com/4d2e5">chat room</a> to keep up with development as it happens.
+You can jump into our chat room at https://lightcastle.campfirenow.com/4d2e5 - there, you keep up with development as it happens.
 
 Getting Started
 ===============
