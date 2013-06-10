@@ -15,7 +15,7 @@ class App
 
     def method_missing(name, *args, &block)
       load! if settings.nil?
-      settings[name.to_s] || super
+      settings.has_key?(name.to_s) ? settings[name.to_s] : super
     end
 
   end # end class << self
