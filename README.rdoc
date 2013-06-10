@@ -1,4 +1,4 @@
-== Welcome to the giv2giv API
+## Welcome to the giv2giv API
 
 This API provides simple REST endpoints for features shared by the front end applications (also located in this github account). It uses JRuby, Rails and embedded Neo4j (currently v1.9.M03).
 
@@ -6,7 +6,7 @@ You can jump into our [chat room](https://lightcastle.campfirenow.com/4d2e5) to 
 
 Want to help out? Checkout [giv2giv](http://www.giv2giv.org) and see Contributing below.
 
-== Getting Started
+## Getting Started
 
 1. Install Jruby
 
@@ -25,7 +25,7 @@ Want to help out? Checkout [giv2giv](http://www.giv2giv.org) and see Contributin
 
     rails s
 
-== Contributing
+## Contributing
 
 Want to help out on development? Feel free to fork us, make changes, and submit pull requests!
 Grab an open issue or contact us to find out what we could use help with.
