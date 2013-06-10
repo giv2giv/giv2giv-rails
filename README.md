@@ -31,5 +31,7 @@ Want to help out on development? Feel free to fork us, make changes, and submit 
 Grab an open issue or contact us to find out what we could use help with.
 
 Join our [Chat Room](https://lightcastle.campfirenow.com/4d2e5)
+
 [giv2giv](http://www.giv2giv.org)
+
 [email](mailto:info@giv2giv.org)
