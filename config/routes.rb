@@ -1,9 +1,6 @@
 Giv2givRails::Application.routes.draw do
-  resources :charities
 
-
-  resources :donors
-
+  resource :sessions
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
