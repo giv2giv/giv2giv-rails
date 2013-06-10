@@ -30,8 +30,11 @@ Want to help out? Checkout [giv2giv](http://www.giv2giv.org) and see Contributin
 Want to help out on development? Feel free to fork us, make changes, and submit pull requests!
 Grab an open issue or contact us to find out what we could use help with.
 
-Join our [Chat Room](https://lightcastle.campfirenow.com/4d2e5)
 
-[giv2giv](http://www.giv2giv.org)
+## Contact Us
+
+[Chat Room](https://lightcastle.campfirenow.com/4d2e5)
+
+[giv2giv website](http://www.giv2giv.org)
 
 [email](mailto:info@giv2giv.org)
