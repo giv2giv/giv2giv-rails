@@ -4,7 +4,7 @@ This API provides simple REST endpoints for features shared by the front end app
 
 You can jump into our [chat room](https://lightcastle.campfirenow.com/4d2e5) to keep up with development as it happens.
 
-Want to help out? Checkout [giv2giv](http://www.giv2giv.org) and see [Contributing](#Contributing).
+Want to help out? Checkout [giv2giv](http://www.giv2giv.org) and see [Contributing](#contributing).
 
 ## Getting Started
 
