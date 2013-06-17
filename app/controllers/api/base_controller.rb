@@ -1,23 +1,26 @@
 class Api::BaseController < ApplicationController
+  force_ssl if App.force_ssl && Rails.env.production?
 
-  before_filter :force_ssl, :require_user
+  before_filter :require_authentication
 
 private
 
-  def validate_params(required_params)
-    required_params.each {|p| raise ArgumentError if !params.has_key?(p)}
+  def require_authentication
+    authenticate_or_request_with_http_token do |token, options|
+      @session = Session.find_by_token(token)
+    end
   end
 
-  def force_ssl
-    render :text => "Go secure" if App.force_ssl && Rails.env.production? && !request.ssl?
+  def current_session
+    # we should have session already except in sessions/destroy case
+    return @session if @session
+
+    token, options = ActionController::HttpAuthentication::Token.token_and_options(request)
+    @session = token ? Session.find_by_token(token) : nil
   end
 
-  def require_user
-    raise AuthenticationRequired if !current_user
-  end
-
-  def current_user
-    @current_user ||= session[:session_id] ? Session.find(session[:id]).donor : nil
+  def current_donor
+    @current_donor ||= current_session ? current_session.donor : nil
   end
 
 end

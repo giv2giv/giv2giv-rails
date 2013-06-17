@@ -95,6 +95,22 @@ describe Donor do
       e.should_not be_an_instance_of Donor
       e.should be_nil
     end
+
+    it "should not raise error if user not found" do
+      email = 'notfound@ltc.com'
+      @donor = Donor.find_by_email(email)
+      @donor.should be_nil
+      e = Donor.authenticate(email, 'asdf')
+      e.should_not be_an_instance_of Donor
+      e.should be_nil
+    end
+
+    it "should not choke on nil" do
+      e = Donor.authenticate(nil, nil)
+      e.should_not be_an_instance_of Donor
+      e.should be_nil
+    end
+
   end # end authentication
 
   describe "behavior" do
@@ -122,6 +138,27 @@ describe Donor do
       @donor.donations.should include(donation)
     end
 
+    context "find_by_email" do
+      it "should not raise error if email is nil" do
+        email = nil
+        @donor = Donor.find_by_email(email)
+        @donor.should be_nil
+      end
+
+      it "should not raise error if email is blank" do
+        email = " "
+        @donor = Donor.find_by_email(email)
+        @donor.should be_nil
+      end
+    end
+
+    it "should return user if user exists" do
+      d = default_donor
+      d.should be_valid
+      @donor = Donor.find_by_email(d.email)
+      @donor.should_not be_nil
+      @donor.should == d
+    end
   end # end behavior
 
 end

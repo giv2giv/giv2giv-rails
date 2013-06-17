@@ -47,3 +47,13 @@ def delete_neo4j_database
   path = Giv2givRails::Application.config.neo4j.storage_path
   FileUtils.rm_rf(path)
 end
+
+def default_donor
+  @default_donor = Donor.first || Donor.create(:email => 'asdf@ltc.com', :name => 'KM', :password => 'dreams')
+end
+
+def setup_authenticated_session(donor = default_donor)
+  sess = Session.create(:donor => donor)
+  request.env['HTTP_AUTHORIZATION'] = "Token token=#{sess.token}"
+  sess
+end

@@ -14,9 +14,7 @@ describe Session do
       s.created_at = 5.hours.ago
       s.expired?.should == true
     end #it
-  end #describe
-
-
+  end # end expired?
 
   describe "indicate_activity" do
     it "should update updated_at" do
@@ -33,23 +31,37 @@ describe Session do
       s.indicate_activity!
       s.updated_at.to_i.should == time.to_i
     end
-  end #describe
+  end # end indicate_activity
 
   describe "timestamps" do
     it "should populate created_at and updated_at" do
-      s = Session.create
+      s = Session.create(:donor => default_donor)
       s.updated_at.should_not be_nil
       s.created_at.should_not be_nil
       s.updated_at.should be_within(2.second).of(Time.now)
       s.created_at.should be_within(2.second).of(Time.now)
     end
+  end # end timestamps
 
+  describe "generate_token" do
+    it "should populate token at creation" do
+      token = 'asdf1234'
+      SecureRandom.stub(:urlsafe_base64).and_return(token)
+      s = Session.create(:donor => default_donor)
+      s.token.should_not be_nil
+      s.token.should == token
+    end
 
-  end #describe
-
-
-
-
+    it "should generate an unique token" do
+      token = 'asdf1234'
+      token2 = 'fdsa4321'
+      SecureRandom.stub(:urlsafe_base64).and_return(token, token2)
+      Session.should_receive(:find_by_token).with(token).and_return(true)
+      Session.should_receive(:find_by_token).with(token2).and_return(false)
+      s = Session.create(:donor => default_donor)
+      s.token.should_not be_nil
+      s.token.should == token2
+    end
+  end
 
 end
-

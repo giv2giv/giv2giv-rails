@@ -1,0 +1,1 @@
+class NotAuthorized < Exception; end

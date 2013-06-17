@@ -7,6 +7,7 @@ class Donor < Neo4j::Rails::Model
   property :email, :index => :fulltext # for case insensitive validation
   property :password_hash, :type => :string # includes version, cost, salt and password hash
 
+  property :id
   property :created_at
   property :updated_at
   property :facebook_id, :index => :exact
@@ -29,12 +30,13 @@ class Donor < Neo4j::Rails::Model
   class << self
     # needed because of the fulltext index
     def find_by_email(email)
+      return nil if email.blank?
       Donor.find("email: #{email}", :type => :fulltext)
     end
 
     def authenticate(email, password)
       user = Donor.find_by_email(email)
-      if user.password == password
+      if user && user.password == password
         user
       else
         nil
