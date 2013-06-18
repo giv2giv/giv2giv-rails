@@ -25,6 +25,12 @@ Want to help out? Checkout [giv2giv](http://www.giv2giv.org) and see [Contributi
 
         rails s
 
+5. Start your console!
+
+        rails c
+
+**You must trigger the start of Neo4j in server and console for them to join the 'cluster'**
+
 ## Contributing
 
 Want to help out on development? Feel free to fork us, make changes, and submit pull requests!

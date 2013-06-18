@@ -14,11 +14,10 @@ gem 'typhoeus', :require => false
 gem 'jruby-poi', :require => false
 
 
-gem "neo4j", ">= 2.2.3"#, :path => 'vendor/gems/neo4j'
-#gem "neo4j-core", :path => 'vendor/gems/neo4j-core'
-gem 'neo4j-community', '1.9.M03'# :path => 'vendor/gems/neo4j-community' #'1.9.M03' # FIXME - Why use milestone release?
-gem 'neo4j-advanced', '1.9.M03'#:path => 'vendor/gems/neo4j-advanced' #'1.9.M03' # FIXME - Why use milestone release?
-gem 'neo4j-enterprise', '1.9.M03'#:path => 'vendor/gems/neo4j-enterprise' #'1.9.M03' # FIXME - Why use milestone release?
+gem "neo4j", ">= 2.3.0"
+gem 'neo4j-community', '1.9'
+gem 'neo4j-advanced', '1.9'
+gem 'neo4j-enterprise', '1.9'
 
 
 # Gems used only for assets and not required
@@ -37,5 +36,5 @@ gem 'jquery-rails'
 
 group :development, :test do
   gem "rspec-rails"
-#  gem "ruby-debug"
+  gem "ruby-debug"
 end
