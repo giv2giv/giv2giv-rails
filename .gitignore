@@ -14,5 +14,7 @@
 /log/*.log
 /tmp
 
-/db/* # no reason to get the neo4j db
+/db* # no reason to get the neo4j db
+/db/
 /config/app.yml
+/vendor/gems*

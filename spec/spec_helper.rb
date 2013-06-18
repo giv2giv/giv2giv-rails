@@ -49,7 +49,19 @@ def delete_neo4j_database
 end
 
 def default_donor
-  @default_donor = Donor.first || Donor.create(:email => 'asdf@ltc.com', :name => 'KM', :password => 'dreams')
+  @default_donor = Donor.find_by_email('asdf@ltc.com') || Donor.create(:email => 'asdf@ltc.com', :name => 'KM', :password => 'dreams')
+end
+
+def default_payment_account
+  donor = default_donor
+  pa = nil
+  if donor.payment_accounts.length > 0
+    pa = donor.payment_accounts.first
+  else
+    pa = donor.payment_accounts.build(:processor => 'Dwolla', :token => 'Allowd')
+    pa.save
+  end
+  pa
 end
 
 def setup_authenticated_session(donor = default_donor)

@@ -5,12 +5,16 @@ class PaymentAccount < Neo4j::Rails::Model
   class AccountInvalid < PaymentException; end
   class DonorInvalid < PaymentException; end
 
+  property :id
+  property :created_at
+  property :updated_at
+
   property :processor # dwolla, paypal, etc
   property :token # do other payment processors use token?
   property :pin # dwolla requires us to know the donor's pin
   property :requires_reauth # should be false unless a payment fails
 
-  has_one(:donor).from(Donor, :payment_account)
+  has_one(:donor).from(Donor, :payment_accounts)
 
   validates :requires_reauth, :inclusion => {:in => [false]}
   validates :processor, :presence => true

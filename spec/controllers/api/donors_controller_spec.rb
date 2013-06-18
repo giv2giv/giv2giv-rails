@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'api/sessions_controller'
+
 describe Api::DonorsController do
 
   before(:each) do
@@ -42,7 +42,7 @@ describe Api::DonorsController do
 
   describe "update" do
     it "should require prior authentication" do
-      post :update, :format => :json
+      put :update, :format => :json
       response.status.should == 401
     end
 
@@ -54,7 +54,7 @@ describe Api::DonorsController do
       Donor.any_instance.should_receive(:update_attributes).and_return(false)
       Donor.any_instance.should_receive(:errors).and_return(errors)
 
-      post :update, :format => :json
+      put :update, :format => :json
       response.status.should == 422
       resp = JSON.parse(response.body)
       resp['name'].should_not be_blank
@@ -64,7 +64,7 @@ describe Api::DonorsController do
       setup_authenticated_session
       Donor.any_instance.should_receive(:update_attributes).and_return(true)
 
-      post :update, :format => :json
+      put :update, :format => :json
       response.status.should == 200
       resp = JSON.parse(response.body)
       resp['name'].should == @donor.name

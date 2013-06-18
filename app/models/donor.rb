@@ -19,7 +19,7 @@ class Donor < Neo4j::Rails::Model
   property :phone_number
 
   has_n(:donations).to(Donation)
-  has_one(:payment_account).to(PaymentAccount)
+  has_n(:payment_accounts).to(PaymentAccount)
 
   EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
 
@@ -53,4 +53,7 @@ class Donor < Neo4j::Rails::Model
     self.password_hash = @password
   end
 
+  def as_json(options = {})
+    super(:except => [:password_hash])
+  end
 end

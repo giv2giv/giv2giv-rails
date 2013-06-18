@@ -66,7 +66,7 @@ describe PaymentAccount do
       d = Donor.create(:email => 'pa_donor@ltc.com', :name => 'Asdf', :password => 'pass')
       d.should be_valid
 
-      pa = d.build_payment_account(:processor => processor, :token => token)
+      pa = d.payment_accounts.build(:processor => processor, :token => token)
       pa.should be_valid
 
       App.should_receive(:dwolla).at_least(2).times.and_return({'account_id' => 540})

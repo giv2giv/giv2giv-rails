@@ -1,21 +1,74 @@
+########################################
+##################### DONOR MANAGEMENT
+########################################
+
 # create donor
-curl -X POST -H "Content-Type: application/json" -d '{"email":"kmiller@ltc.com","password":"welcome","name":"Kendal"}' http://localhost:3000/api/donors
+curl -X POST -H "Content-Type: application/json" -d '{"email":"kmiller@ltc.com","password":"welcome","name":"Kendal"}' http://localhost:3000/api/donors.json
 # response
 {"address":null,"city":null,"country":null,"created_at":"2013-06-13T21:04:26Z","email":"kmiller@ltc.com","facebook_id":null,"id":"4","name":"Kendal","password_hash":"$2a$10$axni2Ge5JRZe2wa/5na3g.RXmdqBLMTuabuD/ukkd/st6Epinl61W","phone_number":null,"state":null,"updated_at":"2013-06-13T21:04:26Z","zip":null}
 
 
+# show donor info
+curl -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' http://localhost:3000/api/donors.json
+# response
+{"address":null,"city":null,"country":null,"created_at":"2013-06-13T21:04:26Z","email":"kmiller@ltc.com","facebook_id":null,"id":"4","name":"Kendal","password_hash":"$2a$10$axni2Ge5JRZe2wa/5na3g.RXmdqBLMTuabuD/ukkd/st6Epinl61W","phone_number":null,"state":null,"updated_at":"2013-06-13T21:04:26Z","zip":null}
+
+
+# update donor info
+curl -X PUT -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' -d '{"name":"Updated Name"}' http://localhost:3000/api/donors.json
+# response
+{"address":null,"city":null,"country":null,"created_at":"2013-06-13T21:04:26Z","email":"kmiller@ltc.com","facebook_id":null,"id":"4","name":"Updated Name","password_hash":"$2a$10$axni2Ge5JRZe2wa/5na3g.RXmdqBLMTuabuD/ukkd/st6Epinl61W","phone_number":null,"state":null,"updated_at":"2013-06-17T14:27:04Z","zip":null}
+
+
+
+########################################
+##################### PAYMENT ACCOUNT MANAGEMENT
+########################################
+
+# create payment account
+curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' -d '{"processor": "Dwolla", "token":"1asdf23"}' http://localhost:3000/api/donors/payment_accounts.json
+# response
+{"created_at":"2013-06-18T15:14:15Z","id":"104159","pin":null,"processor":"Dwolla","requires_reauth":false,"token":"1asdf23","updated_at":"2013-06-18T15:14:15Z"}
+
+
+# show all payment accounts
+curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' http://localhost:3000/api/donors/payment_accounts.json
+# response
+[{"created_at":"2013-06-17T16:17:52Z","id":"54085","pin":null,"processor":"Dog","requires_reauth":false,"token":"feeling","updated_at":"2013-06-17T16:17:52Z"},{"created_at":"2013-06-17T16:16:07Z","id":"54084","pin":null,"processor":"Dog","requires_reauth":false,"token":"feeling","updated_at":"2013-06-17T16:16:07Z"},{"created_at":"2013-06-17T15:41:04Z","id":"53084","pin":null,"processor":"Dwollaz","requires_reauth":false,"token":"1asdf235555555555555555","updated_at":"2013-06-17T15:41:04Z"},{"created_at":"2013-06-17T15:40:30Z","id":"52084","pin":null,"processor":"Cacti","provider":"Cacti","requires_reauth":false,"token":"asdf","updated_at":"2013-06-17T15:40:30Z"},{"created_at":"2013-06-17T15:33:23Z","id":"52083","pin":null,"processor":"Dwollaz","requires_reauth":false,"token":"1asdf235555555555555555","updated_at":"2013-06-17T15:33:23Z"},{"created_at":"2013-06-17T15:32:32Z","id":"52082","pin":null,"processor":"Dwollaz","requires_reauth":false,"token":"1asdf23","updated_at":"2013-06-17T15:32:32Z"}]
+
+
+# show specific payment account
+curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' http://localhost:3000/api/donors/payment_accounts/54085.json
+# response
+{"created_at":"2013-06-17T16:17:52Z","id":"54085","pin":null,"processor":"Dog","requires_reauth":false,"token":"feeling","updated_at":"2013-06-17T16:17:52Z"}
+
+
+# update payment account
+curl -X PUT -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' -d '{"processor": "Kendal"}' http://localhost:3000/api/donors/payment_accounts/54085.json
+# response
+{"created_at":"2013-06-17T16:17:52Z","id":"54085","pin":null,"processor":"Kendal","requires_reauth":false,"token":"feeling","updated_at":"2013-06-18T15:18:36Z"}
+
+
+# destroy payment account
+curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' http://localhost:3000/api/donors/payment_accounts/54085.json
+# response
+{"created_at":"2013-06-17T16:17:52Z","id":"54085","pin":null,"processor":"Kendal","requires_reauth":false,"token":"feeling","updated_at":"2013-06-18T15:18:36Z"}
+
+
+
+########################################
+##################### SESSION MANAGEMENT
+########################################
+
 # authenticate
-curl -X POST -H "Content-Type: application/json" -d '{"email":"kmiller@ltc.com","password":"welcome"}' http://localhost:3000/api/sessions/create
+curl -X POST -H "Content-Type: application/json" -d '{"email":"kmiller@ltc.com","password":"welcome"}' http://localhost:3000/api/sessions/create.json
 # response
 {"created_at":"2013-06-13T21:05:44Z","token":"3cboCDb6a8aD2hR2ZEiplQ","updated_at":"2013-06-13T21:05:44Z","donor":{"address":null,"city":null,"country":null,"created_at":"2013-06-13T21:04:26Z","email":"kmiller@ltc.com","facebook_id":null,"id":"4","name":"Kendal","password_hash":"$2a$10$axni2Ge5JRZe2wa/5na3g.RXmdqBLMTuabuD/ukkd/st6Epinl61W","phone_number":null,"state":null,"updated_at":"2013-06-13T21:04:26Z","zip":null}}
 
-# show donor info
-curl -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' http://localhost:3000/api/donors
-# response
-{"address":null,"city":null,"country":null,"created_at":"2013-06-13T21:04:26Z","email":"kmiller@ltc.com","facebook_id":null,"id":"4","name":"Kendal","password_hash":"$2a$10$axni2Ge5JRZe2wa/5na3g.RXmdqBLMTuabuD/ukkd/st6Epinl61W","phone_number":null,"state":null,"updated_at":"2013-06-13T21:04:26Z","zip":null}
 
 # sign out destroy token
 curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=5RfXwUMPkoLl_Nw1Z8BApw' http://localhost:3000/api/sessions/destroy
+
 
 # sign out no token
 curl -X POST -H "Content-Type: application/json" -d '' http://localhost:3000/api/sessions/destroy 
