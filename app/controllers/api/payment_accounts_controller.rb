@@ -21,7 +21,7 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def update
-    pa = current_donor.payment_accounts.find(params[:id])
+    pa = current_donor.payment_accounts.find(params[:id].to_s)
 
     respond_to do |format|
       if pa && pa.update_attributes(params[:payment_account])
@@ -35,7 +35,7 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def show
-    pa = current_donor.payment_accounts.find(params[:id])
+    pa = current_donor.payment_accounts.find(params[:id].to_s)
 
     respond_to do |format|
       if pa
@@ -47,12 +47,24 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def destroy
-    pa = current_donor.payment_accounts.find(params[:id])
+    pa = current_donor.payment_accounts.find(params[:id].to_s)
 
     respond_to do |format|
       if pa
         pa.destroy
-        format.json { render json: pa}
+        format.json { render json: pa }
+      else
+        format.json { head :not_found }
+      end
+    end
+  end
+
+  def donate
+    pa = current_donor.payment_accounts.find(params[:id].to_s)
+
+    respond_to do |format|
+      if pa && donation = pa.donate(params[:payment_account][:amount].to_s, params[:payment_account][:charity_group_id].to_s)
+        format.json { render json: donation }
       else
         format.json { head :not_found }
       end

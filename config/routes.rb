@@ -6,9 +6,12 @@ Giv2givRails::Application.routes.draw do
       post 'sessions/create' => 'sessions#create'
 
       resource :donors, :except => [:new, :edit, :destroy] do
-        resources :payment_accounts, :except => [:new, :edit]
+        resources :payment_accounts, :except => [:new, :edit] do
+          post 'donate', :on => :member
+        end
       end
-    end
-  end # end scope
+
+    end # end namespace api
+  end # end json scope
 
 end

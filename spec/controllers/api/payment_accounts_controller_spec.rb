@@ -129,4 +129,36 @@ describe Api::PaymentAccountsController do
     end
   end # end destroy
 
+  describe "donate" do
+    it "should require prior authentication" do
+      post :donate, :format => :json, :id => @pa.id
+      response.status.should == 401
+    end
+
+    it "should work" do
+      amount = 10
+      cgi = 1
+      setup_authenticated_session
+      PaymentAccount.any_instance.stub(:donate).with(amount.to_s, cgi.to_s).and_return({})
+      post :donate,:format => :json, :id => @pa.id, :payment_account => {:amount => amount, :charity_group_id => cgi}
+      response.status.should == 200
+    end
+
+    it "should not be found" do
+      setup_authenticated_session
+      id = 12354
+      PaymentAccount.find(id).should be_nil
+      post :donate, :format => :json, :id => id
+      response.status.should == 404
+    end
+
+    it "should render exception" do
+      setup_authenticated_session
+      PaymentAccount.any_instance.stub(:donate).and_raise(CharityGroupInvalid)
+      post :donate,:format => :json, :id => @pa.id, :payment_account => {:amount => 10, :charity_group_id => 1}
+      response.status.should == 400
+      resp = JSON.parse(response.body)
+      resp['message'].should == 'CharityGroupInvalid'
+    end
+  end # end donate
 end

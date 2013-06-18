@@ -1,9 +1,16 @@
 class Api::BaseController < ApplicationController
+  rescue_from Exception, :with => :render_exception
   force_ssl if App.force_ssl && Rails.env.production?
 
   before_filter :require_authentication
 
 private
+
+  def render_exception(exception)
+    respond_to do |format|
+      format.json { render json: { :message => exception.to_s }, status: :bad_request }
+    end
+  end
 
   def require_authentication
     authenticate_or_request_with_http_token do |token, options|

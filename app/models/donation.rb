@@ -1,4 +1,5 @@
 class Donation < Neo4j::Rails::Model
+  property :id
   property :created_at
   property :updated_at
   property :amount

@@ -1,9 +1,6 @@
 require 'dwolla'
 
 class PaymentAccount < Neo4j::Rails::Model
-  class PaymentException < Exception; end
-  class AccountInvalid < PaymentException; end
-  class DonorInvalid < PaymentException; end
 
   property :id
   property :created_at
@@ -30,16 +27,18 @@ class PaymentAccount < Neo4j::Rails::Model
 
   # for one time donation
   def donate(amount, charity_group_id)
-    raise AccountInvalid if !self.valid?
+    raise PaymentAccountInvalid if !self.valid?
+    raise CharityGroupInvalid if !(charity = CharityGroup.find(charity_group_id))
+    raise AmountInvalid if amount.blank? || amount < 0
 
     Dwolla::token = token
     transaction_id = Dwolla::Transactions.send({:destinationId => App.dwolla['account_id'],
                                                 :amount => amount.to_f,
                                                 :pin => pin})
 
-    # should amount be after processing fee(s)? seems like no
+    # amount = amount after processing fee(s)
     donation = donor.donations.build(:amount => amount,
-                                     :charity_group_id => charity_group_id,
+                                     :charity_group_id => charity.id,
                                      :transaction_id => transaction_id,
                                      :transaction_processor => processor)
     donation.save(false)

@@ -1,6 +1,7 @@
 class Session < Neo4j::Rails::Model
   EXPIRES_IN_HOURS = 4
 
+  property :id
   property :token, :index => :exact
   property :created_at
   property :updated_at

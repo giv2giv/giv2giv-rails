@@ -55,6 +55,10 @@ curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token toke
 {"created_at":"2013-06-17T16:17:52Z","id":"54085","pin":null,"processor":"Kendal","requires_reauth":false,"token":"feeling","updated_at":"2013-06-18T15:18:36Z"}
 
 
+# donate using payment account
+curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' -d '{"amount": "20", "charity_group_id":"13"}' http://localhost:3000/api/donors/payment_accounts/54084/donate.json
+
+
 
 ########################################
 ##################### SESSION MANAGEMENT
