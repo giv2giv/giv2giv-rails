@@ -18,7 +18,7 @@ gem "neo4j", ">= 2.3.0"
 gem 'neo4j-community', '1.9'
 gem 'neo4j-advanced', '1.9'
 gem 'neo4j-enterprise', '1.9'
-
+gem 'neo4j-will_paginate'
 
 # Gems used only for assets and not required
 # in production environments by default.

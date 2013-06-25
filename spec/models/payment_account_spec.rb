@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe PaymentAccount do
 
-  valid_pa_attributes = {:processor => 'me',
+  valid_pa_attributes = {:processor => 'dwolla',
                          :token => 'asdf',
                          :donor => Donor.new}
 
@@ -28,9 +28,28 @@ describe PaymentAccount do
     it "should require processor" do
       @pa.attributes = valid_pa_attributes.except(:processor)
       @pa.should_not be_valid
-      @pa.should have(1).error_on(:processor)
-      @pa.processor = 'me'
+      @pa.should have(2).error_on(:processor)
+      @pa.processor = 'dwolla'
       @pa.should be_valid
+    end
+
+    it "should be valid processor" do
+      processor = 'yoga'
+      PaymentAccount::VALID_PROCESSORS.should_not include(processor)
+      @pa.attributes = valid_pa_attributes.except(:processor)
+      @pa.processor = processor
+      @pa.should_not be_valid
+      @pa.should have(1).error_on(:processor)
+      @pa.processor = 'dwolla'
+      @pa.should be_valid
+    end
+
+    it "should downcase processor" do
+      processor = 'DwOlLa'
+      @pa.attributes = valid_pa_attributes.except(:processor)
+      @pa.processor = processor
+      @pa.should be_valid
+      @pa.processor.should == processor.downcase
     end
 
     it "should require token" do
@@ -64,7 +83,7 @@ describe PaymentAccount do
     end
 
     it "should create donation on success" do
-      processor = 'Tiger'
+      processor = 'dwolla'
       charity_id = 12191984
       token = 'a_leet_token'
       amount = 2.50

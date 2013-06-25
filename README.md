@@ -29,7 +29,51 @@ Want to help out? Checkout [giv2giv](http://www.giv2giv.org) and see [Contributi
 
         rails c
 
-**You must trigger the start of Neo4j in server and console for them to join the 'cluster'**
+**You must trigger the start of Neo4j in server and console for them to cluster**
+
+        # in console
+        Donor.first
+        # with server running
+        curl -X POST -H "Content-Type: application/json" -d '{"email":"kmiller@ltc.com","password":"welcome"}' http://localhost:3000/api/sessions/create.json
+
+### Importing Initial Charities
+
+1. Stop the server if it's running
+
+2. Start console and trigger neo4j start
+
+        rails c
+        Donor.first
+
+3. In another terminal tab, download and import a single file
+
+        bundle exec rake charity:import_xls xls_name=eo_xx.xls
+        # Some output as charities are created
+
+4. Confirm charities are available in console
+
+        Charity.all.size # should be around 41
+
+### Import ALL Charities
+
+1. Stop the server if it's running
+
+2. Start console and trigger neo4j start
+
+        rails c
+        Donor.first
+
+3. In another terminal tab, download and import a single file
+
+        bundle exec rake charity:import_all
+        # takes > 40 minutes
+        # Some output as charities are created
+
+4. Confirm charities are available in console
+
+        Charity.all.size # should be > 80,000
+
+
 
 ## Contributing
 

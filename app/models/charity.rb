@@ -18,7 +18,8 @@ class Charity < Neo4j::Rails::Model
 
   has_n(:charity_groups).from(CharityGroup, :charities)
 
-  validates :ein, :presence => true, :uniqueness => true
+  validates :ein, :presence => true,
+                  :uniqueness => true
   validates :name, :presence => true
 
   class << self

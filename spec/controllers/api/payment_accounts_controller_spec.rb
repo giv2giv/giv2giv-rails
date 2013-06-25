@@ -40,7 +40,7 @@ describe Api::PaymentAccountsController do
     end
 
     it "should work" do
-      params = {:processor => 'Cat',
+      params = {:processor => 'Dwolla',
                 :token => 'meowmeowmeow'}
       setup_authenticated_session
       post :create, :format => :json, :payment_account => params
@@ -66,7 +66,7 @@ describe Api::PaymentAccountsController do
     end
 
     it "should work" do
-      params = {:processor => 'Cat',
+      params = {:processor => 'DWOLLA',
                 :token => 'meowmeowmeowaaaaaaa'}
       setup_authenticated_session
       put :update, :format => :json, :id => @pa.id, :payment_account => params

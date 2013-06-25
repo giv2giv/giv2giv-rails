@@ -9,7 +9,7 @@ class Api::DonorsController < Api::BaseController
       if donor.save
         format.json { render json: donor, status: :created }
       else
-        format.json { render json: donor.errors , status: :unprocessable_entity }
+        format.json { render json: donor.errors, status: :unprocessable_entity }
       end
     end
   end

@@ -1,6 +1,7 @@
 require 'dwolla'
 
 class PaymentAccount < Neo4j::Rails::Model
+  VALID_PROCESSORS = %w(dwolla)
 
   property :id
   property :created_at
@@ -13,17 +14,13 @@ class PaymentAccount < Neo4j::Rails::Model
 
   has_one(:donor).from(Donor, :payment_accounts)
 
-  validates :requires_reauth, :inclusion => {:in => [false]}
-  validates :processor, :presence => true
+  validates :requires_reauth, :inclusion => { :in => [false] }
+  validates :processor, :presence => true,
+                        :inclusion => { :in => VALID_PROCESSORS }
   validates :token, :presence => true
   validates :donor, :presence => true
   before_validation :set_requires_reauth, :on => :create
-
-  def set_requires_reauth
-    # just being nice for create
-    self.requires_reauth = false if !self.requires_reauth
-    true
-  end
+  before_validation :downcase_processor, :on => :create
 
   # for one time donation
   def donate(amount, charity_group_id)
@@ -44,5 +41,17 @@ class PaymentAccount < Neo4j::Rails::Model
     donation.save(false)
     donation
   end
+private
 
+  def set_requires_reauth
+    # just being nice for create
+    self.requires_reauth = false if !self.requires_reauth
+    true
+  end
+
+  def downcase_processor
+    # just being nice for create
+    self.processor = self.processor.downcase if self.processor
+    true
+  end
 end

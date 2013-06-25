@@ -9,13 +9,13 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def create
-    pa = PaymentAccount.new({:donor => current_donor}.merge(params[:payment_account]))
+    pa = PaymentAccount.new({ :donor => current_donor }.merge(params[:payment_account]))
 
     respond_to do |format|
       if pa.save
         format.json { render json: pa, status: :created }
       else
-        format.json { render json: pa.errors , status: :unprocessable_entity }
+        format.json { render json: pa.errors, status: :unprocessable_entity }
       end
     end
   end
@@ -27,7 +27,7 @@ class Api::PaymentAccountsController < Api::BaseController
       if pa && pa.update_attributes(params[:payment_account])
         format.json { render json: pa }
       elsif pa
-        format.json { render json: pa.errors , status: :unprocessable_entity }
+        format.json { render json: pa.errors, status: :unprocessable_entity }
       else
         format.json { head :not_found }
       end

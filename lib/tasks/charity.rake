@@ -20,7 +20,8 @@ namespace :charity do
   desc 'Import a single xls'
   task :import_xls => :environment do
     xls_name = ENV['xls_name']
+    skip_download = (ENV['skip_download'].present? && ENV['skip_download'] == 'true')
     raise ArgumentError, 'Must specify xls_name' if xls_name.nil?
-    CharityImporter.import_single_file(xls_name)
+    CharityImporter.import_single_file(xls_name, skip_download)
   end
  end

@@ -29,13 +29,17 @@ class CharityImporter
       else
         files = select_eo_links(get_irs_page)
         create_excel_dir_if_needed
-        files.each {|file| download_eo_file(file)}
+        files.each { |file| download_eo_file(file) }
       end
 
-      files.each {|file| read_excel(file)}
+      files.each { |file| read_excel(file) }
     end
 
-    def import_single_file(file_name)
+    def import_single_file(file_name, skip_downloading = true)
+      if !skip_downloading
+        create_excel_dir_if_needed
+        download_eo_file(file_name)
+      end
       read_excel(file_name)
     end
 
@@ -48,7 +52,7 @@ class CharityImporter
 
     # find the links that match our regex
     def select_eo_links(irs_doc)
-      irs_doc.xpath('//a/@href').select {|link| link.to_s =~ LINK_REGEX}.map(&:to_s)
+      irs_doc.xpath('//a/@href').select { |link| link.to_s =~ LINK_REGEX }.map(&:to_s)
     end
 
     def charity_excel_dir
@@ -56,7 +60,7 @@ class CharityImporter
     end
 
     def files_from_dir
-      Dir.entries(charity_excel_dir).select{|m| m =~ /\.xls/}
+      Dir.entries(charity_excel_dir).select{ |m| m =~ /\.xls/ }
     end
 
     def create_excel_dir_if_needed
@@ -64,7 +68,7 @@ class CharityImporter
     end
 
     def write_file(file_name, content)
-      File.open(file_name, 'wb') {|file| file.write(content)}
+      File.open(file_name, 'wb') { |file| file.write(content) }
     end
 
     # Using hydra(parallel requests) exhausts jvm heap(@ 4GB!) so download one at a time

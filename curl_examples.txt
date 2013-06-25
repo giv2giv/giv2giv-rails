@@ -1,3 +1,31 @@
+################################################################################
+################################################################################
+THESE ARE HTTP *ONLY* FOR LOCAL DEV
+PRODUCTION WILL *ONLY* SUPPORT HTTPS
+################################################################################
+################################################################################
+
+
+:format will always be JSON
+
+             api_sessions_destroy POST   /api/sessions/destroy.:format                   api/sessions#destroy {:format=>true}
+              api_sessions_create POST   /api/sessions/create.:format                    api/sessions#create {:format=>true}
+donate_api_donors_payment_account POST   /api/donors/payment_accounts/:id/donate.:format api/payment_accounts#donate {:format=>true}
+      api_donors_payment_accounts GET    /api/donors/payment_accounts.:format            api/payment_accounts#index {:format=>true}
+                                  POST   /api/donors/payment_accounts.:format            api/payment_accounts#create {:format=>true}
+       api_donors_payment_account GET    /api/donors/payment_accounts/:id.:format        api/payment_accounts#show {:format=>true}
+                                  PUT    /api/donors/payment_accounts/:id.:format        api/payment_accounts#update {:format=>true}
+                                  DELETE /api/donors/payment_accounts/:id.:format        api/payment_accounts#destroy {:format=>true}
+                       api_donors POST   /api/donors.:format                             api/donors#create {:format=>true}
+                                  GET    /api/donors.:format                             api/donors#show {:format=>true}
+                                  PUT    /api/donors.:format                             api/donors#update {:format=>true}
+    add_charity_api_charity_group POST   /api/charity_group/:id/add_charity.:format      api/charity_group#add_charity {:format=>true}
+          api_charity_group_index GET    /api/charity_group.:format                      api/charity_group#index {:format=>true}
+                                  POST   /api/charity_group.:format                      api/charity_group#create {:format=>true}
+                api_charity_group GET    /api/charity_group/:id.:format                  api/charity_group#show {:format=>true}
+                                  PUT    /api/charity_group/:id.:format                  api/charity_group#update {:format=>true}
+
+
 ########################################
 ##################### DONOR MANAGEMENT
 ########################################
