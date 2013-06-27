@@ -73,13 +73,13 @@ Want to help out? Checkout [giv2giv](http://www.giv2giv.org) and see [Contributi
 
         Charity.all.size # should be > 80,000
 
-## What Next?
+## What's' Next?
 
 Check out the [Curl Examples](curl_examples.txt) for examples on how to use the API to build new clients.
 
 ## Coming Soon
 
-We hope to get a reference client implementation (beyond the curl example above) 
+We hope to get a reference client implementation (beyond the curl example above)
 
 ## Contributing
 
