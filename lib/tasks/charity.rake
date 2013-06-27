@@ -13,7 +13,7 @@ namespace :charity do
     skip_download = (ENV['skip_download'].present? && ENV['skip_download'] == 'true')
     verbose = true if extremely_verbose
 
-    CharityImporter.run(verbose, extremely_verbose, skip_download)
+    CharityImport::Importer.run(verbose, extremely_verbose, skip_download)
   end
 
   # bundle exec rake charity:import_xls xls_name=eo_xx.xls
@@ -22,6 +22,6 @@ namespace :charity do
     xls_name = ENV['xls_name']
     skip_download = (ENV['skip_download'].present? && ENV['skip_download'] == 'true')
     raise ArgumentError, 'Must specify xls_name' if xls_name.nil?
-    CharityImporter.import_single_file(xls_name, skip_download)
+    CharityImport::Importer.import_single_file(xls_name, skip_download)
   end
  end

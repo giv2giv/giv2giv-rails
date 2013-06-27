@@ -1,5 +1,8 @@
 class Api::CharityGroupController < Api::BaseController
 
+  skip_before_filter :require_authentication, :only => [:index,
+                                                        :show]
+
   def index
     page = params[:page] || 1
     per_page = [params[:per_page], 30].compact.min # limit to 30 results per page

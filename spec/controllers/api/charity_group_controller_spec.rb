@@ -7,9 +7,11 @@ describe Api::CharityGroupController do
   end
 
   describe "index" do
-    it "should require prior authentication" do
+    it "should not require prior authentication" do
       get :index, :format => :json
-      response.status.should == 401
+      response.status.should == 200
+      resp = JSON.parse(response.body)
+      resp.first['name'].should == default_charity_group.name
     end
 
     it "should work" do
@@ -47,9 +49,12 @@ describe Api::CharityGroupController do
   end # end create
 
   describe "show" do
-    it "should require prior authentication" do
+    it "should not require prior authentication" do
       get :show, :format => :json, :id => @cg.id
-      response.status.should == 401
+      response.status.should == 200
+      resp = JSON.parse(response.body)
+      resp['name'].should == @cg.name
+      resp['id'].should == @cg.id
     end
 
     it "should work" do

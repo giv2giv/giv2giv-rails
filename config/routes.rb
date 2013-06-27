@@ -15,6 +15,9 @@ Giv2givRails::Application.routes.draw do
         post 'add_charity', :on => :member
       end
 
+      resources :charity, :except => [:new, :edit, :destroy, :update, :create] do
+
+      end
     end # end namespace api
   end # end json scope
 
