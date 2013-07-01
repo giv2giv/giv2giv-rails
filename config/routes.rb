@@ -16,7 +16,7 @@ Giv2givRails::Application.routes.draw do
       end
 
       resources :charity, :except => [:new, :edit, :destroy, :update, :create] do
-
+        get 'search', :on => :collection
       end
     end # end namespace api
   end # end json scope

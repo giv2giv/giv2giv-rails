@@ -44,8 +44,8 @@ describe Tag do
       t.save
       t.reload
       default_charity_1.reload
-      t.charities.first.should == default_charity_1
-      default_charity_1.tags.first.should == t
+      t.charities.first.name == default_charity_1.name
+      default_charity_1.tags.first.name == t.name
     end
   end
 

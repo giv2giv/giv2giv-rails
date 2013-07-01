@@ -11,7 +11,8 @@ describe Api::CharityGroupController do
       get :index, :format => :json
       response.status.should == 200
       resp = JSON.parse(response.body)
-      resp.first['name'].should == default_charity_group.name
+      charity = resp.select { |char| char['name'] == default_charity_group.name }
+      charity.should_not be_nil
     end
 
     it "should work" do
