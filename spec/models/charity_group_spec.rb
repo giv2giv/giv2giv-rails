@@ -65,6 +65,7 @@ describe CharityGroup do
 
     it "should create associations" do
       cg = CharityGroup.new_with_charities({:name => 'valid name', :charity_ids => [default_charity_1.id, default_charity_2.id]})
+      cg.reload
       cg.should be_valid
       cg.charities.should include(default_charity_1)
       cg.charities.should include(default_charity_2)

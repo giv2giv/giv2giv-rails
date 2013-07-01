@@ -82,6 +82,69 @@ module CharityImport
         request.run
       end
 
+      def tag_charity(charity)
+        tags = get_all_tags(charity)
+        tags.each do |name|
+          tag = Tag.find_or_create_by_name(name)
+          tag.charities << charity
+          tag.save
+        end
+      end
+
+      def get_all_tags(charity)
+        tag_names = []
+        tag_names << classification_tag_name(charity.subsection_code, charity.classification_code)
+        tag_names << activity_tag_names(charity.activity_code)
+        tag_names << ntee_common_tag_name(charity.ntee_code)
+        tag_names << ntee_core_tag_name(charity.ntee_code)
+        tag_names.flatten.compact
+      end
+
+      def classifications
+        CharityImport::Classification::CLASSIFICATION
+      end
+
+      def classification_tag_name(subsection_code, classification_code)
+        classifications[subsection_code.to_i.to_s] && classifications[subsection_code.to_i.to_s][classification_code.to_i.to_s]
+      end
+
+      def activities
+        CharityImport::Classification::ACTIVITY
+      end
+
+      def activity_tag_names(code)
+        return nil if code.blank? || code == '0.0'
+
+        code = code.to_i.to_s
+        while code.length < 9 do
+          code = code.prepend('0')
+        end
+
+        [activity_tag_name(code[0..2]),
+         activity_tag_name(code[3..5]),
+         activity_tag_name(code[6..8])]
+      end
+
+      def activity_tag_name(code)
+        activities[code]
+      end
+
+      def ntee_common_codes
+        CharityImport::Classification::NTEE_COMMON_CODES
+      end
+
+      def ntee_common_tag_name(ntee_code)
+         ntee_common_codes[ntee_code.first] if ntee_code.present?
+      end
+
+      def ntee_core_codes
+        CharityImport::Classification::NTEE_CORE_CODES
+      end
+
+      def ntee_core_tag_name(ntee_code)
+        ntee_core_codes[ntee_code] if ntee_code.present?
+      end
+
       def read_excel(file)
         file_with_dir = charity_excel_dir + file
         raise ArgumentError, "File not found: #{file_with_dir}" if !File.exists?(file_with_dir)
@@ -103,16 +166,20 @@ module CharityImport
 			    next if deduction_code != DESIRED_DEDUCTION_CODE
           next if foundation_code != DESIRED_FOUNDATION_CODE
 
-          options = {:ein => ein,
-			               :name => name,
-			               :address => row[3].to_s.strip,
-			               :city => row[4].to_s.strip,
-			               :state => row[5].to_s.strip,
-			               :zip => row[6].to_s.strip,
-			               :ntee_code => row[30].to_s.strip}
+          options = { :ein => ein,
+			                :name => name,
+			                :address => row[3].to_s.strip,
+			                :city => row[4].to_s.strip,
+			                :state => row[5].to_s.strip,
+			                :zip => row[6].to_s.strip,
+			                :ntee_code => row[30].to_s.strip,
+			                :subsection_code => row[8].to_s.strip,
+			                :classification_code => row[10].to_s.strip,
+			                :activity_code => row[14].to_s.strip }
 
 			    puts "---Creating Charity with #{options.inspect}" if @@verbose
-          Charity.create_or_update(options)
+          charity = Charity.create_or_update(options)
+          tag_charity(charity)
         end
       end # end read_excel
 

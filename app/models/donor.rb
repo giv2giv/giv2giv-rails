@@ -33,11 +33,12 @@ class Donor < Neo4j::Rails::Model
     # needed because of the fulltext index
     def find_by_email(email)
       return nil if email.blank?
-      Donor.find("email: #{email}", :type => :fulltext)
+      # bug in neo4j.rb. search string with spaces must be in double qoutes
+      self.find("email: \"#{email}\"", :type => :fulltext)
     end
 
     def authenticate(email, password)
-      user = Donor.find_by_email(email)
+      user = self.find_by_email(email)
       if user && user.password == password
         user
       else

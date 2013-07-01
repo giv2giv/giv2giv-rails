@@ -96,6 +96,12 @@ describe Donor do
       e.should be_nil
     end
 
+    it "should not choke on nil" do
+      e = Donor.authenticate(nil, nil)
+      e.should_not be_an_instance_of Donor
+      e.should be_nil
+    end
+
     it "should not raise error if user not found" do
       email = 'notfound@ltc.com'
       @donor = Donor.find_by_email(email)
@@ -105,12 +111,11 @@ describe Donor do
       e.should be_nil
     end
 
-    it "should not choke on nil" do
-      e = Donor.authenticate(nil, nil)
-      e.should_not be_an_instance_of Donor
-      e.should be_nil
+    it "should not explode with npe if it has a space" do
+      email = "space space"
+      @donor = Donor.find_by_email(email)
+      @donor.should be_nil
     end
-
   end # end authentication
 
   describe "behavior" do

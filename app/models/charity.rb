@@ -13,10 +13,12 @@ class Charity < Neo4j::Rails::Model
   property :state
   property :zip
   property :ntee_code
-  property :ntee_core_code
-  property :ntee_common_code
+  property :classification_code
+  property :subsection_code
+  property :activity_code
 
   has_n(:charity_groups).from(CharityGroup, :charities)
+  has_n(:tags).from(Tag, :charities)
 
   validates :ein, :presence => true,
                   :uniqueness => true

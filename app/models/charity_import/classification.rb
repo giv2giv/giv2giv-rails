@@ -260,7 +260,7 @@ module CharityImport
                  '379' => 'Other conservation, environmental or beautification activities',
                  '380' => 'Low-income housing',
                  '381' => 'Low and moderate income housing',
-                 '382' => 'Housing for the aged ',
+                 '382' => 'Housing for the aged',
                  '398' => 'Instruction and guidance on housing',
                  '399' => 'Other housing activities',
                  '400' => 'Area development, redevelopment of renewal',
