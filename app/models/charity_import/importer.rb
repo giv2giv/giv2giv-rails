@@ -64,7 +64,7 @@ module CharityImport
       end
 
       def create_excel_dir_if_needed
-        Dir.mkdir(charity_excel_dir) if !File.exists?(charity_excel_dir)
+        FileUtils.mkdir_p(charity_excel_dir) if !File.exists?(charity_excel_dir)
       end
 
       def write_file(file_name, content)
