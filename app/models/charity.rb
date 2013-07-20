@@ -1,7 +1,4 @@
-require 'lib/irs_charity_classification_codes'
-
 class Charity < Neo4j::Rails::Model
-  include IRS::CharityClassificationCodes
 
   property :id
   property :created_at
