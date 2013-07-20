@@ -37,4 +37,34 @@ class Api::CharityGroupController < Api::BaseController
     end
   end
 
+  def search
+    ss = params[:search_string]
+    # FIXME sanitize_input !
+
+    charity_groups = []
+
+    tags = Tag.all("name: \"#{ss}\"", :type => :fulltext)
+    tags.each do |tag|
+      tag.charities.each do |c|
+        charities << c
+      end
+    end
+
+    charities.each do |c|
+      charity_groups << c.charity_groups
+    end
+
+    CharityGroup.all("name: \"#{ss}\"", :type => :fulltext).each do |cg|
+      charity_groups << cg
+    end
+    
+    charity_groups = charity_groups.compact.flatten.uniq
+    respond_to do |format|
+      if !charity_groups.empty?
+        format.json { render json: charity_groups }
+      else
+        format.json { head :not_found }
+      end
+    end
+  end
 end
