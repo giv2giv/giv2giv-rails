@@ -47,7 +47,7 @@ Want to help out? Checkout [giv2giv](http://www.giv2giv.org) and see [Contributi
 
 3. In another terminal tab, download and import a single file
 
-        bundle exec rake charity:import_xls xls_name=eo_xx.xls
+        bundle exec rake charity:import_xls xls_name=eo_de.xls
         # Some output as charities are created
 
 4. Confirm charities are available in console
@@ -95,4 +95,3 @@ Grab an open issue or [contact us](#contact-us) to find out what we could use he
 [giv2giv website](http://www.giv2giv.org)
 
 [email](mailto:info@giv2giv.org)
-
