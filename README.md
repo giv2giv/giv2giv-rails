@@ -52,7 +52,7 @@ Want to help out? Checkout [giv2giv](http://www.giv2giv.org) and see [Contributi
 
 4. Confirm charities are available in console
 
-        Charity.all.size # should be around 41
+        Charity.all.size # should be around 316
 
 ### Import ALL Charities
 
