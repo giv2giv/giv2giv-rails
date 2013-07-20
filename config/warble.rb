@@ -8,7 +8,7 @@ Warbler::Config.new do |config|
   # - gemjar: package the gem repository in a jar file in WEB-INF/lib
   # - executable: embed a web server and make the war executable
   # - compiled: compile .rb files to .class files
-  # config.features = %w(gemjar)
+   config.features = %w(runnable)
 
   # Application directories to be included in the webapp.
   # config.dirs = %w(app config db lib log script vendor tmp)
@@ -147,8 +147,9 @@ Warbler::Config.new do |config|
   # that you fix these values when running a production server!
   # If you're using threadsafe! mode, you probably don't want to set these values,
   # since 1 runtime(default for threadsafe mode) will be enough.
-   config.webxml.jruby.min.runtimes = 2
-   config.webxml.jruby.max.runtimes = 4
+  # FIXME: Can't do more than 1 until we figure out worker configs and clustering :(
+   config.webxml.jruby.min.runtimes = 1
+   config.webxml.jruby.max.runtimes = 1
 
   # JNDI data source name
   # config.webxml.jndi = 'jdbc/rails'
