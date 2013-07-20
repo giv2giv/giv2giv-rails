@@ -3,7 +3,10 @@ class Api::DonorsController < Api::BaseController
   skip_before_filter :require_authentication, :only => :create
 
   def create
+    logger.error "all params: #{params.inspect}"
+    logger.error "donor params: #{params[:donor].inspect}"
     donor = Donor.new(params[:donor])
+    logger.error "errors: #{donor.errors.full_messages}"
 
     respond_to do |format|
       if donor.save
