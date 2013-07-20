@@ -8,7 +8,7 @@ require "active_resource/railtie"
 require "sprockets/railtie"
 require "rails/test_unit/railtie"
 
-require 'neo4j/rails/ha_console/railtie' if Rails.env.development?
+#require 'neo4j/rails/ha_console/railtie' if Rails.env.development?
 
 if defined?(Bundler)
   # If you precompile assets before deploying to production, use this line
@@ -54,7 +54,7 @@ module Giv2givRails
     end
 
     # Configure where the neo4j database should exist
-    config.neo4j.storage_path = "#{config.root}/db/neo4j-#{Rails.env}" if Rails.env.test?
+    config.neo4j.storage_path = "#{config.root}/db/neo4j-#{Rails.env}" if Rails.env.test? || Rails.env.development?
     config.neo4j.storage_path = '/var/lib/giv-neo4j' if Rails.env.production? # FIXME: move this to a config
 
     # Enable escaping HTML in JSON.
