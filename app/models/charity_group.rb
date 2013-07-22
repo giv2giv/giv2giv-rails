@@ -30,4 +30,12 @@ class CharityGroup < Neo4j::Rails::Model
     super(:include =>[:charities])
   end
 
+  def add(new_charity)
+    group = CharityGroup.find(:id)
+    group.charities.build(new_charity)
+    group.charities
+  end
+
+
+
 end

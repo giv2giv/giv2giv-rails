@@ -66,5 +66,48 @@ class Api::CharityGroupController < Api::BaseController
         format.json { head :not_found }
       end
     end
+  end #search
+
+  def rename_charity_group
+    group = CharityGroup.find(params[:id].to_s)
+
+    respond_to do |format|
+      if group.donations.size >= 1 do
+        format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
+      else
+        group.update_attribute( :name => params[:new_name] )
+      end
+    end #respond_to
+
+  end #update
+
+  def add_charity
+    group = CharityGroup.find(params[:id].to_s)
+
+    respond_to do |format|
+      if group.donations.size < 1 do
+        group.add(params[:charity])
+      else
+        format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
+      end
+    end #respond_to
+
   end
+
+
+
+  def destroy
+    group = CharityGroup.find(params[:id].to_s)
+
+    respond_to do |format|
+      if group.donations.size < 1 do
+        group.delete(params[:charity])
+        format.json { render json: "Destroyed #{params[:charity]} record." }
+      else
+        format.json { redner json: "Cannot edit Charity Group when it already has donations to it" }
+      end #if
+
+  end #destroy 
+
+
 end
