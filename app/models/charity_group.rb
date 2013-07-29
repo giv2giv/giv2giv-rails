@@ -30,10 +30,10 @@ class CharityGroup < Neo4j::Rails::Model
     super(:include =>[:charities])
   end
 
-  def add(new_charity_id)
+  def add_charity(new_charity_id)
     charity = Charity.find(new_charity_id)
-    group.charities << charity
-    group.charities
+    self.charities << charity
+    self.charities
   end
 
 

@@ -73,4 +73,18 @@ describe CharityGroup do
     end
   end #end create_with_charities
 
+  describe "add_charity" do
+    it "should add a charity" do
+      c = default_charity_2
+      cg = CharityGroup.new_with_charities( {:name => 'new charity', :charity_ids => [default_charity_1.id]} )
+      cg.save
+      cg.add_charity( c.id )
+      test_charity = cg.charities.find( c.id )
+      test_charity.name.should == c.name
+    end 
+
+  end #add_charity
+
+
+
 end

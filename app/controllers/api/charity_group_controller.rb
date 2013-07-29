@@ -86,7 +86,7 @@ class Api::CharityGroupController < Api::BaseController
 
     respond_to do |format|
       if group.donations.first
-        group.add(params[:charity_id])
+        group.add_charity(params[:charity_id])
       else
         format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
       end
