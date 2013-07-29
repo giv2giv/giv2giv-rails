@@ -80,4 +80,9 @@ describe Api::CharityController do
       response.status.should == 404
     end
   end # end search
+
+
+
+
+
 end

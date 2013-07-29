@@ -76,4 +76,20 @@ describe Api::CharityGroupController do
     end
   end # end show
 
+  describe "add_charity" do
+    it "should create an empty charity_group and add a charity to it" do
+      setup_authenticated_session
+
+      c = Charity.last
+      post :add_charity, :format => :json, :id => @cg.id, :charity_id => c.id
+      new_charity = @cg.charities.find( c.id )
+      new_charity.name.should == c.name
+    end
+  end
+
+
+
+
+
+
 end
