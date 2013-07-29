@@ -83,6 +83,13 @@ describe CharityGroup do
       test_charity.name.should == c.name
     end 
 
+    it "should fail because charity does not exist" do
+      cg = CharityGroup.new_with_charities( {:name => 'new charity', :charity_ids => [default_charity_1.id]} )
+      expect { cg.add_charity("383888") }.should raise_error
+    end
+
+
+
   end #add_charity
 
 
