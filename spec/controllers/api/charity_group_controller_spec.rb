@@ -85,22 +85,49 @@ describe Api::CharityGroupController do
       new_charity = @cg.charities.find( c.id )
       new_charity.name.should == c.name
     end
-  end
+
+    it "should not add a charity because the charity_group already has donations" do
+      setup_authenticated_session
+      c = Charity.new(:name => "test charity", :ein =>"8383838383838")
+=begin      c.save
+      c.reload
+      puts c.name
+      puts c.id
+      puts "CHARITY ATTRIBUTES  OUTPUT NEXT\n\n\n\n\n"
+      puts c.attributes
+=end
+      donation = @cg.donations.build(:amount => 50,
+                                     :charity_group_id => @cg.id)
+      donation.save(false)
+
+      post :add_charity, :format => :json, :id => @cg.id, :charity_id => c.id
+      @cg.reload
+
+      @cg.charities.find( c.id ).should be_nil
+      puts "DESTRYOING C HOPEFULLY"
+      c.destroy
+#      c.reload
+#      expect{ puts c.attributes }.to raise_error
+
+    end
+
+  end #add_charity
 
   describe "rename_charity_group" do
     it "should rename a charity_group" do
       setup_authenticated_session
       post :rename_charity_group, :format => :json, :id => @cg.id, :new_name => "some new name"
-#      cg = CharityGroup.find(@cg.id)
       @cg.reload
       @cg.name.should == "some new name"
     end
 
     it "should fail because charity_group already has donations" do
       setup_authenticated_session
+
       donation = @cg.donations.build(:amount => 50,
-                                         :charity_group_id => @cg.id)
+                                     :charity_group_id => @cg.id)
       donation.save(false)
+
       post :rename_charity_group, :format => :json, :id => @cg.id, :new_name => "some new name"
       @cg.reload
       @cg.name.should == "Kendal"
