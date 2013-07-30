@@ -93,7 +93,7 @@ describe Api::CharityGroupController do
       c.reload
 =begin      puts c.name
       puts c.id
-      puts "CHARITY ATTRIBUTES  OUTPUT NEXT\n\n\n\n\n"
+      puts "\n\n\n\n\nCHARITY ATTRIBUTES  OUTPUT NEXT"
       puts c.attributes
 =end
       donation = @cg.donations.build(:amount => 50,
@@ -101,6 +101,8 @@ describe Api::CharityGroupController do
       donation.save(false)
 
       post :add_charity, :format => :json, :id => @cg.id, :charity_id => c.id
+      @cg.donations.first.amount.should == donation.amount
+
       @cg.reload
 
       @cg.charities.find( c.id ).should be_nil
