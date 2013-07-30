@@ -89,9 +89,9 @@ describe Api::CharityGroupController do
     it "should not add a charity because the charity_group already has donations" do
       setup_authenticated_session
       c = Charity.new(:name => "test charity", :ein =>"8383838383838")
-=begin      c.save
+      c.save
       c.reload
-      puts c.name
+=begin      puts c.name
       puts c.id
       puts "CHARITY ATTRIBUTES  OUTPUT NEXT\n\n\n\n\n"
       puts c.attributes
