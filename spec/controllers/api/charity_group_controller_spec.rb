@@ -87,6 +87,38 @@ describe Api::CharityGroupController do
     end
   end
 
+  describe "rename_charity_group" do
+    it "should rename a charity_group" do
+      setup_authenticated_session
+      post :rename_charity_group, :format => :json, :id => @cg.id, :new_name => "some new name"
+#      cg = CharityGroup.find(@cg.id)
+      @cg.reload
+      @cg.name.should == "some new name"
+    end
+
+    it "should fail because charity_group already has donations" do
+      setup_authenticated_session
+      donation = @cg.donations.build(:amount => 50,
+                                         :charity_group_id => @cg.id)
+      donation.save(false)
+      post :rename_charity_group, :format => :json, :id => @cg.id, :new_name => "some new name"
+      @cg.reload
+      @cg.name.should == "Kendal"
+
+    end
+
+
+  end
+
+
+
+
+
+
+
+
+
+
 
 
 

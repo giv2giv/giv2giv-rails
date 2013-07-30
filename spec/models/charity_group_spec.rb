@@ -85,7 +85,7 @@ describe CharityGroup do
 
     it "should fail because charity does not exist" do
       cg = CharityGroup.new_with_charities( {:name => 'new charity', :charity_ids => [default_charity_1.id]} )
-      expect { cg.add_charity("383888") }.should raise_error
+      expect { cg.add_charity("38388834435652626") }.to raise_error
     end
 
 

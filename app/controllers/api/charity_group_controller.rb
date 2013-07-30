@@ -72,20 +72,34 @@ class Api::CharityGroupController < Api::BaseController
     group = CharityGroup.find(params[:id].to_s)
 
     respond_to do |format|
-      if !group.donations.first
+      if group.donations.first
         format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
       else
-        group.update_attribute( :name => params[:new_name] )
+        group.update_attributes(:name => params[:new_name])
+        group.save!
+        group
       end
     end #respond_to
 
   end #update
 
+
+
+
+
+
+
+
+
+
+
+
+
   def add_charity
     group = CharityGroup.find(params[:id].to_s)
 
     respond_to do |format|
-      if group.donations.first
+      if !group.donations.first
         group.add_charity(params[:charity_id])
       else
         format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
