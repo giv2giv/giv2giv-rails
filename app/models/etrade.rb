@@ -42,6 +42,26 @@ class ETrade
     return doc.xpath("//AccountListResponse//Account//netAccountValue").inner_text
   end
 
+  def self.get_account_id
+    doc = ETrade.get_accounts
+    return doc.xpath("//AccountListResponse//Account//accountId").inner_text.to_i
+  end
+
+  def self.get_detailed_account_balance
+    account_id = ETrade.get_account_id
+    return Nokogiri::XML(get("/accounts/rest/accountbalance/#{account_id}"))
+  end
+
+  def self.get_cash_available_for_withdrawal
+    doc = self.get_detailed_account_balance
+    return doc.xpath("//AccountBalanceResponse//accountBalance//cashAvailableForWithdrawal").inner_text.to_f
+  end
+
+  def self.get_net_cash
+    doc = self.get_detailed_account_balance
+    return doc.xpath("//AccountBalanceResponse//accountBalance//netCash").inner_text.to_f
+  end
+
   def self.method_missing(method_id, *args)
     if match = /get_products_by_([_a-zA-Z]\w*)/.match(method_id.to_s)
       attribute_names = match.captures.last.split('_and_')
