@@ -9,6 +9,8 @@ require 'nokogiri'
 class ETrade
   include HTTParty
   base_uri 'https://etws.etrade.com/'
+  #HTTParty should handle this for all subsequent requests,
+  #but if we don't want to use it we can just append to api calls
   format :xml
 
   #TODO:
@@ -62,17 +64,13 @@ class ETrade
     return doc.xpath("//AccountBalanceResponse//accountBalance//netCash").inner_text.to_f
   end
 
-  def self.method_missing(method_id, *args)
-    if match = /get_products_by_([_a-zA-Z]\w*)/.match(method_id.to_s)
-      attribute_names = match.captures.last.split('_and_')
+  def self.get_transcation_history
+    account_id = ETrade.get_account_id
+    return Nokogiri::XML(get("/accounts/rest/{account_id}/transactions"))
+  end
 
-      request = ""
-      attribute_names.each_with_index { |name, idx| request = request + name + "=" + args[idx] + (attribute_names.length-1 == idx ? "" : "&") }
+  def self.get_fees
 
-      get_products(request)
-    else
-      super
-    end
   end
 
 end
