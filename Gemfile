@@ -3,6 +3,7 @@ source 'https://rubygems.org'
 gem 'rails', '3.2.13'
 gem 'jruby-openssl'
 gem 'bcrypt-ruby'
+gem "oauth", "~> 0.4.7"
 
 
 # Gems used to interact with payment processors
