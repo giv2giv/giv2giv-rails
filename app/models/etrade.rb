@@ -69,8 +69,18 @@ class ETrade
     return Nokogiri::XML(get("/accounts/rest/{account_id}/transactions"))
   end
 
+  #TODO: testing - the etrade doc is not specific enough on selecting from all groups at once
   def self.get_fees
+    account_id = ETrade.get_account_id
+    return Nokogiri::XML(get("/accounts/rest/{account_id}/transactions/WITHDRAWALS/fee"))
+  end
 
+  def self.get_cumulative_fee_total
+    doc = ETrade.get_fees
+    total = 0.00
+    doc.xpath("//transactions//transaction//amount").each do |fee|
+      total += fee.inner_text.to_f
+    end
   end
 
 end
