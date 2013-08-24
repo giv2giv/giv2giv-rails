@@ -57,7 +57,7 @@ class Api::CharityGroupController < Api::BaseController
     CharityGroup.all("name: \"#{ss}\"", :type => :fulltext).each do |cg|
       charity_groups << cg
     end
-    
+
     charity_groups = charity_groups.compact.flatten.uniq
     respond_to do |format|
       if !charity_groups.empty?
@@ -72,7 +72,7 @@ class Api::CharityGroupController < Api::BaseController
     group = CharityGroup.find(params[:id].to_s)
 
     respond_to do |format|
-      if group.donations.size >= 1 do
+      if group.donations.size >= 1
         format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
       else
         group.update_attribute( :name => params[:new_name] )
@@ -85,7 +85,7 @@ class Api::CharityGroupController < Api::BaseController
     group = CharityGroup.find(params[:id].to_s)
 
     respond_to do |format|
-      if group.donations.size < 1 do
+      if group.donations.size < 1
         group.add(params[:charity])
       else
         format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
@@ -94,20 +94,17 @@ class Api::CharityGroupController < Api::BaseController
 
   end
 
-
-
   def destroy
     group = CharityGroup.find(params[:id].to_s)
 
     respond_to do |format|
-      if group.donations.size < 1 do
+      if group.donations.size < 1
         group.delete(params[:charity])
         format.json { render json: "Destroyed #{params[:charity]} record." }
       else
         format.json { redner json: "Cannot edit Charity Group when it already has donations to it" }
-      end #if
-
-  end #destroy 
-
+      end
+    end
+  end #destroy
 
 end

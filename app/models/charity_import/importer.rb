@@ -1,4 +1,4 @@
-require 'poi' # http://poi.apache.org/
+#require 'poi' # http://poi.apache.org/
 require 'nokogiri'
 require 'typhoeus'
 
