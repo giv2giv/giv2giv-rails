@@ -1,4 +1,4 @@
-class Charity < Neo4j::Rails::Model
+class Charity < ActiveRecord::Base
 
   property :id
   property :created_at

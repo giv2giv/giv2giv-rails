@@ -1,4 +1,4 @@
-class Session < Neo4j::Rails::Model
+class Session < ActiveRecord::Base
   EXPIRES_IN_HOURS = 4
 
   property :id

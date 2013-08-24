@@ -1,6 +1,6 @@
 require 'bcrypt'
 
-class Donor < Neo4j::Rails::Model
+class Donor < ActiveRecord::Base
   include BCrypt
 
   property :name, :index => :fulltext

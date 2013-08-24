@@ -1,6 +1,6 @@
 require 'dwolla'
 
-class PaymentAccount < Neo4j::Rails::Model
+class PaymentAccount < ActiveRecord::Base
   VALID_PROCESSORS = %w(dwolla)
 
   property :id

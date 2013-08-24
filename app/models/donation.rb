@@ -1,4 +1,4 @@
-class Donation < Neo4j::Rails::Model
+class Donation < ActiveRecord::Base
   property :id
   property :created_at
   property :updated_at

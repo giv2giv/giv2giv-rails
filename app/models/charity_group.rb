@@ -1,5 +1,5 @@
 # formerly 'endowment'
-class CharityGroup < Neo4j::Rails::Model
+class CharityGroup < ActiveRecord::Base
   property :id
   property :created_at
   property :updated_at

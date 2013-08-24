@@ -1,4 +1,4 @@
-class Tag < Neo4j::Rails::Model
+class Tag < ActiveRecord::Base
   property :name, :index => :fulltext
 
   property :id

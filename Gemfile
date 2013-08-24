@@ -1,9 +1,9 @@
 source 'https://rubygems.org'
 
 gem 'rails', '3.2.13'
-gem 'jruby-openssl'
+#gem 'jruby-openssl'
 gem 'bcrypt-ruby'
-
+gem 'mysql2'
 
 # Gems used to interact with payment processors
 gem 'dwolla-ruby'
@@ -11,14 +11,14 @@ gem 'dwolla-ruby'
 # Gems used for the charity import
 gem 'nokogiri', :require => false
 gem 'typhoeus', :require => false
-gem 'jruby-poi', :require => false
+#gem 'jruby-poi', :require => false
 
 
-gem "neo4j", ">= 2.3.0"
-gem 'neo4j-community', '1.9'
-gem 'neo4j-advanced', '1.9'
-gem 'neo4j-enterprise', '1.9'
-gem 'neo4j-will_paginate'
+#gem "neo4j", ">= 2.3.0"
+#gem 'neo4j-community', '1.9'
+#gem 'neo4j-advanced', '1.9'
+#gem 'neo4j-enterprise', '1.9'
+#gem 'neo4j-will_paginate'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -36,5 +36,6 @@ gem 'jquery-rails'
 
 group :development, :test do
   gem "rspec-rails"
-  gem "ruby-debug"
+#  gem "ruby-debug"
+  gem 'byebug'
 end
