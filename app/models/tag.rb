@@ -1,3 +1,4 @@
+=begin
 class Tag < ActiveRecord::Base
   property :name, :index => :fulltext
 
@@ -26,3 +27,4 @@ class Tag < ActiveRecord::Base
   end # end self
 
 end
+=end

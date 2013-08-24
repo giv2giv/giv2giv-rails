@@ -3,23 +3,8 @@ require 'bcrypt'
 class Donor < ActiveRecord::Base
   include BCrypt
 
-  property :name, :index => :fulltext
-  property :email, :index => :fulltext # for case insensitive validation
-  property :password_hash, :type => :string # includes version, cost, salt and password hash
-
-  property :id
-  property :created_at
-  property :updated_at
-  property :facebook_id, :index => :exact
-  property :address
-  property :city
-  property :state
-  property :zip
-  property :country
-  property :phone_number
-
-  has_n(:donations).to(Donation)
-  has_n(:payment_accounts).to(PaymentAccount)
+  has_many :donations, through: :payment_accounts
+  has_many :payment_accounts
 
   EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
 

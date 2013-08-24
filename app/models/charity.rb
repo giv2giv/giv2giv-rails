@@ -1,21 +1,8 @@
 class Charity < ActiveRecord::Base
 
-  property :id
-  property :created_at
-  property :updated_at
-  property :name, :index => :fulltext
-  property :ein, :index => :exact
-  property :address
-  property :city
-  property :state
-  property :zip
-  property :ntee_code
-  property :classification_code
-  property :subsection_code
-  property :activity_code
+  has_and_belongs_to_many :charity_groups
+#  has_n(:tags).from(Tag, :charities)
 
-  has_n(:charity_groups).from(CharityGroup, :charities)
-  has_n(:tags).from(Tag, :charities)
 
   validates :ein, :presence => true,
                   :uniqueness => true
