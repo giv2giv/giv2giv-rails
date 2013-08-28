@@ -15,4 +15,8 @@
 /tmp
 
 /config/app.yml
+
+# Ignore dwolla keys
+/config/dwolla.yml
+
 /vendor/gems*
