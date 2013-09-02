@@ -82,7 +82,8 @@ class ETrade
     return Nokogiri::XML(get("/accounts/rest/#{account_id.to_s}/transactions"))
   end
 
-  def self.get_deposits_for_range(start_date, end_date)
+  def self.get_movement_for_range(start_date=Time.now.to_datetime, end_date=Time.now_to_date)
+    #reason for now-now default is to make sure it returns null in base case - unless we have rspec in place
     start_date_santized="#{start_date.day.to_s}#{start_date.month.to_s}#{start_date.year.to_s}"
     end_date_santized="#{end_date.day.to_s}#{end_date.month.to_s}#{end_date.year.to_s}"
     account_id = ETrade.get_account_id
