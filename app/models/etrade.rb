@@ -21,11 +21,11 @@ class ETrade
   consumer_key = etrade_consumer.oauth_consumer_key
   access_token = etrade_consumer.consumer_secret
 
-  redirect_uri = 'https://www.giv2giv.org/api/oauth_return'
+  request_url = 'https://etws.etrade.com/oauth/request_token'
 
   def self.get_auth_url
     # To begin the OAuth process, send the user off to authUrl
-    authUrl = ETrade::OAuth.get_auth_url(redirect_uri)
+    authUrl = ETrade::OAuth.get_auth_url(request_url)
     return authUrl
     # We still need a route for the oauth return
 
