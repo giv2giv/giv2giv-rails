@@ -15,11 +15,11 @@ class ETrade
   format :xml
 
   # load dwolla_secret.api_key, dwolla_secret.api_secret
-  dwolla_secret = YAML::load( File.open( './dwolla.yml' ) )
+  etrade_consumer = YAML::load( File.open( './etrade_consumer.yml' ) )
 
   # Set in Dwolla object
-  Dwolla::api_key = dwolla_secret.api_key
-  Dwolla::api_secret = dwolla_secret.api_secret
+  ETrade::api_key = etrade_consumer.oauth_consumer_key
+  ETrade::api_secret = etrade_consumer.consumer_secret
 
   ACCESS_TOKEN = {
     :token => \access_token.token\,
