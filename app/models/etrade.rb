@@ -18,8 +18,8 @@ class ETrade
   etrade_consumer = YAML::load( File.open( './etrade_consumer.yml' ) )
 
   # Set in Dwolla object
-  ETrade::api_key = etrade_consumer.oauth_consumer_key
-  ETrade::api_secret = etrade_consumer.consumer_secret
+  consumer_key = etrade_consumer.oauth_consumer_key
+  access_token = etrade_consumer.consumer_secret
 
   redirect_uri = 'https://www.giv2giv.org/api/oauth_return'
 
@@ -40,7 +40,7 @@ class ETrade
     #end
   end
 
-  def self.authorize(oauth_consumer_key=CONSUMER_KEY, oauth_token=ACCESS_TOKEN)
+  def self.authorize(oauth_consumer_key=consumer_key, oauth_token=access_token)
     get("https://us.etrade.com/e/etws/authorize?key=#{oauth_consumer_key}&token=#{oauth_token}")
   end
 
