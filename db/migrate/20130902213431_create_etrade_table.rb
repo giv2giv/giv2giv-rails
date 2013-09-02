@@ -1,6 +1,6 @@
 class CreateEtradeTable < ActiveRecord::Migration
   def change
-    create_table :etrade do |t|
+    create_table :etrades do |t|
       t.timestamps
       t.datetime :date
       t.float :balance, null: false

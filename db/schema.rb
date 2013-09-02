@@ -84,7 +84,7 @@ ActiveRecord::Schema.define(:version => 20130902213431) do
     t.datetime "updated_at",    :null => false
   end
 
-  create_table "etrade", :force => true do |t|
+  create_table "etrades", :force => true do |t|
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
     t.datetime "date"
