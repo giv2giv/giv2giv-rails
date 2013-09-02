@@ -13,7 +13,6 @@ gem 'net/http'
 
 # Gems used for the charity import
 gem 'nokogiri', :require => false
-gem 'yaml',     :require => false
 gem 'typhoeus', :require => false
 gem 'spreadsheet'
 
