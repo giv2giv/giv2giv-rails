@@ -85,9 +85,11 @@ ActiveRecord::Schema.define(:version => 20130902213431) do
   end
 
   create_table "etrade", :force => true do |t|
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
     t.datetime "date"
-    t.float    "balance"
-    t.float    "cumulative_fees"
+    t.float    "balance",    :null => false
+    t.float    "fees"
   end
 
   create_table "payment_accounts", :force => true do |t|
