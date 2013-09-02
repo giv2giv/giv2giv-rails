@@ -9,7 +9,6 @@ gem 'mysql2'
 gem 'dwolla-ruby'
 gem 'oauth'
 gem 'httparty'
-gem 'net/http'
 
 # Gems used for the charity import
 gem 'nokogiri', :require => false
