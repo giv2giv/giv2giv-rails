@@ -25,7 +25,7 @@ class ETrade
 
   def self.get_auth_url
     # To begin the OAuth process, send the user off to authUrl
-    authUrl = Dwolla::OAuth.get_auth_url(redirect_uri)
+    authUrl = ETrade::OAuth.get_auth_url(redirect_uri)
     return authUrl
     # We still need a route for the oauth return
 
@@ -35,7 +35,7 @@ class ETrade
     #   a never-expiring OAuth access token like this sinatra route example
     #get '/oauth_return' do
       #code = params['code']
-      #token = Dwolla::OAuth.get_token(code, redirect_uri)
+      #token = Etrade::OAuth.get_token(code, redirect_uri)
       #"Your never-expiring OAuth access token is: <b>#{token}</b>"
     #end
   end
