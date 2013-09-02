@@ -75,7 +75,7 @@ class ETrade
     return doc.xpath("//AccountBalanceResponse//accountBalance//netCash").inner_text.to_f
   end
 
-  def self.get_transcation_history
+  def self.get_transaction_history
     account_id = ETrade.get_account_id
     return Nokogiri::XML(get("/accounts/rest/{account_id}/transactions"))
   end
