@@ -21,10 +21,24 @@ class ETrade
   ETrade::api_key = etrade_consumer.oauth_consumer_key
   ETrade::api_secret = etrade_consumer.consumer_secret
 
-  ACCESS_TOKEN = {
-    :token => \access_token.token\,
-    :secret => \access_token.secret\
-  }
+  redirect_uri = 'https://www.giv2giv.org/api/oauth_return'
+
+  def self.get_auth_url
+    # To begin the OAuth process, send the user off to authUrl
+    authUrl = Dwolla::OAuth.get_auth_url(redirect_uri)
+    return authUrl
+    # We still need a route for the oauth return
+
+    # STEP 2:
+    #   Exchange the temporary code given
+    #   to us in the querystring, for
+    #   a never-expiring OAuth access token like this sinatra route example
+    #get '/oauth_return' do
+      #code = params['code']
+      #token = Dwolla::OAuth.get_token(code, redirect_uri)
+      #"Your never-expiring OAuth access token is: <b>#{token}</b>"
+    #end
+  end
 
   #For y'alls error checkings
   def self.test_connection

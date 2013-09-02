@@ -26,7 +26,7 @@ def self.get_auth_url
 
   # We still need a route for the oauth return
 
-  # STEP 2: 
+  # STEP 2:
   #   Exchange the temporary code given
   #   to us in the querystring, for
   #   a never-expiring OAuth access token like this sinatra route example
