@@ -7,6 +7,7 @@ require 'yaml'
 #TODO: revisit gems to check for dependencies. I just open up a pandora's box of security flaws.
 
 class Etrade < ActiveRecord::Base
+  validates :balance, :presence => true
   include HTTParty
 
   def self.get_auth_url
@@ -100,7 +101,7 @@ class Etrade < ActiveRecord::Base
   def self.update_balance
     balance = self.get_net_account_value
     fees = self.get_cumulative_fee_total
-    Etrade.new()
+    Etrade.create({ :balance => balance, :fees => fees, :date => Time.now.to_datetime }
   end
 end
 
