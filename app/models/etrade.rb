@@ -40,11 +40,6 @@ class ETrade
     #end
   end
 
-  #For y'alls error checkings
-  def self.test_connection
-
-  end
-
   def self.authorize(oauth_consumer_key=CONSUMER_KEY, oauth_token=ACCESS_TOKEN)
     get("https://us.etrade.com/e/etws/authorize?key=#{oauth_consumer_key}&token=#{oauth_token}")
   end
