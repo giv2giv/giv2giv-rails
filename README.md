@@ -1,6 +1,6 @@
 ## Welcome to the giv2giv API
 
-This API provides simple REST endpoints for features shared by the front end applications (also located in this github account). It uses JRuby, Rails and embedded Neo4j (currently v1.9.M03).
+This API provides simple REST endpoints for features shared by the front end applications (also located in this github account). It uses Ruby 1.9.3, Rails and MySQL.
 
 You can jump into our [chat room](https://lightcastle.campfirenow.com/4d2e5) to keep up with development as it happens.
 
@@ -8,10 +8,10 @@ Want to help out? Checkout [giv2giv](http://www.giv2giv.org) and see [Contributi
 
 ## Getting Started
 
-1. Install Jruby
+1. Install Ruby
 
-        # We are using rvm so this is how we installed jruby
-        rvm install jruby-1.7.4
+        # We are using rvm (https://rvm.io/) so this is how we installed ruby
+        rvm install ruby-1.9.3
 
 2. Clone giv2giv-rails
 
@@ -21,6 +21,13 @@ Want to help out? Checkout [giv2giv](http://www.giv2giv.org) and see [Contributi
 
         bundle install
 
+4. Setup your database
+(If this doesn't work, then you may need to install mysql, and change the
+ information in config/database.yml.)
+
+		rake db:setup
+		
+
 4. Start the server!
 
         rails s
@@ -29,21 +36,13 @@ Want to help out? Checkout [giv2giv](http://www.giv2giv.org) and see [Contributi
 
         rails c
 
-**You must trigger the start of Neo4j in server and console for them to cluster**
-
-        # in console
-        Donor.first
-        # with server running
-        curl -X POST -H "Content-Type: application/json" -d '{"email":"kmiller@ltc.com","password":"welcome"}' http://localhost:3000/api/sessions/create.json
-
 ### Importing Initial Charities
 
 1. Stop the server if it's running
 
-2. Start console and trigger neo4j start
+2. Start console
 
         rails c
-        Donor.first
 
 3. In another terminal tab, download and import a single file
 

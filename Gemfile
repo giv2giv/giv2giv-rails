@@ -11,8 +11,7 @@ gem 'dwolla-ruby'
 # Gems used for the charity import
 gem 'nokogiri', :require => false
 gem 'typhoeus', :require => false
-#gem 'jruby-poi', :require => false
-
+gem 'spreadsheet' 
 
 #gem "neo4j", ">= 2.3.0"
 #gem 'neo4j-community', '1.9'
@@ -37,5 +36,4 @@ gem 'jquery-rails'
 group :development, :test do
   gem "rspec-rails"
 #  gem "ruby-debug"
-  gem 'byebug'
 end

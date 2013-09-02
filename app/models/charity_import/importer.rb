@@ -1,6 +1,7 @@
 #require 'poi' # http://poi.apache.org/
 require 'nokogiri'
 require 'typhoeus'
+require 'spreadsheet'
 
 module CharityImport
   class Importer
@@ -84,10 +85,15 @@ module CharityImport
 
       def tag_charity(charity)
         tags = get_all_tags(charity)
+        puts "Got all the tags: #{tags}"
         tags.each do |name|
           tag = Tag.find_or_create_by_name(name)
-          tag.charities << charity
-          tag.save
+          begin
+            tag.charities << charity
+            tag.save
+          rescue ActiveRecord::RecordNotUnique => e
+            # just leave it if it already eixsts.
+          end
         end
       end
 
@@ -151,8 +157,10 @@ module CharityImport
 
         puts "Reading spreadsheet: #{file}" if @@verbose
 
-        book = POI::Workbook.open(file_with_dir)
-        sheet = book.worksheets[0] # use the first sheet
+        book = Spreadsheet.open(file_with_dir)
+#        book = POI::Workbook.open(file_with_dir)
+        sheet = book.worksheet(0)
+#        sheet = book.worksheets[0] # use the first sheet
         rows = sheet.rows
         rows.each_with_index do |row, i|
           next if i == 0 # first row is headings

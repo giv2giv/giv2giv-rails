@@ -33,9 +33,6 @@ GEM
     bcrypt-ruby (3.0.1)
     bcrypt-ruby (3.0.1-java)
     builder (3.0.4)
-    byebug (1.8.2)
-      columnize (~> 0.3.6)
-      debugger-linecache (~> 1.2.0)
     coffee-rails (3.2.2)
       coffee-script (>= 2.2.0)
       railties (~> 3.2.0)
@@ -43,8 +40,6 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.6.2)
-    columnize (0.3.6)
-    debugger-linecache (1.2.0)
     diff-lcs (1.2.4)
     dwolla-ruby (2.1.1)
       addressable (>= 2)
@@ -116,11 +111,14 @@ GEM
       rspec-core (~> 2.13.0)
       rspec-expectations (~> 2.13.0)
       rspec-mocks (~> 2.13.0)
+    ruby-ole (1.2.11.7)
     sass (3.2.9)
     sass-rails (3.2.6)
       railties (~> 3.2.0)
       sass (>= 3.1.10)
       tilt (~> 1.3)
+    spreadsheet (0.8.9)
+      ruby-ole (>= 1.0)
     sprockets (2.2.2)
       hike (~> 1.2)
       multi_json (~> 1.0)
@@ -147,7 +145,6 @@ PLATFORMS
 
 DEPENDENCIES
   bcrypt-ruby
-  byebug
   coffee-rails (~> 3.2.1)
   dwolla-ruby
   jquery-rails
@@ -156,6 +153,7 @@ DEPENDENCIES
   rails (= 3.2.13)
   rspec-rails
   sass-rails (~> 3.2.3)
+  spreadsheet
   therubyrhino
   typhoeus
   uglifier (>= 1.0.3)

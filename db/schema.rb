@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130824181440) do
+ActiveRecord::Schema.define(:version => 20130902162932) do
 
   create_table "charities", :force => true do |t|
     t.string   "name",                :null => false
@@ -40,6 +40,13 @@ ActiveRecord::Schema.define(:version => 20130824181440) do
   add_index "charities_charity_groups", ["charity_group_id", "charity_id"], :name => "charity_groups_charities_compound"
   add_index "charities_charity_groups", ["charity_group_id"], :name => "index_charities_charity_groups_on_charity_group_id"
   add_index "charities_charity_groups", ["charity_id"], :name => "index_charities_charity_groups_on_charity_id"
+
+  create_table "charities_tags", :id => false, :force => true do |t|
+    t.integer "charity_id", :null => false
+    t.integer "tag_id",     :null => false
+  end
+
+  add_index "charities_tags", ["charity_id", "tag_id"], :name => "index_charities_tags_on_charity_id_and_tag_id", :unique => true
 
   create_table "charity_groups", :force => true do |t|
     t.string   "name",                    :null => false
@@ -98,5 +105,13 @@ ActiveRecord::Schema.define(:version => 20130824181440) do
 
   add_index "sessions", ["session_id"], :name => "index_sessions_on_session_id"
   add_index "sessions", ["updated_at"], :name => "index_sessions_on_updated_at"
+
+  create_table "tags", :force => true do |t|
+    t.text     "name"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "tags", ["id"], :name => "index_tags_on_id"
 
 end
