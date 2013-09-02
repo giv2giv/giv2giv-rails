@@ -15,6 +15,9 @@ gem 'nokogiri', :require => false
 gem 'typhoeus', :require => false
 gem 'spreadsheet'
 
+# A little pagination
+gem 'will_paginate', '~> 3.0'
+
 #gem "neo4j", ">= 2.3.0"
 #gem 'neo4j-community', '1.9'
 #gem 'neo4j-advanced', '1.9'
