@@ -14,7 +14,7 @@ class ETrade
   #but if we don't want to use it we can just append to api calls
   format :xml
 
-  # load dwolla_secret.api_key, dwolla_secret.api_secret
+  # load etrade consumer oauth key
   etrade_consumer = YAML::load( File.open( './etrade_consumer.yml' ) )
 
   # Set in Dwolla object
@@ -76,6 +76,7 @@ class ETrade
   end
 
   def self.get_transaction_history
+  #last 30 days
     account_id = ETrade.get_account_id
     return Nokogiri::XML(get("/accounts/rest/{account_id}/transactions"))
   end
