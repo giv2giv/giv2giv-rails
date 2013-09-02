@@ -13,12 +13,11 @@ class Charity < ActiveRecord::Base
     def create_or_update(options = {})
       raise ArgumentError unless options[:ein].present? && options[:name].present?
 
-      charity = Charity.first_or_initialize(:ein => options[:ein])
+      charity = Charity.where(:ein => options[:ein]).first_or_create
       charity.attributes = options.except(:ein)
       charity.save
       charity
     end
-
 
   end # end self
 
