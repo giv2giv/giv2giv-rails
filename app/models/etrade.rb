@@ -3,7 +3,7 @@ require 'oauth'
 require 'net/http'
 require 'httparty'
 require 'nokogiri'
-requite 'yaml'
+require 'yaml'
 #screen scrape or oauth? decisions, decisions.
 #TODO: revisit gems to check for dependencies. I just open up a pandora's box of security flaws.
 
