@@ -4,7 +4,6 @@ require 'net/http'
 require 'httparty'
 require 'nokogiri'
 require 'yaml'
-#screen scrape or oauth? decisions, decisions.
 #TODO: revisit gems to check for dependencies. I just open up a pandora's box of security flaws.
 
 class Etrade < ActiveRecord::Base
@@ -77,7 +76,7 @@ class Etrade < ActiveRecord::Base
     return doc.xpath("//AccountBalanceResponse//accountBalance//netCash").inner_text.to_f
   end
 
-  #begin transactional API
+  #Begin transactions
   def self.get_transaction_history
   #last 30 days
     account_id = ETrade.get_account_id
@@ -98,7 +97,7 @@ class Etrade < ActiveRecord::Base
     end
   end
 
-  self.update_balance
+  def self.update_balance
     balance = self.get_net_account_value
     fees = self.get_cumulative_fee_total
     Etrade.new()
