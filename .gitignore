@@ -20,3 +20,5 @@
 /config/dwolla.yml
 
 /vendor/gems*
+
+/.idea
