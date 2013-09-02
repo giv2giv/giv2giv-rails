@@ -75,10 +75,23 @@ class ETrade
     return doc.xpath("//AccountBalanceResponse//accountBalance//netCash").inner_text.to_f
   end
 
+  #begin transactional API
   def self.get_transaction_history
   #last 30 days
     account_id = ETrade.get_account_id
-    return Nokogiri::XML(get("/accounts/rest/{account_id}/transactions"))
+    return Nokogiri::XML(get("/accounts/rest/#{account_id.to_s}/transactions"))
+  end
+
+  def self.get_deposits_for_range(start_date, end_date)
+    start_date_santized="#{start_date.day.to_s}#{start_date.month.to_s}#{start_date.year.to_s}"
+    end_date_santized="#{end_date.day.to_s}#{end_date.month.to_s}#{end_date.year.to_s}"
+    account_id = ETrade.get_account_id
+
+    #between deposits and withdrawls we should have all changes to the account... how do i figure out fluctuations?
+    #get all deposits for time range
+    deposits = Nokogiri::XML(get("https://etws.etrade.com/accounts/rest/#{account_id.to_s}/transactions/DEPOSITS?startDate=#{start_date_santized}&endDate=#{end_date_santized}"))
+    #get all fees for time range
+    deposits = Nokogiri::XML(get("https://etws.etrade.com/accounts/rest/#{account_id.to_s}/transactions/WITHDRAWALS?startDate=#{start_date_santized}&endDate=#{end_date_santized}"))
   end
 
   #TODO: testing - the etrade doc is not specific enough on selecting from all groups at once
