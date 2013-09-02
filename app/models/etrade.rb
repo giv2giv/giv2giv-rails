@@ -7,24 +7,26 @@ require 'yaml'
 #screen scrape or oauth? decisions, decisions.
 #TODO: revisit gems to check for dependencies. I just open up a pandora's box of security flaws.
 
-class ETrade
+class Etrade < ActiveRecord::Base
   include HTTParty
-  base_uri 'https://etws.etrade.com/'
-  #HTTParty should handle this for all subsequent requests,
-  #but if we don't want to use it we can just append to api calls
-  format :xml
-
-  # load etrade consumer oauth key
-  etrade_consumer = YAML::load( File.open( './etrade_consumer.yml' ) )
-
-  # Set in Dwolla object
-  consumer_key = etrade_consumer.oauth_consumer_key
-  access_token = etrade_consumer.consumer_secret
-
-  request_url = 'https://etws.etrade.com/oauth/request_token'
 
   def self.get_auth_url
+  #TODO: MAKE THIS WORK
     # To begin the OAuth process, send the user off to authUrl
+
+    base_uri 'https://etws.etrade.com/'
+    #HTTParty should handle this for all subsequent requests,
+    #but if we don't want to use it we can just append to api calls
+    format :xml
+
+    # load etrade consumer oauth key
+    etrade_consumer = YAML::load( File.open( './etrade_consumer.yml' ) )
+
+    # Set in Dwolla object
+    consumer_key = etrade_consumer.oauth_consumer_key
+    access_token = etrade_consumer.consumer_secret
+
+    request_url = 'https://etws.etrade.com/oauth/request_token'
     authUrl = ETrade::OAuth.get_auth_url(request_url)
     return authUrl
     # We still need a route for the oauth return
@@ -82,19 +84,6 @@ class ETrade
     return Nokogiri::XML(get("/accounts/rest/#{account_id.to_s}/transactions"))
   end
 
-  def self.get_movement_for_range(start_date=Time.now.to_datetime, end_date=Time.now_to_date)
-    #reason for now-now default is to make sure it returns null in base case - unless we have rspec in place
-    start_date_santized="#{start_date.day.to_s}#{start_date.month.to_s}#{start_date.year.to_s}"
-    end_date_santized="#{end_date.day.to_s}#{end_date.month.to_s}#{end_date.year.to_s}"
-    account_id = ETrade.get_account_id
-
-    #between deposits and withdrawls we should have all changes to the account... how do i figure out fluctuations?
-    #get all deposits for time range
-    deposits = Nokogiri::XML(get("https://etws.etrade.com/accounts/rest/#{account_id.to_s}/transactions/DEPOSITS?startDate=#{start_date_santized}&endDate=#{end_date_santized}"))
-    #get all fees for time range
-    deposits = Nokogiri::XML(get("https://etws.etrade.com/accounts/rest/#{account_id.to_s}/transactions/WITHDRAWALS?startDate=#{start_date_santized}&endDate=#{end_date_santized}"))
-  end
-
   #TODO: testing - the etrade doc is not specific enough on selecting from all groups at once
   def self.get_fees
     account_id = ETrade.get_account_id
@@ -109,5 +98,10 @@ class ETrade
     end
   end
 
+  self.update_balance
+    balance = self.get_net_account_value
+    fees = self.get_cumulative_fee_total
+    Etrade.new()
+  end
 end
 
