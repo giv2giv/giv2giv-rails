@@ -8,7 +8,6 @@ require 'yaml'
 
 class Etrade < ActiveRecord::Base
   validates :balance, :presence => true
-  include HTTParty
 
   def self.get_auth_url
   #TODO: MAKE THIS WORK
@@ -101,7 +100,7 @@ class Etrade < ActiveRecord::Base
   def self.update_balance
     balance = self.get_net_account_value
     fees = self.get_cumulative_fee_total
-    Etrade.create({ :balance => balance, :fees => fees, :date => Time.now.to_datetime }
+    Etrade.create({ :balance => balance, :fees => fees, :date => Time.now.to_datetime })
   end
 end
 

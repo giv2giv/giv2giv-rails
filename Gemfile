@@ -7,11 +7,15 @@ gem 'mysql2'
 
 # Gems used to interact with payment processors
 gem 'dwolla-ruby'
+gem 'oauth'
+gem 'httparty'
+gem 'net/http'
 
 # Gems used for the charity import
 gem 'nokogiri', :require => false
+gem 'yaml',     :require => false
 gem 'typhoeus', :require => false
-gem 'spreadsheet' 
+gem 'spreadsheet'
 
 #gem "neo4j", ">= 2.3.0"
 #gem 'neo4j-community', '1.9'
