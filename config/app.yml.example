@@ -1,9 +1,14 @@
 # sample settings
 
-dwolla:
- api_key:        asdf
- api_secret:     meow
- account_id:     123-456-7890
- company_token:  woof
-
 force_ssl: true
+
+dwolla:
+   api_key:        asdf
+   api_secret:     meow
+   account_id:     123-456-7890
+   company_token:  woof
+
+etrade:
+   oauth_consumer_key:  happy
+   consumer_secret:     fun
+

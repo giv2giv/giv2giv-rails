@@ -22,8 +22,8 @@ class Etrade < ActiveRecord::Base
     etrade_consumer = YAML::load( File.open( './etrade_consumer.yml' ) )
 
     # Set in Dwolla object
-    consumer_key = etrade_consumer.oauth_consumer_key
-    access_token = etrade_consumer.consumer_secret
+    consumer_key = App.etrade.oauth_consumer_key
+    access_token = App.etrade.consumer_secret
 
     request_url = 'https://etws.etrade.com/oauth/request_token'
     authUrl = ETrade::OAuth.get_auth_url(request_url)

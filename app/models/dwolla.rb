@@ -5,18 +5,33 @@ require 'dwolla'
 require 'yaml'
 
 
-# load dwolla_secret.api_key, dwolla_secret.api_secret
-dwolla_secret = YAML::load( File.open( './dwolla.yml' ) )
-
 # Set in Dwolla object
-Dwolla::api_key = dwolla_secret.api_key
-Dwolla::api_secret = dwolla_secret.api_secret
+Dwolla::api_key = App.dwolla.api_key
+Dwolla::api_secret = App.dwolla.api_secret
 
 
 
-class g2gDwolla
+class Company_Dwolla
 
-redirect_uri = 'https://www.giv2giv.org/api/oauth_return'
+Dwolla::token = App.dwolla.company_token
+
+def self.get_company_balance
+  begin
+    Dwolla::Balance.get
+  rescue Dwolla::APIError => error
+    puts "Company_Dwolla Dwolla::Balance.get didn't work"
+  end
+end
+
+
+end # end of Company_Dwolla class
+
+
+
+class Donor_Dwolla
+
+
+redirect_uri = 'https://www.giv2giv.org/api/oauth_return' # This is where we want dwolla to send folks after authorizing g2g at dwolla.com
 
 
 def self.get_auth_url
@@ -40,7 +55,6 @@ end
 
 def self.set_token(token=nil)
   Dwolla::token = token
-  account_info = Dwolla::Users.get #get user's data like Id, Name, Image, City, State, Latitude, Longitude - I *think* all these are possible
 end
 
 def self.get_donor_balance
@@ -58,16 +72,21 @@ def self.make_donation(amount=nil)
 
   begin
     # This is fantastically undocumented - arguments are: sourceId, amount ?
+
+    account_info = Dwolla::Users.get #get user's data like Id, Name, Image, City, State, Latitude, Longitude - I *think* all these are possible
+
     transaction_id = Dwolla::Request.create({
-    :Id => account_info['Id'],
-    :amount => amount
+      :sourceId => account_info['Id'],
+      :amount => amount
     })
     #We need to store this transaction_id somewhere because Dwolla will callback with it
+    #webhooks are specified via the dwolla.com/applications site
   rescue
     puts "request didn't work - account_info is scoped incorrectly?"
   end
 
-end
+end 
+
+end # End of Donor_Dwolla class
 
 
-end #end of class g2gDwolla
