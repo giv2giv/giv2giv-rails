@@ -1,12 +1,7 @@
 # formerly 'endowment'
-class CharityGroup < Neo4j::Rails::Model
-  property :id
-  property :created_at
-  property :updated_at
-  property :name, :index => :fulltext # describe this group "Help the Kids"
-
-  has_n(:donations).to(Donation)
-  has_n(:charities).to(Charity)
+class CharityGroup < ActiveRecord::Base
+  has_many :donations
+  has_and_belongs_to_many :charities
 
   validates :name, :presence => true,
                    :uniqueness => { :case_sensitive => false }

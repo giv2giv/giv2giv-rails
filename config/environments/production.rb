@@ -54,6 +54,10 @@ Giv2givRails::Application.configure do
   # Enable threaded mode
   config.threadsafe!
 
+  # Load the environment if the a rake task is called.
+  # see: http://stackoverflow.com/questions/4300240/rails-3-rake-task-cant-find-model-in-production
+  config.dependency_loading = true if $rails_rake_task
+
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation can not be found)
   config.i18n.fallbacks = true

@@ -38,14 +38,9 @@ RSpec.configure do |config|
   config.order = "random"
 
   config.before(:suite) do
-    delete_neo4j_database
+
   end
 
-end
-
-def delete_neo4j_database
-  path = Giv2givRails::Application.config.neo4j.storage_path
-  FileUtils.rm_rf(path)
 end
 
 def setup_authenticated_session(donor = default_donor)

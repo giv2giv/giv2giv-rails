@@ -7,8 +7,7 @@ require "action_mailer/railtie"
 require "active_resource/railtie"
 require "sprockets/railtie"
 require "rails/test_unit/railtie"
-
-#require 'neo4j/rails/ha_console/railtie' if Rails.env.development?
+require 'rails/all'
 
 if defined?(Bundler)
   # If you precompile assets before deploying to production, use this line
@@ -47,15 +46,11 @@ module Giv2givRails
     # Configure sensitive parameters which will be filtered from the log file.
     config.filter_parameters += [:password]
 
-    # Enable Neo4j generators, e.g:  rails generate model Admin --parent User
     config.generators do |g|
-      g.orm             :neo4j
+      g.orm             :active_record
+      g.template_engine :erb
       g.test_framework  :rspec, :fixture => false
     end
-
-    # Configure where the neo4j database should exist
-    config.neo4j.storage_path = "#{config.root}/db/neo4j-#{Rails.env}" if Rails.env.test? || Rails.env.development?
-    config.neo4j.storage_path = '/var/lib/giv-neo4j' if Rails.env.production? # FIXME: move this to a config
 
     # Enable escaping HTML in JSON.
     config.active_support.escape_html_entities_in_json = true

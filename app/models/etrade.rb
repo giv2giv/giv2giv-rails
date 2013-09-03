@@ -27,6 +27,24 @@ class ETrade
   #For y'alls error checkings
   def self.test_connection
 
+    # Set in Dwolla object
+    consumer_key = etrade_consumer.oauth_consumer_key
+    access_token = etrade_consumer.consumer_secret
+
+    request_url = 'https://etws.etrade.com/oauth/request_token'
+    authUrl = ETrade::OAuth.get_auth_url(request_url)
+    return authUrl
+    # We still need a route for the oauth return
+
+    # STEP 2:
+    #   Exchange the temporary code given
+    #   to us in the querystring, for
+    #   a never-expiring OAuth access token like this sinatra route example
+    #get '/oauth_return' do
+      #code = params['code']
+      #token = Etrade::OAuth.get_token(code, redirect_uri)
+      #"Your never-expiring OAuth access token is: <b>#{token}</b>"
+    #end
   end
 
   def self.authorize(oauth_consumer_key=CONSUMER_KEY, oauth_token=ACCESS_TOKEN)

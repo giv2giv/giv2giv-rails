@@ -72,37 +72,23 @@ class Api::CharityGroupController < Api::BaseController
     group = CharityGroup.find(params[:id].to_s)
 
     respond_to do |format|
-      if group.donations.first
+      if group.donations.size >= 1 do
         format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
       else
-        group.update_attributes(:name => params[:new_name])
-        group.save!
-        group
+        group.update_attribute( :name => params[:new_name] )
       end
     end #respond_to
 
   end #update
 
-
-
-
-
-
-
-
-
-
-
-
-
   def add_charity
     group = CharityGroup.find(params[:id].to_s)
 
     respond_to do |format|
-      if group.donations.first
-        format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
+      if group.donations.size < 1 do
+        group.add(params[:charity])
       else
-        group.add_charity(params[:charity_id])
+        format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
       end
     end #respond_to
 
@@ -114,13 +100,13 @@ class Api::CharityGroupController < Api::BaseController
     group = CharityGroup.find(params[:id].to_s)
 
     respond_to do |format|
-      if group.donations.first
+      if group.donations.size < 1 do
         group.delete(params[:charity])
         format.json { render json: "Destroyed #{params[:charity]} record." }
       else
         format.json { redner json: "Cannot edit Charity Group when it already has donations to it" }
       end #if
-    end #respond_)to
+
   end #destroy 
 
 

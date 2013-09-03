@@ -1,3 +1,6 @@
+require 'will_paginate'
+require 'will_paginate/array'
+
 class Api::CharityController < Api::BaseController
 
   skip_before_filter :require_authentication
@@ -5,7 +8,7 @@ class Api::CharityController < Api::BaseController
   def index
     page = params[:page] || 1
     per_page = [params[:per_page], 30].compact.min # limit to 30 results per page
-    results = Charity.all.paginate(:per_page => per_page, :page => page)
+    results = Charity.find(:all).paginate(:page => page)
 
     respond_to do |format|
       format.json { render json: results }

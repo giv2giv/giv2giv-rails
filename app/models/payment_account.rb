@@ -1,23 +1,14 @@
 require 'dwolla'
 
-class PaymentAccount < Neo4j::Rails::Model
+class PaymentAccount < ActiveRecord::Base
   VALID_PROCESSORS = %w(dwolla)
 
-  property :id
-  property :created_at
-  property :updated_at
-
-  property :processor # dwolla, paypal, etc
-  property :token # do other payment processors use token?
-  property :pin # dwolla requires us to know the donor's pin
-  property :requires_reauth # should be false unless a payment fails
-
-  has_one(:donor).from(Donor, :payment_accounts)
+  belongs_to :donor
+  has_many :donations
 
   validates :requires_reauth, :inclusion => { :in => [false] }
   validates :processor, :presence => true,
                         :inclusion => { :in => VALID_PROCESSORS }
-  validates :token, :presence => true
   validates :donor, :presence => true
   before_validation :set_requires_reauth, :on => :create
   before_validation :downcase_processor, :on => :create

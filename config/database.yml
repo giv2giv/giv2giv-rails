@@ -1,0 +1,23 @@
+development:
+  adapter: mysql2
+  encoding: utf8
+  database: giv2giv_development
+  host: localhost
+  username: root
+  password:
+
+test:
+  adapter: mysql2
+  encoding: utf8
+  database: giv2giv_test
+  host: localhost
+  username: root
+  password:
+
+production:
+  adapter: mysql2
+  encoding: utf8
+  database: giv2giv_production
+  host: localhost
+  username: root
+  password:
