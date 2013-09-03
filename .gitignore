@@ -16,8 +16,8 @@
 
 /config/app.yml
 
-# Ignore dwolla keys
-/config/dwolla.yml
+# Ignore keys
+/config/_keys.yml
 
 /vendor/gems*
 
