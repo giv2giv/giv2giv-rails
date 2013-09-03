@@ -1,0 +1,8 @@
+---
+- Etrade:
+   oauth_consumer_key:  your_info_here
+   consumer_secret:     your_info_here
+- Dwolla:
+   api_key:             your_info_here
+   api_secret:          your_info_here
+   company_token:       your_info_here
