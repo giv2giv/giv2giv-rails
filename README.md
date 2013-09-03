@@ -57,10 +57,9 @@ Want to help out? Checkout [giv2giv](http://www.giv2giv.org) and see [Contributi
 
 1. Stop the server if it's running
 
-2. Start console and trigger neo4j start
+2. Start console
 
         rails c
-        Donor.first
 
 3. In another terminal tab, download and import a single file
 
