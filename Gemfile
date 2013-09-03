@@ -4,11 +4,10 @@ gem 'rails', '3.2.13'
 #gem 'jruby-openssl'
 gem 'bcrypt-ruby'
 gem "oauth", "~> 0.4.7"
-
+gem "mysql2"
 
 # Gems used to interact with payment processors
 gem 'dwolla-ruby'
-gem 'oauth'
 gem 'httparty'
 
 # Gems used for the charity import
