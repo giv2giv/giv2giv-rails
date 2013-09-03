@@ -16,9 +16,6 @@
 
 /config/app.yml
 
-# Ignore keys
-/config/_keys.yml
-
 /vendor/gems*
 
 /.idea
