@@ -3,31 +3,23 @@ require 'oauth'
 require 'net/http'
 require 'httparty'
 require 'nokogiri'
-#screen scrape or oauth? decisions, decisions.
+require 'yaml'
 #TODO: revisit gems to check for dependencies. I just open up a pandora's box of security flaws.
 
-class ETrade
-  include HTTParty
-  base_uri 'https://etws.etrade.com/'
-  #HTTParty should handle this for all subsequent requests,
-  #but if we don't want to use it we can just append to api calls
-  format :xml
+class Etrade < ActiveRecord::Base
+  validates :balance, :presence => true
 
-  #TODO:
-  CONSUMER_TOKEN = {
-    :token => \access_token.token\,
-    :secret => \access_token.secret\
-  }
+  def self.get_auth_url
+  #TODO: MAKE THIS WORK
+    # To begin the OAuth process, send the user off to authUrl
 
-  ACCESS_TOKEN = {
-    :token => \access_token.token\,
-    :secret => \access_token.secret\
-  }
+    base_uri 'https://etws.etrade.com/'
+    #HTTParty should handle this for all subsequent requests,
+    #but if we don't want to use it we can just append to api calls
+    format :xml
 
-  #For y'alls error checkings
-  def self.test_connection
+    # Set in app.yml
 
-    # Set in Dwolla object
     consumer_key = App.etrade.oauth_consumer_key
     access_token = App.etrade.consumer_secret
 
@@ -47,7 +39,7 @@ class ETrade
     #end
   end
 
-  def self.authorize(oauth_consumer_key=CONSUMER_KEY, oauth_token=ACCESS_TOKEN)
+  def self.authorize(oauth_consumer_key=consumer_key, oauth_token=access_token)
     get("https://us.etrade.com/e/etws/authorize?key=#{oauth_consumer_key}&token=#{oauth_token}")
   end
 
@@ -82,9 +74,11 @@ class ETrade
     return doc.xpath("//AccountBalanceResponse//accountBalance//netCash").inner_text.to_f
   end
 
-  def self.get_transcation_history
+  #Begin transactions
+  def self.get_transaction_history
+  #last 30 days
     account_id = ETrade.get_account_id
-    return Nokogiri::XML(get("/accounts/rest/{account_id}/transactions"))
+    return Nokogiri::XML(get("/accounts/rest/#{account_id.to_s}/transactions"))
   end
 
   #TODO: testing - the etrade doc is not specific enough on selecting from all groups at once
@@ -101,4 +95,13 @@ class ETrade
     end
   end
 
+  def self.update_balance
+    balance = self.get_net_account_value
+    fees = self.get_cumulative_fee_total
+    Etrade.create({ :balance => balance, :fees => fees, :date => Time.now.to_datetime })
+  end
 end
+
+
+
+
