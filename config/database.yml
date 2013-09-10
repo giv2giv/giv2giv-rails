@@ -3,21 +3,21 @@ development:
   encoding: utf8
   database: giv2giv_development
   host: localhost
-  username: root
-  password:
+  username: giv2giv
+  password: giv2giv
 
 test:
   adapter: mysql2
   encoding: utf8
   database: giv2giv_test
   host: localhost
-  username: root
-  password:
+  username: giv2giv
+  password: giv2giv
 
 production:
   adapter: mysql2
   encoding: utf8
   database: giv2giv_production
   host: localhost
-  username: root
-  password:
+  username: giv2giv
+  password: giv2giv
