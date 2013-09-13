@@ -1,5 +1,8 @@
 Giv2givRails::Application.routes.draw do
 
+  # provide a custom path
+  mount StripeEvent::Engine => '/api/stripe_webhook'
+
   scope :format => true, :constraints => { :format => /json/ } do
     namespace :api do
       post 'sessions/destroy' => 'sessions#destroy'

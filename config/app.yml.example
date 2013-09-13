@@ -12,3 +12,6 @@ etrade:
    oauth_consumer_key:  happy
    consumer_secret:     fun
 
+stripe:
+   api_key:       happy
+   publishable_key:  fun

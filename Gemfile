@@ -27,6 +27,9 @@ gem 'will_paginate', '~> 3.0'
 # CORS support
 gem 'rack-cors', :require => 'rack/cors'
 
+# Stripe events
+gem 'stripe_event'
+
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do
