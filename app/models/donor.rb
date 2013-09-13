@@ -18,8 +18,7 @@ class Donor < ActiveRecord::Base
     # needed because of the fulltext index
     def find_by_email(email)
       return nil if email.blank?
-      # bug in neo4j.rb. search string with spaces must be in double qoutes
-      self.find("email: \"#{email}\"", :type => :fulltext)
+      self.where(:email => email)
     end
 
     def authenticate(email, password)
