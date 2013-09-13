@@ -4,7 +4,7 @@ class CreateSharesTable < ActiveRecord::Migration
       t.timestamps
       t.integer :donor_id, null: false
       t.integer :charity_group_id, null: false
-      t.float :count, null: false
+      t.string :count, null: false
       t.float :price_at_issue
     end
   end
