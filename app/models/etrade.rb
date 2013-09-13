@@ -51,7 +51,7 @@ class Etrade < ActiveRecord::Base
 
   def self.get_net_account_value
     doc = ETrade.get_accounts
-    return doc.xpath("//AccountListResponse//Account//netAccountValue").inner_text
+    return doc.xpath("//AccountListResponse//Account//netAccountValue").inner_text.to_f
   end
 
   def self.get_account_id
