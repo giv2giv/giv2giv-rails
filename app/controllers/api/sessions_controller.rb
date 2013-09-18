@@ -4,23 +4,28 @@ class Api::SessionsController < Api::BaseController
                                                         :destroy]
 
   def create
-    donor = Donor.authenticate(params[:email].to_s, params[:password].to_s)
-
+    password_hash = secure_password(params[:password].to_s)
+    donor = Donor.authenticate(params[:email].to_s, password_hash)
+    
     respond_to do |format|
       if donor
-        sess = Session.create(:donor => donor)
+        sess = Session.find_or_create_by_session_id(donor.id)
         format.json { render json: sess, status: :created }
       else
-        format.json { head :unauthorized }
+        format.json { render :json => {:message => "unauthorized"}.to_json, :status => :unauthorized }
       end
     end
   end
 
   def destroy
-    current_session.destroy if current_session
-
+    if current_session
+      current_session.destroy 
+      notice = "Successfuly remove your session"
+    else
+      notice = "You currently don't have any session active"
+    end
     respond_to do |format|
-      format.json { head :ok }
+      format.json { render :json => {:message => notice}.to_json }
     end
   end
 

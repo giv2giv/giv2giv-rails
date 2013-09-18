@@ -1,8 +1,4 @@
-require 'bcrypt'
-
 class Donor < ActiveRecord::Base
-  include BCrypt
-
   has_many :donations, through: :payment_accounts
   has_many :payment_accounts
 
@@ -18,12 +14,12 @@ class Donor < ActiveRecord::Base
     # needed because of the fulltext index
     def find_by_email(email)
       return nil if email.blank?
-      self.where(:email => email)
+      self.where(:email => email).last
     end
 
     def authenticate(email, password)
       user = self.find_by_email(email)
-      if user && user.password == password
+      if user && user.password == password.to_s
         user
       else
         nil
