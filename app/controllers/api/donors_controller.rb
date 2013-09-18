@@ -1,10 +1,11 @@
 class Api::DonorsController < Api::BaseController
-
   skip_before_filter :require_authentication, :only => :create
+  require 'bcrypt'
+  include BCrypt
 
   def create
     donor = Donor.new(params[:donor])
-
+    donor.password = BCrypt::Password.create(params[:password])
     respond_to do |format|
       if donor.save
         format.json { render json: donor, status: :created }

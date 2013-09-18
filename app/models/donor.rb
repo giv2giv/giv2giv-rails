@@ -11,7 +11,7 @@ class Donor < ActiveRecord::Base
   validates :email, :presence => true,
                     :format => { :with => EMAIL_REGEX },
                     :uniqueness => { :case_sensitive => false }
-  validates :password_hash, :presence => true
+  validates :password, :presence => true
   validates :name, :presence => true
 
   class << self
@@ -31,16 +31,8 @@ class Donor < ActiveRecord::Base
     end
   end # end self
 
-  def password
-    @password ||= Password.new(password_hash)
-  end
-
-  def password=(new_password)
-    @password = Password.create(new_password)
-    self.password_hash = @password
-  end
-
   def as_json(options = {})
-    super(:except => [:password_hash])
+    # don't show password in response
+    super(:except => [:password])
   end
 end
