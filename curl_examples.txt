@@ -95,12 +95,10 @@ curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=
 # authenticate
 curl -X POST -H "Content-Type: application/json" -d '{"email":"kmiller@ltc.com","password":"welcome"}' https://api.giv2giv.org/api/sessions/create.json
 # response
-{"created_at":"2013-06-13T21:05:44Z","token":"3cboCDb6a8aD2hR2ZEiplQ","updated_at":"2013-06-13T21:05:44Z","donor":{"address":null,"city":null,"country":null,"created_at":"2013-06-13T21:04:26Z","email":"kmiller@ltc.com","facebook_id":null,"id":"4","name":"Kendal","password":"$2a$10$axni2Ge5JRZe2wa/5na3g.RXmdqBLMTuabuD/ukkd/st6Epinl61W","phone_number":null,"state":null,"updated_at":"2013-06-13T21:04:26Z","zip":null}}
+{"session":{"created_at":"2013-09-18T09:39:37Z","session_id":19,"token":"jc2ZxLwOI9qQunH_a9gAQA","updated_at":"2013-09-18T09:39:37Z"}}
 
 
 # sign out destroy token
-curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=5RfXwUMPkoLl_Nw1Z8BApw' https://api.giv2giv.org/api/sessions/destroy
-
-
-# sign out no token
-curl -X POST -H "Content-Type: application/json" -d '' https://api.giv2giv.org/api/sessions/destroy 
+curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=5RfXwUMPkoLl_Nw1Z8BApw' -d '' https://api.giv2giv.org/api/sessions/destroy.json
+# response
+{"message":"Successfuly remove your session"}
