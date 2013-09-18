@@ -1,4 +1,4 @@
-class CreateSharesTable < ActiveRecord::Migration
+class Sharestable < ActiveRecord::Migration
   def change
     create_table :shares do |t|
       t.timestamps
