@@ -1,4 +1,7 @@
 class Api::BaseController < ApplicationController
+  require 'bcrypt'
+  include BCrypt
+
   rescue_from Exception, :with => :render_exception
   force_ssl if App.force_ssl && Rails.env.production?
 
@@ -28,6 +31,11 @@ private
 
   def current_donor
     @current_donor ||= current_session ? current_session.donor : nil
+  end
+
+  def secure_password(password)
+    return nil if password.blank?
+    BCrypt::Password.create(password)
   end
 
 end
