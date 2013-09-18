@@ -35,7 +35,7 @@ private
 
   def secure_password(password)
     return nil if password.blank?
-    BCrypt::Password.create(password)
+    Digest::SHA2.hexdigest(password)
   end
 
 end
