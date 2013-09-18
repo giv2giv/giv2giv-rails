@@ -39,13 +39,13 @@ curl -X POST -H "Content-Type: application/json" -d '{"email":"kmiller@ltc.com",
 # show donor info
 curl -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' https://api.giv2giv.org/api/donors.json
 # response
-{"address":null,"city":null,"country":null,"created_at":"2013-06-13T21:04:26Z","email":"kmiller@ltc.com","facebook_id":null,"id":"4","name":"Kendal","password_hash":"$2a$10$axni2Ge5JRZe2wa/5na3g.RXmdqBLMTuabuD/ukkd/st6Epinl61W","phone_number":null,"state":null,"updated_at":"2013-06-13T21:04:26Z","zip":null}
+{"address":null,"city":null,"country":null,"created_at":"2013-06-13T21:04:26Z","email":"kmiller@ltc.com","facebook_id":null,"id":"4","name":"Kendal","password":"$2a$10$axni2Ge5JRZe2wa/5na3g.RXmdqBLMTuabuD/ukkd/st6Epinl61W","phone_number":null,"state":null,"updated_at":"2013-06-13T21:04:26Z","zip":null}
 
 
 # update donor info
 curl -X PUT -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' -d '{"name":"Updated Name"}' https://api.giv2giv.org/api/donors.json
 # response
-{"address":null,"city":null,"country":null,"created_at":"2013-06-13T21:04:26Z","email":"kmiller@ltc.com","facebook_id":null,"id":"4","name":"Updated Name","password_hash":"$2a$10$axni2Ge5JRZe2wa/5na3g.RXmdqBLMTuabuD/ukkd/st6Epinl61W","phone_number":null,"state":null,"updated_at":"2013-06-17T14:27:04Z","zip":null}
+{"address":null,"city":null,"country":null,"created_at":"2013-06-13T21:04:26Z","email":"kmiller@ltc.com","facebook_id":null,"id":"4","name":"Updated Name","password":"$2a$10$axni2Ge5JRZe2wa/5na3g.RXmdqBLMTuabuD/ukkd/st6Epinl61W","phone_number":null,"state":null,"updated_at":"2013-06-17T14:27:04Z","zip":null}
 
 
 
@@ -95,7 +95,7 @@ curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=
 # authenticate
 curl -X POST -H "Content-Type: application/json" -d '{"email":"kmiller@ltc.com","password":"welcome"}' https://api.giv2giv.org/api/sessions/create.json
 # response
-{"created_at":"2013-06-13T21:05:44Z","token":"3cboCDb6a8aD2hR2ZEiplQ","updated_at":"2013-06-13T21:05:44Z","donor":{"address":null,"city":null,"country":null,"created_at":"2013-06-13T21:04:26Z","email":"kmiller@ltc.com","facebook_id":null,"id":"4","name":"Kendal","password_hash":"$2a$10$axni2Ge5JRZe2wa/5na3g.RXmdqBLMTuabuD/ukkd/st6Epinl61W","phone_number":null,"state":null,"updated_at":"2013-06-13T21:04:26Z","zip":null}}
+{"created_at":"2013-06-13T21:05:44Z","token":"3cboCDb6a8aD2hR2ZEiplQ","updated_at":"2013-06-13T21:05:44Z","donor":{"address":null,"city":null,"country":null,"created_at":"2013-06-13T21:04:26Z","email":"kmiller@ltc.com","facebook_id":null,"id":"4","name":"Kendal","password":"$2a$10$axni2Ge5JRZe2wa/5na3g.RXmdqBLMTuabuD/ukkd/st6Epinl61W","phone_number":null,"state":null,"updated_at":"2013-06-13T21:04:26Z","zip":null}}
 
 
 # sign out destroy token
