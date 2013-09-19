@@ -109,16 +109,21 @@ curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=
 ########################################
 
 #Create a new charity group
-curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=cm_gKHW34e5MYZ9BgVbEEQ' -d '{"name":"Build Houses","description":"Your description","minimum_donation_amount":"1"}' http://localhost:3000/api/charity_group.json
+curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=cm_gKHW34e5MYZ9BgVbEEQ' -d '{"name":"Build Houses","description":"Your description","minimum_donation_amount":"1"}' https://api.giv2giv.org/api/charity_group.json
 #response
 {"charity_group":{"created_at":"2013-09-19T06:29:28Z","description":"Your description","donor_id":1,"id":3,"minimum_donation_amount":5.0,"name":"Build Houses","updated_at":"2013-09-19T06:29:28Z","charities":[]}}
 
 #Add charity to group
-curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=cm_gKHW34e5MYZ9BgVbEEQ' -d '{"charity_id":"1234"}' http://localhost:3000/api/charity_group/1234/add_charity.json
+curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=cm_gKHW34e5MYZ9BgVbEEQ' -d '{"charity_id":"1234"}' https://api.giv2giv.org/api/charity_group/1234/add_charity.json
 #response
 {"message":"Charity has been added"}
 
 #Remove charity from group
-curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=cm_gKHW34e5MYZ9BgVbEEQ' -d '{"charity_id":"4"}' http://localhost:3000/api/charity_group/1234/remove_charity.json
+curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=cm_gKHW34e5MYZ9BgVbEEQ' -d '{"charity_id":"4"}' https://api.giv2giv.org/api/charity_group/1234/remove_charity.json
 #response
 {"message":"Charity has been removed"}
+
+#Rename charity group data
+curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=cm_gKHW34e5MYZ9BgVbEEQ' -d '{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}' https://api.giv2giv.org/api/charity_group/4/rename_charity_group.json
+#response
+{"message":"Charity Group has been updated","charity_group":{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}}
