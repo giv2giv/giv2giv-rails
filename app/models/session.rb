@@ -1,7 +1,7 @@
 class Session < ActiveRecord::Base
+  belongs_to :donor, foreign_key: :session_id, class_name: "Donor"
   before_create :generate_token
 
-  
   def as_json(options = {})
     super(:except => [:id])
   end
