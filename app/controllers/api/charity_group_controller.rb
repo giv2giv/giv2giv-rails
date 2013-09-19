@@ -83,10 +83,27 @@ class Api::CharityGroupController < Api::BaseController
 
   def add_charity
     group = CharityGroup.find(params[:id].to_s)
-    if (group.donor_id.eql?(current_session.session_id))
+    if (group.donor_id.to_s.eql?(current_session.session_id))
       respond_to do |format|
         if group.donations.size < 1 
           group.add_charity(params[:charity_id])
+          format.json { render json: {:message => "Charity has been added"}.to_json }
+        else
+          format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
+        end
+      end #respond_to
+    else
+      render json: {:message => "You cannot edit this charity group"}.to_json
+    end
+  end
+
+  def remove_charity
+    group = CharityGroup.find(params[:id].to_s)
+    if (group.donor_id.to_s.eql?(current_session.session_id))
+      respond_to do |format|
+        if group.donations.size < 1 
+          group.remove_charity(params[:id], params[:charity_id])
+          format.json { render json: {:message => "Charity has been removed"}.to_json }
         else
           format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
         end

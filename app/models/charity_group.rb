@@ -10,7 +10,6 @@ class CharityGroup < ActiveRecord::Base
     def new_with_charities(options = {})
       charity_ids = options.delete(:charity_ids) || []
       group = CharityGroup.new(options)
-      debugger
       charity_ids.each do |cid|
         group.charities << Charity.find!(cid)
       end
@@ -27,6 +26,12 @@ class CharityGroup < ActiveRecord::Base
     charity = Charity.find(new_charity_id)
     self.charities << charity
     self.charities
+  end
+
+  def remove_charity(group_id, charity_id)
+    group = CharityGroup.find(group_id)
+    charity = group.charities.find(charity_id)
+    group.charities.delete(charity)
   end
 
 end
