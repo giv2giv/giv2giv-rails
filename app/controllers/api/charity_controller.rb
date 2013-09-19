@@ -7,8 +7,7 @@ class Api::CharityController < Api::BaseController
 
   def index
     page = params[:page] || 1
-    per_page = [params[:per_page], 30].compact.min # limit to 30 results per page
-    results = Charity.find(:all).paginate(:page => page)
+    results = Charity.find(:all).paginate(:page => page, :per_page => 30)
 
     respond_to do |format|
       format.json { render json: results }
