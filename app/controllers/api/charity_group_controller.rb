@@ -70,16 +70,19 @@ class Api::CharityGroupController < Api::BaseController
 
   def rename_charity_group
     group = CharityGroup.find(params[:id].to_s)
-
-    respond_to do |format|
-      if group.donations.size >= 1
-        format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
-      else
-        group.update_attribute( :name => params[:new_name] )
+    if (group.donor_id.to_s.eql?(current_session.session_id))
+      respond_to do |format|
+        if group.donations.size >= 1
+          format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
+        else
+          group.update_attributes(params[:charity_group])
+          format.json { render json: {:message => "Charity Group has been updated", :charity_group => params[:charity_group]}.to_json }
+        end
       end
-    end #respond_to
-
-  end #update
+    else
+      render json: {:message => "You cannot edit this charity group"}.to_json
+    end
+  end
 
   def add_charity
     group = CharityGroup.find(params[:id].to_s)
