@@ -9,14 +9,23 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def create
-    pa = PaymentAccount.new({ :donor => current_donor }.merge(params[:payment_account]))
-
-    respond_to do |format|
-      if pa.save
-        format.json { render json: pa, status: :created }
+    if(params.has_key?(:number) && params.has_key?(:exp_month) && params.has_key?(:exp_year) && params.has_key?(:cvc) && params.has_key?(:payment_account))
+      pa = PaymentAccount.new_payment(params)
+      if pa.id.empty?
+        render json: {:message => "Failed create payment account"}.to_json
       else
-        format.json { render json: pa.errors, status: :unprocessable_entity }
+        payment = PaymentAccount.new({:donor => current_donor}.merge(params[:payment_account]))
+        payment.token = pa.id
+        respond_to do |format|
+          if payment.save
+            format.json { render json: payment, status: :created }
+          else
+            format.json { render json: payment.errors, status: :unprocessable_entity }
+          end
+        end
       end
+    else
+      render json: {:message => "Failed create payment account"}.to_json
     end
   end
 
@@ -63,7 +72,7 @@ class Api::PaymentAccountsController < Api::BaseController
     pa = current_donor.payment_accounts.find(params[:id].to_s)
 
     respond_to do |format|
-      if pa && donation = pa.donate(params[:payment_account][:amount].to_s, params[:payment_account][:charity_group_id].to_s)
+      if pa && donation = pa.donate(params[:amount].to_i, params[:charity_group_id].to_s, params[:id])
         format.json { render json: donation }
       else
         format.json { head :not_found }

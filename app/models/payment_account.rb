@@ -1,7 +1,7 @@
-require 'dwolla'
-
 class PaymentAccount < ActiveRecord::Base
-  VALID_PROCESSORS = %w(dwolla)
+  require "stripe"
+
+  VALID_PROCESSORS = %w(stripe)
 
   belongs_to :donor
   has_many :donations
@@ -13,35 +13,44 @@ class PaymentAccount < ActiveRecord::Base
   before_validation :set_requires_reauth, :on => :create
   before_validation :downcase_processor, :on => :create
 
-  # for one time donation
-  def donate(amount, charity_group_id)
+  class << self
+    def new_payment(options = {})
+      get_token = Stripe::Token.create(
+          :card => {
+          :number => options["number"],
+          :exp_month => options["exp_month"].to_i,
+          :exp_year => options["exp_year"].to_i,
+          :cvc => options["cvc"]
+        },
+      )
+      get_token
+    end
+  end
+
+  def donate(amount, charity_group_id, payment_id)
+    # FIX ME :(
     raise PaymentAccountInvalid if !self.valid?
     raise CharityGroupInvalid if !(charity = CharityGroup.find(charity_group_id))
     raise AmountInvalid if amount.blank? || amount < 0
-
-    Dwolla::token = token
-    transaction_id = Dwolla::Transactions.send({:destinationId => App.dwolla['account_id'],
-                                                :amount => amount.to_f,
-                                                :pin => pin})
-
-    # amount = amount after processing fee(s)
+    
     donation = donor.donations.build(:amount => amount,
                                      :charity_group_id => charity.id,
+                                     :transaction_processor => processor,
                                      :transaction_id => transaction_id,
-                                     :transaction_processor => processor)
-    donation.save(false)
+                                     :payment_account_id => payment_id
+                                     )
+    donation.save
     donation
   end
+
 private
 
   def set_requires_reauth
-    # just being nice for create
     self.requires_reauth = false if !self.requires_reauth
     true
   end
 
   def downcase_processor
-    # just being nice for create
     self.processor = self.processor.downcase if self.processor
     true
   end

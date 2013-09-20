@@ -5,5 +5,4 @@ class Donation < ActiveRecord::Base
   validates :amount, :presence => true
   validates :transaction_id, :presence => true
   validates :transaction_processor, :presence => true
-  validates :donor, :presence => true
 end
