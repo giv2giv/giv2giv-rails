@@ -54,9 +54,9 @@ curl -X PUT -H "Content-Type: application/json" -H 'Authorization: Token token=3
 ########################################
 
 # create payment account
-curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' -d '{"processor": "Dwolla", "token":"1asdf23"}' https://api.giv2giv.org/api/donors/payment_accounts.json
+curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=cm_gKHW34e5MYZ9BgVbEEQ' -d '{"processor": "stripe","number": "4242424242424242","exp_month": "9","exp_year": "2014","cvc": "314"}' https://api.giv2giv.org/api/donors/payment_accounts.json
 # response
-{"created_at":"2013-06-18T15:14:15Z","id":"104159","pin":null,"processor":"Dwolla","requires_reauth":false,"token":"1asdf23","updated_at":"2013-06-18T15:14:15Z"}
+{"payment_account":{"created_at":"2013-09-20T09:51:52Z","donor_id":2,"id":7,"pin":null,"processor":"stripe","requires_reauth":false,"token":"tok_102bdr2mGsIlOBKnHO35ICmb","updated_at":"2013-09-20T09:51:52Z"}}
 
 
 # show all payment accounts
