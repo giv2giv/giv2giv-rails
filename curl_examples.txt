@@ -127,3 +127,29 @@ curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token toke
 curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=cm_gKHW34e5MYZ9BgVbEEQ' -d '{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}' https://api.giv2giv.org/api/charity_group/4/rename_charity_group.json
 #response
 {"message":"Charity Group has been updated","charity_group":{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}}
+
+#Search charity group
+curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=cm_gKHW34e5MYZ9BgVbEEQ' -d '{"keyword":"Vet"}' https://api.giv2giv.org/api/charity_group/search.json
+#response
+[{"charity_group":{"created_at":"2013-09-19T08:52:46Z","description":"My Description","donor_id":2,"id":4,"minimum_donation_amount":3.0,"name":"Giv2Giv Build House","updated_at":"2013-09-19T09:36:01Z","charities":[{"activity_code":"907908000.0","address":"PO BOX 124","city":"MILFORD","classification_code":"1.0","created_at":"2013-09-19T03:42:52Z","description":null,"ein":516022762,"id":4,"name":"AMERICAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-19T03:42:52Z","website":null,"zip":"19963-0124"}]}}]
+
+
+########################################
+# CHARITY MANAGEMENT
+########################################
+
+# Get a list of charities.
+curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ObQnmcHpNhdCA-XMHpXFbA' -d '' https://api.giv2giv.org/api/charity.json
+#response
+[{"charity":{"activity_code":"907908000.0","address":"PO BOX 70","city":"MIDDLETOWN","classification_code":"1.0","created_at":"2013-09-16T10:33:42Z","description":null,"ein":562469560,"id":1,"name":"AMERCIAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-16T10:33:42Z","website":null,"zip":"19709-0070"}},{"charity":{"activity_code":"907908000.0","address":"PO BOX 7504","city":"NEWARK","classification_code":"1.0","created_at":"2013-09-16T10:33:43Z","description":null,"ein":516018229,"id":2,"name":"AMERICAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-16T10:33:43Z","website":null,"zip":"19714-7504"}},{"charity":{"activity_code":"907908000.0","address":"PO BOX 59","city":"CLAYMONT","classification_code":"1.0","created_at":"2013-09-16T10:33:43Z","description":null,"ein":516022766,"id":3,"name":"AMERICAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-16T10:33:43Z","website":null,"zip":"19703-0059"}}]
+
+# Get info on a specific charity
+curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ObQnmcHpNhdCA-XMHpXFbA' -d '' https://api.giv2giv.org/api/charity/1234.json
+#response
+{"charity":{"activity_code":"907908000.0","address":"PO BOX 70","city":"MIDDLETOWN","classification_code":"1.0","created_at":"2013-09-16T10:33:42Z","description":null,"ein":562469560,"id":1,"name":"AMERCIAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-16T10:33:42Z","website":null,"zip":"19709-0070"}}
+
+# Create Charity
+curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=yQDBqeBLXNLFT0A78uDUXA' -d '{"name":"41Studio", "ein":"562469563"}' http://localhost:3000/api/charity.json
+
+#Search charity
+curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=cm_gKHW34e5MYZ9BgVbEEQ' -d '{"keyword":"Vet"}' https://api.giv2giv.org/api/charity/search.json
