@@ -118,16 +118,19 @@ class Api::CharityGroupController < Api::BaseController
 
   def destroy
     group = CharityGroup.find(params[:id].to_s)
-    respond_to do |format|
-      if group.donations.size < 1
-        group.delete(params[:charity])
-        format.json { render json: "Destroyed #{params[:charity]} record." }
-      else
-        format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
-      end #if
-    end #respond_to
-
-  end #destroy 
+    if (group.donor_id.to_s.eql?(current_session.session_id))
+      respond_to do |format|
+        if group.donations.size < 1
+          group.delete(params[:charity])
+          format.json { render json: "Destroyed #{params[:charity]} record." }
+        else
+          format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
+        end
+      end
+    else
+      render json: {:message => "You can edit this charity group"}.to_json
+    end
+  end 
 
 
 end
