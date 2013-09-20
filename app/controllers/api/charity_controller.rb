@@ -27,21 +27,22 @@ class Api::CharityController < Api::BaseController
   end
 
   def search
-    ss = params[:search_string]
+    ss = params[:keyword]
     # FIXME sanitize_input !
 
     charities = []
 
-    tags = Tag.all("name: \"#{ss}\"", :type => :fulltext)
+    tags = Tag.find(:all, :conditions=> [ "name LIKE ?", "%#{params[:keyword]}%" ])
     tags.each do |tag|
       tag.charities.each do |c|
         charities << c
       end
     end
 
-    Charity.all("name: \"#{ss}\"", :type => :fulltext).each do |c|
+    Charity.all(:all, :conditions=> [ "name LIKE ?", "%#{params[:keyword]}%" ]).each do |c|
       charities << c
     end
+    
     charities << Charity.find_by_ein(ss)
     charities = charities.compact.flatten.uniq
 

@@ -20,11 +20,8 @@ Giv2givRails::Application.routes.draw do
         post 'add_charity', :on => :member
         delete 'remove_charity', :on => :member
         post 'rename_charity_group', :on => :member
+        get 'search', :on => :collection
       end
-
-#      resources :charity_group, :except => [:new, :edit, :destroy] do
-#        post 'rename_charity_group', :on => :member
-#      end
 
       resources :charity, :except => [:new, :edit, :destroy, :update, :create] do
         get 'search', :on => :collection
