@@ -1,155 +1,388 @@
-################################################################################
-################################################################################
-#### THESE ARE HTTP *ONLY* FOR LOCAL DEV
-#### PRODUCTION WILL *ONLY* SUPPORT HTTPS
-################################################################################
-################################################################################
 
-
-:format will always be JSON
-
-             api_sessions_destroy POST   /api/sessions/destroy.:format                   api/sessions#destroy {:format=>true}
-              api_sessions_create POST   /api/sessions/create.:format                    api/sessions#create {:format=>true}
-donate_api_donors_payment_account POST   /api/donors/payment_accounts/:id/donate.:format api/payment_accounts#donate {:format=>true}
-      api_donors_payment_accounts GET    /api/donors/payment_accounts.:format            api/payment_accounts#index {:format=>true}
-                                  POST   /api/donors/payment_accounts.:format            api/payment_accounts#create {:format=>true}
-       api_donors_payment_account GET    /api/donors/payment_accounts/:id.:format        api/payment_accounts#show {:format=>true}
-                                  PUT    /api/donors/payment_accounts/:id.:format        api/payment_accounts#update {:format=>true}
-                                  DELETE /api/donors/payment_accounts/:id.:format        api/payment_accounts#destroy {:format=>true}
-                       api_donors POST   /api/donors.:format                             api/donors#create {:format=>true}
-                                  GET    /api/donors.:format                             api/donors#show {:format=>true}
-                                  PUT    /api/donors.:format                             api/donors#update {:format=>true}
-    add_charity_api_charity_group POST   /api/charity_group/:id/add_charity.:format      api/charity_group#add_charity {:format=>true}
-          api_charity_group_index GET    /api/charity_group.:format                      api/charity_group#index {:format=>true}
-                                  POST   /api/charity_group.:format                      api/charity_group#create {:format=>true}
-                api_charity_group GET    /api/charity_group/:id.:format                  api/charity_group#show {:format=>true}
-                                  PUT    /api/charity_group/:id.:format                  api/charity_group#update {:format=>true}
-
-
-########################################
-##################### DONOR MANAGEMENT #
-########################################
-
-# create donor
-curl -X POST -H "Content-Type: application/json" -d '{"email":"kmiller@ltc.com","password":"welcome","name":"Kendal"}' https://api.giv2giv.org/api/donors.json
-# response
-{"donor":{"address":null,"city":null,"country":null,"created_at":"2013-09-18T02:56:53Z","email":"kmillerd@ltc.com","facebook_id":null,"id":14,"name":"Kendal","phone_number":null,"state":null,"updated_at":"2013-09-18T02:56:53Z","zip":null}}
-
-
-# show donor info
-curl -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' https://api.giv2giv.org/api/donors.json
-# response
-{"donor":{"address":null,"city":null,"country":null,"created_at":"2013-09-18T07:16:18Z","email":"kmiller@ltc.com","facebook_id":null,"id":19,"name":"Kendal","phone_number":null,"state":null,"updated_at":"2013-09-18T07:16:18Z","zip":null}}
-
-
-# update donor info
-curl -X PUT -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' -d '{"name":"Updated Name"}' https://api.giv2giv.org/api/donors.json
-# response
-{"address":null,"city":null,"country":null,"created_at":"2013-06-13T21:04:26Z","email":"kmiller@ltc.com","facebook_id":null,"id":"4","name":"Updated Name","password":"$2a$10$axni2Ge5JRZe2wa/5na3g.RXmdqBLMTuabuD/ukkd/st6Epinl61W","phone_number":null,"state":null,"updated_at":"2013-06-17T14:27:04Z","zip":null}
+#### CURL EXAMPLES
+#### THESE ARE HTTP *ONLY* FOR LOCAL DEV   { http://localhost:3000 }
+#### PRODUCTION WILL *ONLY* SUPPORT HTTPS  { https://api.giv2giv.org }
 
 
 
-########################################
-############# PAYMENT ACCOUNT MANAGEMENT
-########################################
+** DONOR MANAGEMENT **
 
-# create payment account
-curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=cm_gKHW34e5MYZ9BgVbEEQ' -d '{"processor": "stripe","number": "4242424242424242","exp_month": "9","exp_year": "2014","cvc": "314"}' https://api.giv2giv.org/api/donors/payment_accounts.json
-# response
-{"payment_account":{"created_at":"2013-09-20T09:51:52Z","donor_id":2,"id":7,"pin":null,"processor":"stripe","requires_reauth":false,"token":"tok_102bdr2mGsIlOBKnHO35ICmb","updated_at":"2013-09-20T09:51:52Z"}}
+1. Create donor
 
+    Arguments :
 
-# show all payment accounts
-curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' https://api.giv2giv.org/api/donors/payment_accounts.json
-# response
-[{"created_at":"2013-06-17T16:17:52Z","id":"54085","pin":null,"processor":"Dog","requires_reauth":false,"token":"feeling","updated_at":"2013-06-17T16:17:52Z"},{"created_at":"2013-06-17T16:16:07Z","id":"54084","pin":null,"processor":"Dog","requires_reauth":false,"token":"feeling","updated_at":"2013-06-17T16:16:07Z"},{"created_at":"2013-06-17T15:41:04Z","id":"53084","pin":null,"processor":"Dwollaz","requires_reauth":false,"token":"1asdf235555555555555555","updated_at":"2013-06-17T15:41:04Z"},{"created_at":"2013-06-17T15:40:30Z","id":"52084","pin":null,"processor":"Cacti","provider":"Cacti","requires_reauth":false,"token":"asdf","updated_at":"2013-06-17T15:40:30Z"},{"created_at":"2013-06-17T15:33:23Z","id":"52083","pin":null,"processor":"Dwollaz","requires_reauth":false,"token":"1asdf235555555555555555","updated_at":"2013-06-17T15:33:23Z"},{"created_at":"2013-06-17T15:32:32Z","id":"52082","pin":null,"processor":"Dwollaz","requires_reauth":false,"token":"1asdf23","updated_at":"2013-06-17T15:32:32Z"}]
+    email    : required
+    password : required
+    name     : required
 
+    address, city, country, facebook_id, phone_number, state, zip  :  optional
 
-# show specific payment account
-curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' https://api.giv2giv.org/api/donors/payment_accounts/54085.json
-# response
-{"created_at":"2013-06-17T16:17:52Z","id":"54085","pin":null,"processor":"Dog","requires_reauth":false,"token":"feeling","updated_at":"2013-06-17T16:17:52Z"}
+    curl -X POST -H "Content-Type: application/json" -d '{ "email":"email@domain.com","password":"password","name":"donor name" }' http://localhost:3000/api/donors.json
 
+    Examples Response:
 
-# update payment account
-curl -X PUT -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' -d '{"processor": "Kendal"}' https://api.giv2giv.org/api/donors/payment_accounts/54085.json
-# response
-{"created_at":"2013-06-17T16:17:52Z","id":"54085","pin":null,"processor":"Kendal","requires_reauth":false,"token":"feeling","updated_at":"2013-06-18T15:18:36Z"}
+    {"donor":{"address":null,"city":null,"country":null,"created_at":"2013-09-20T16:27:57Z","email":"email@domain.com","facebook_id":null,"id":2,"name":"donor name","phone_number":null,"state":null,"updated_at":"2013-09-20T16:27:57Z","zip":null}}
 
+2. Retrieve donor info
 
-# destroy payment account
-curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' https://api.giv2giv.org/api/donors/payment_accounts/54085.json
-# response
-{"created_at":"2013-06-17T16:17:52Z","id":"54085","pin":null,"processor":"Kendal","requires_reauth":false,"token":"feeling","updated_at":"2013-06-18T15:18:36Z"}
+    Arguments :
 
+    token    : required
+    > You can get token from session #authenticate
 
-# donate using payment account
-curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=3cboCDb6a8aD2hR2ZEiplQ' -d '{"amount": "20", "charity_group_id":"13"}' https://api.giv2giv.org/api/donors/payment_accounts/54084/donate.json
+    curl -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' http://localhost:3000/api/donors.json
 
+    Examples Response:
 
+    {"donor":{"address":null,"city":null,"country":null,"created_at":"2013-09-20T16:27:57Z","email":"email@domain.com","facebook_id":null,"id":2,"name":"donor name","phone_number":null,"state":null,"updated_at":"2013-09-20T16:27:57Z","zip":null}}
 
-########################################
-##################### SESSION MANAGEMENT
-########################################
+3. Update donor info
 
-# authenticate
-curl -X POST -H "Content-Type: application/json" -d '{"email":"kmiller@ltc.com","password":"welcome"}' https://api.giv2giv.org/api/sessions/create.json
-# response
-{"session":{"created_at":"2013-09-18T09:39:37Z","session_id":19,"token":"jc2ZxLwOI9qQunH_a9gAQA","updated_at":"2013-09-18T09:39:37Z"}}
+    Arguments :
+
+    token    : required
+
+    email, password, name, address, city, country, facebook_id, phone_number, state, zip  :  optional
+
+    curl -X PUT -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"email":"newemail@domain.com","name":"new name"}' http://localhost:3000/api/donors.json
+
+    Examples Response:
+
+    {"donor":{"address":null,"city":null,"country":null,"created_at":"2013-09-20T16:27:57Z","email":"newemail@domain.com","facebook_id":null,"id":2,"name":"new name","phone_number":null,"state":null,"updated_at":"2013-09-20T16:45:31Z","zip":null}}
 
 
-# sign out destroy token
-curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=5RfXwUMPkoLl_Nw1Z8BApw' -d '' https://api.giv2giv.org/api/sessions/destroy.json
-# response
-{"message":"Successfuly remove your session"}
+
+** SESSION MANAGEMENT **
+
+1. Create token / Authenticate
+
+    Arguments :
+
+    email    : required
+    password : required
+
+    curl -X POST -H "Content-Type: application/json" -d '{"email":"newemail@domain.com","password":"password"}' http://localhost:3000/api/sessions/create.json
+
+    Examples Response:
+
+    {"session":{"created_at":"2013-09-20T16:38:24Z","session_id":"2","token":"QR8ibV4uUAhguiA-hgI7BQ","updated_at":"2013-09-20T16:38:24Z"}}
+
+2. Destroy token
+
+    Arguments :
+
+    token    : required
+
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '' http://localhost:3000/api/sessions/destroy.json
+
+    Examples Response:
+
+    {"message":"Successfuly remove your session"}
 
 
-########################################
-# CHARITY GROUP MANAGEMENT
-########################################
 
-#Create a new charity group
-curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=cm_gKHW34e5MYZ9BgVbEEQ' -d '{"name":"Build Houses","description":"Your description","minimum_donation_amount":"1"}' https://api.giv2giv.org/api/charity_group.json
-#response
-{"charity_group":{"created_at":"2013-09-19T06:29:28Z","description":"Your description","donor_id":1,"id":3,"minimum_donation_amount":5.0,"name":"Build Houses","updated_at":"2013-09-19T06:29:28Z","charities":[]}}
+** CHARITY MANAGEMENT **
 
-#Add charity to group
-curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=cm_gKHW34e5MYZ9BgVbEEQ' -d '{"charity_id":"1234"}' https://api.giv2giv.org/api/charity_group/1234/add_charity.json
-#response
-{"message":"Charity has been added"}
+1. Get a list of charities
 
-#Remove charity from group
-curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=cm_gKHW34e5MYZ9BgVbEEQ' -d '{"charity_id":"4"}' https://api.giv2giv.org/api/charity_group/1234/remove_charity.json
-#response
-{"message":"Charity has been removed"}
+    Arguments :
 
-#Rename charity group data
-curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=cm_gKHW34e5MYZ9BgVbEEQ' -d '{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}' https://api.giv2giv.org/api/charity_group/4/rename_charity_group.json
-#response
-{"message":"Charity Group has been updated","charity_group":{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}}
+    token    : required
+    page     : optional "default 1" << Page number
+    per page : optional "default 1" << Limit Per Page
 
-#Search charity group
-curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=cm_gKHW34e5MYZ9BgVbEEQ' -d '{"keyword":"Vet"}' https://api.giv2giv.org/api/charity_group/search.json
-#response
-[{"charity_group":{"created_at":"2013-09-19T08:52:46Z","description":"My Description","donor_id":2,"id":4,"minimum_donation_amount":3.0,"name":"Giv2Giv Build House","updated_at":"2013-09-19T09:36:01Z","charities":[{"activity_code":"907908000.0","address":"PO BOX 124","city":"MILFORD","classification_code":"1.0","created_at":"2013-09-19T03:42:52Z","description":null,"ein":516022762,"id":4,"name":"AMERICAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-19T03:42:52Z","website":null,"zip":"19963-0124"}]}}]
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"page":"2", "perpage":"1"}' http://localhost:3000/api/charity.json
+
+    Examples Response:
+
+    [{"charity":{"activity_code":"907908000.0","address":"PO BOX 7504","city":"NEWARK","classification_code":"1.0","created_at":"2013-09-20T14:52:55Z","description":null,"ein":516018229,"id":2,"name":"AMERICAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-20T14:52:55Z","website":null,"zip":"19714-7504"}}]
+
+2. Get info on a specific charity
+
+    Arguments :
+
+    token        : required
+    {CHARITY ID} : required
+
+    http://localhost:3000/api/charity/{CHARITY ID}.json
+
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '' http://localhost:3000/api/charity/1.json
+
+    Examples Response:
+
+    {"charity":{"activity_code":"907908000.0","address":"PO BOX 70","city":"MIDDLETOWN","classification_code":"1.0","created_at":"2013-09-20T14:52:54Z","description":null,"ein":562469560,"id":1,"name":"AMERCIAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-20T14:52:54Z","website":null,"zip":"19709-0070"}}
+
+3. Search charity
+
+    Arguments :
+
+    token        : required
+    keyword      : required << search by tag
+
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"keyword":"Domestic Fraternal Societies and Associations"}' http://localhost:3000/api/charity/search.json
+
+    Examples Response:
+
+    [{"charity":{"activity_code":"279265319","address":"818 N MARKET ST FL 3","city":"WILMINGTON","classification_code":"1.0","created_at":"2013-09-20T14:53:07Z","description":null,"ein":510011572,"id":45,"name":"ANCIENT ACCEPTED SCOTTISH RITE OF FREE MASONRY NMJ","ntee_code":"","state":"DE","subsection_code":"10.0","updated_at":"2013-09-20T14:53:07Z","website":null,"zip":"19801-3087"}}]
 
 
-########################################
-# CHARITY MANAGEMENT
-########################################
+** CHARITY GROUP MANAGEMENT **
 
-# Get a list of charities.
-curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ObQnmcHpNhdCA-XMHpXFbA' -d '' https://api.giv2giv.org/api/charity.json
-#response
-[{"charity":{"activity_code":"907908000.0","address":"PO BOX 70","city":"MIDDLETOWN","classification_code":"1.0","created_at":"2013-09-16T10:33:42Z","description":null,"ein":562469560,"id":1,"name":"AMERCIAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-16T10:33:42Z","website":null,"zip":"19709-0070"}},{"charity":{"activity_code":"907908000.0","address":"PO BOX 7504","city":"NEWARK","classification_code":"1.0","created_at":"2013-09-16T10:33:43Z","description":null,"ein":516018229,"id":2,"name":"AMERICAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-16T10:33:43Z","website":null,"zip":"19714-7504"}},{"charity":{"activity_code":"907908000.0","address":"PO BOX 59","city":"CLAYMONT","classification_code":"1.0","created_at":"2013-09-16T10:33:43Z","description":null,"ein":516022766,"id":3,"name":"AMERICAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-16T10:33:43Z","website":null,"zip":"19703-0059"}}]
+1. Create charity group
 
-# Get info on a specific charity
-curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ObQnmcHpNhdCA-XMHpXFbA' -d '' https://api.giv2giv.org/api/charity/1234.json
-#response
-{"charity":{"activity_code":"907908000.0","address":"PO BOX 70","city":"MIDDLETOWN","classification_code":"1.0","created_at":"2013-09-16T10:33:42Z","description":null,"ein":562469560,"id":1,"name":"AMERCIAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-16T10:33:42Z","website":null,"zip":"19709-0070"}}
+    Arguments :
 
-# Create Charity
-curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=yQDBqeBLXNLFT0A78uDUXA' -d '{"name":"41Studio", "ein":"562469563"}' http://localhost:3000/api/charity.json
+    token        : required
+    name         : required, uniq
 
-#Search charity
-curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=cm_gKHW34e5MYZ9BgVbEEQ' -d '{"keyword":"Vet"}' https://api.giv2giv.org/api/charity/search.json
+    description, minimum_donation_amount : optional
+
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"name":"Build Houses","description":"Your description","minimum_donation_amount":"5"}' http://localhost:3000/api/charity_group.json
+
+    Examples Response:
+
+    {"charity_group":{"created_at":"2013-09-20T17:31:13Z","description":"Your description","donor_id":2,"id":2,"minimum_donation_amount":5.0,"name":"Build Houses","updated_at":"2013-09-20T17:31:13Z","charities":[]}}
+
+2. Add charity to group
+
+    Arguments :
+
+    token        : required
+    charity_id   : required
+
+    {CHARITY_GROUP_ID} : required
+
+    http://localhost:3000/api/charity_group/{CHARITY_GROUP_ID}/add_charity.json
+
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"charity_id":"1"}' http://localhost:3000/api/charity_group/1/add_charity.json
+
+    Examples Response:
+
+    {"message":"Charity has been added"}
+
+3. Remove charity from group
+
+    Arguments :
+
+    token              : required
+    charity_id         : required
+
+    {CHARITY_GROUP_ID} : required
+
+    http://localhost:3000/api/charity_group/{CHARITY_GROUP_ID}/remove_charity.json
+
+    curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"charity_id":"1"}' http://localhost:3000/api/charity_group/1/remove_charity.json
+
+    Examples Response:
+
+    {"message":"Charity has been removed"}
+
+4. Rename charity group
+
+    Arguments :
+
+    token        : required
+    
+    name, description, minimum_donation_amount : optional
+
+    {CHARITY_GROUP_ID} : required
+
+    http://localhost:3000/api/charity_group/{CHARITY_GROUP_ID}/rename_charity_group.json
+
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}' http://localhost:3000/api/charity_group/1/rename_charity_group.json
+
+    Examples Response:
+
+    {"message":"Charity Group has been updated","charity_group":{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}}
+
+5. Search charity group
+
+    Arguments :
+
+    token        : required
+    keyword      : required << search by tag
+
+
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"keyword":"Veterans activities"}' http://localhost:3000/api/charity_group/search.json
+
+    Examples Response:
+
+    [{"charity_group":{"created_at":"2013-09-20T17:31:13Z","description":"My Description","donor_id":2,"id":2,"minimum_donation_amount":3.0,"name":"Giv2Giv Build House","updated_at":"2013-09-20T17:41:22Z","charities":[{"activity_code":"907908000.0","address":"PO BOX 70","city":"MIDDLETOWN","classification_code":"1.0","created_at":"2013-09-20T14:52:54Z","description":null,"ein":562469560,"id":1,"name":"AMERCIAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-20T14:52:54Z","website":null,"zip":"19709-0070"}]}}]
+
+
+
+** PAYMENT ACCOUNT MANAGEMENT **
+
+P.S : FOR NOW ONLY SUPPORT STRIPE
+
+1. Create payment account
+
+    Arguments :
+
+    token        : required
+    processor    : "stripe"
+
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"processor": "stripe"}' http://localhost:3000/api/donors/payment_accounts.json
+
+    Examples Response:
+
+    {"payment_account":{"created_at":"2013-09-21T02:21:08Z","donor_id":2,"id":15,"processor":"stripe","requires_reauth":false,"updated_at":"2013-09-21T02:21:08Z"}}
+
+2. Show all payment accounts
+
+    Arguments :
+
+    token        : required
+
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' http://localhost:3000/api/donors/payment_accounts.json
+
+    Examples Response:
+
+    [{"payment_account":{"created_at":"2013-09-21T02:21:08Z","donor_id":2,"id":15,"processor":"stripe","requires_reauth":false,"updated_at":"2013-09-21T02:21:08Z"}}]
+
+3. Show specific payment account
+
+    Arguments :
+
+    token        : required
+
+    {PAYMENT_ACCOUNT_ID} : required
+
+    http://localhost:3000/api/donors/payment_accounts/{PAYMENT_ACCOUNT_ID}.json
+
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' http://localhost:3000/api/donors/payment_accounts/15.json
+
+    Examples Response:
+
+    {"payment_account":{"created_at":"2013-09-21T02:21:08Z","donor_id":2,"id":15,"processor":"stripe","requires_reauth":false,"updated_at":"2013-09-21T02:21:08Z"}}
+
+4. Update payment account
+
+    Arguments :
+
+    token        : required
+    processor    : "stripe"
+
+    {PAYMENT_ACCOUNT_ID} : required
+
+    http://localhost:3000/api/donors/payment_accounts/{PAYMENT_ACCOUNT_ID}.json
+
+    curl -X PUT -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"processor": "stripe"}' http://localhost:3000/api/donors/payment_accounts/15.json
+
+    Examples Response:
+
+    {"payment_account":{"created_at":"2013-09-21T02:21:08Z","donor_id":2,"id":15,"processor":"stripe","requires_reauth":false,"updated_at":"2013-09-21T02:21:08Z"}}
+
+5. Destroy payment account
+
+    Arguments :
+
+    token        : required
+
+    {PAYMENT_ACCOUNT_ID} : required
+
+    http://localhost:3000/api/donors/payment_accounts/{PAYMENT_ACCOUNT_ID}.json
+
+    curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' http://localhost:3000/api/donors/payment_accounts/15.json
+
+    Examples Response:
+
+    {"message":"Payment account has been deleted"}
+
+
+
+** DONATION MANAGEMENT **
+
+P.S : FOR NOW ONLY SUPPORT STRIPE
+
+1. List Donation Planing Subscriptions
+
+    Arguments :
+
+    token        : required
+
+    P.S : amount by cents
+
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' http://localhost:3000/api/stripe/show_stripe_plan.json
+
+    Examples Response:
+
+    {"object":"list","count":1,"url":"/v1/plans","data":[{"id":"1","interval":"month","name":"Pay Permonth","amount":500,"currency":"usd","object":"plan","livemode":false,"interval_count":1,"trial_period_days":null}]}
+
+2. Donate Subscriptions
+
+    Arguments :
+
+    token        : required
+    number       : required << Credit Card number
+    exp_year     : required
+    exp_month    : required
+    cvc          : required
+
+    P.S : amount by cents
+
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"plan_id": "1", "charity_group_id":"2","number": "4242424242424242","exp_month": "9","exp_year": "2014","cvc": "314"}' http://localhost:3000/api/donors/payment_accounts/15/donate_subscription.json
+
+    Examples Response:
+
+    {"donation":{"amount":500.0,"charity_group_id":2,"created_at":"2013-09-21T02:52:24Z","cust_id":"cus_2buK4Fe71qnRi1","id":4,"payment_account_id":15,"stripe_token":"tok_102buJ2mGsIlOBKnvqZrz7C7","transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-21T02:52:24Z"}}
+
+3. Donation List
+
+    Arguments :
+
+    token                : required
+    {PAYMENT_ACCOUNT_ID} : required
+
+    http://localhost:3000/api/donors/payment_accounts/{PAYMENT_ACCOUNT_ID}/donation_list.json
+
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ'  http://localhost:3000/api/donors/payment_accounts/15/donation_list.json
+
+    Examples Response:
+
+    [{"donation":{"amount":500.0,"charity_group_id":2,"created_at":"2013-09-21T02:50:28Z","cust_id":"cus_2buIPLCrjIgzTh","id":3,"payment_account_id":15,"stripe_token":"tok_102buI2mGsIlOBKnfrmmTjXb","transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-21T02:50:28Z"}},{"donation":{"amount":500.0,"charity_group_id":2,"created_at":"2013-09-21T02:52:24Z","cust_id":"cus_2buK4Fe71qnRi1","id":4,"payment_account_id":15,"stripe_token":"tok_102buJ2mGsIlOBKnvqZrz7C7","transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-21T02:52:24Z"}}]
+
+3. Retrieve an existing token in donation
+
+    Arguments :
+
+    token           : required
+    { DONATION_ID } : required
+    
+    http://localhost:3000/api/stripe/{ DONATION_ID }/show_token_info.json
+
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' http://localhost:3000/api/donors/payment_accounts/3/show_token_info.json
+
+    Examples Response:
+
+    {"id":"tok_102buI2mGsIlOBKnfrmmTjXb","livemode":false,"created":1379731826,"used":true,"object":"token","type":"card","card":{"id":"card_102buI2mGsIlOBKn2ksa6rFw","object":"card","last4":"4242","type":"Visa","exp_month":9,"exp_year":2014,"fingerprint":"0gIyZMO2nNfr2TgC","customer":"cus_2buIPLCrjIgzTh","country":"US","name":null,"address_line1":null,"address_line2":null,"address_city":null,"address_state":null,"address_zip":null,"address_country":null}}
+
+4. Retrieve data donation subscriptions
+
+    Arguments :
+
+    token            : required
+    { DONATION_ID }  : required
+
+    http://localhost:3000/api/donors/payment_accounts/{ DONATION_ID }/show_data_subscription.json
+
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ'  http://localhost:3000/api/donors/payment_accounts/3/show_data_subscription.json
+
+    Examples Response:
+
+    {"id":"cus_2buIPLCrjIgzTh","object":"customer","created":1379731828,"livemode":false,"description":"newemail@domain.com","email":null,"delinquent":false,"subscription":{"id":"su_102buI2mGsIlOBKnyIxHEL1p","plan":{"id":"1","interval":"month","name":"Pay Permonth","amount":500,"currency":"usd","object":"plan","livemode":false,"interval_count":1,"trial_period_days":null},"object":"subscription","start":1379731828,"status":"active","customer":"cus_2buIPLCrjIgzTh","cancel_at_period_end":false,"current_period_start":1379731828,"current_period_end":1382323828,"ended_at":null,"trial_start":null,"trial_end":null,"canceled_at":null,"quantity":1,"application_fee_percent":null},"discount":null,"account_balance":0,"cards":{"object":"list","count":1,"url":"/v1/customers/cus_2buIPLCrjIgzTh/cards","data":[{"id":"card_102buI2mGsIlOBKn2ksa6rFw","object":"card","last4":"4242","type":"Visa","exp_month":9,"exp_year":2014,"fingerprint":"0gIyZMO2nNfr2TgC","customer":"cus_2buIPLCrjIgzTh","country":"US","name":null,"address_line1":null,"address_line2":null,"address_city":null,"address_state":null,"address_zip":null,"address_country":null,"cvc_check":"pass","address_line1_check":null,"address_zip_check":null}]},"default_card":"card_102buI2mGsIlOBKn2ksa6rFw"}
+
+4. Cancel donation subcscription
+
+    Arguments :
+
+    token           : required
+    { DONATION_ID } : required
+
+    http://localhost:3000/api/donors/payment_accounts/{ DONATION_ID }/cancel_donate_subscription.json
+
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ'  http://localhost:3000/api/donors/payment_accounts/3/cancel_donate_subscription.json
+
+    Examples Response:
+
+    {"id":"su_102bnk2mGsIlOBKnkLysKB6V","plan":{"id":"1","interval":"month","name":"Pay Permonth","amount":500,"currency":"usd","object":"plan","livemode":false,"interval_count":1,"trial_period_days":null},"object":"subscription","start":1379707483,"status":"canceled","customer":"cus_2bnkfxPZws93SD","cancel_at_period_end":false,"current_period_start":1379707483,"current_period_end":1382299483,"ended_at":1379723435,"trial_start":null,"trial_end":null,"canceled_at":1379723435,"quantity":1,"application_fee_percent":null}
