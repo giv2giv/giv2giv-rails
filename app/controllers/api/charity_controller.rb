@@ -7,7 +7,8 @@ class Api::CharityController < Api::BaseController
 
   def index
     page = params[:page] || 1
-    results = Charity.find(:all).paginate(:page => page, :per_page => 30)
+    perpage = params[:per_page] || 1
+    results = Charity.find(:all).paginate(:page => page, :per_page => perpage)
 
     respond_to do |format|
       format.json { render json: results }
@@ -28,7 +29,6 @@ class Api::CharityController < Api::BaseController
 
   def search
     ss = params[:keyword]
-    # FIXME sanitize_input !
 
     charities = []
 
@@ -39,7 +39,7 @@ class Api::CharityController < Api::BaseController
       end
     end
 
-    Charity.all(:all, :conditions=> [ "name LIKE ?", "%#{params[:keyword]}%" ]).each do |c|
+    Charity.find(:all, :conditions=> [ "name LIKE ?", "%#{params[:keyword]}%" ]).each do |c|
       charities << c
     end
     

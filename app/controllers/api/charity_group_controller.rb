@@ -39,8 +39,7 @@ class Api::CharityGroupController < Api::BaseController
 
   def search
     ss = params[:keyword]
-    # FIXME sanitize_input !
-
+    
     charity_groups = []
     charities = []
     tags = Tag.find(:all, :conditions=> [ "name LIKE ?", "%#{params[:keyword]}%" ])

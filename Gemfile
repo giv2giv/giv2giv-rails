@@ -8,6 +8,7 @@ gem "mysql2"
 
 # Gems used to interact with payment processors
 gem 'dwolla-ruby'
+gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
 gem 'httparty'
 
 # Gems used for the charity import
@@ -47,5 +48,6 @@ gem 'jquery-rails'
 
 group :development, :test do
   gem "rspec-rails"
+  gem "debugger"
 #  gem "ruby-debug"
 end

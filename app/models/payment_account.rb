@@ -27,17 +27,19 @@ class PaymentAccount < ActiveRecord::Base
     end
   end
 
-  def donate(amount, charity_group_id, payment_id)
-    # FIX ME :(
+  def donate_subscription(plan, charity_group_id, payment_id, email, token)
     raise PaymentAccountInvalid if !self.valid?
     raise CharityGroupInvalid if !(charity = CharityGroup.find(charity_group_id))
-    raise AmountInvalid if amount.blank? || amount < 0
-    
-    donation = donor.donations.build(:amount => amount,
+    raise PlanInvalid if plan.blank?
+
+    customer = Stripe::Customer.create(description: email, plan: plan, card: token)
+    donation = donor.donations.build(:amount => customer.subscription.plan.amount,
                                      :charity_group_id => charity.id,
                                      :transaction_processor => processor,
-                                     :transaction_id => transaction_id,
-                                     :payment_account_id => payment_id
+                                     :payment_account_id => payment_id,
+                                     :cust_id => customer.id,
+                                     :stripe_token => token,
+                                     :transaction_type => "subscription"
                                      )
     donation.save
     donation

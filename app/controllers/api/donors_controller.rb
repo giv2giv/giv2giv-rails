@@ -31,4 +31,8 @@ class Api::DonorsController < Api::BaseController
     end
   end
 
+  def send_mail
+    DonorMailer.charge_success(self).deliver
+  end
+
 end

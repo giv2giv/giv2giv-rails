@@ -12,7 +12,11 @@ Giv2givRails::Application.routes.draw do
 
       resource :donors, :except => [:new, :edit, :destroy] do
         resources :payment_accounts, :except => [:new, :edit] do
-          post 'donate', :on => :member
+          post 'donate_subscription', :on => :member
+          get 'donation_list', :on => :member
+          get 'show_data_subscription', :on => :member
+          get 'cancel_donate_subscription', :on => :member
+          get 'show_token_info', :on => :member
         end
       end
 
@@ -26,6 +30,11 @@ Giv2givRails::Application.routes.draw do
       resources :charity, :except => [:new, :edit, :destroy, :update, :create] do
         get 'search', :on => :collection
       end
+
+      resources :stripe, :except => [:new, :edit, :destroy, :create, :update, :show, :index] do
+        get 'show_stripe_plan', :on => :collection
+      end
+
     end # end namespace api
   end # end json scope
 

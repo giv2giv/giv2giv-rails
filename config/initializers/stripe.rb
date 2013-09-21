@@ -1,2 +1,11 @@
-Stripe.api_key = "sk_test_b9J7R6gJZBhZatDHK2K2IbBv"
-STRIPE_PUBLIC_KEY = "pk_test_ys65GDVxkAM0Ej8fwpDItB2s"
+Stripe.api_key = "API_KEY"
+STRIPE_PUBLIC_KEY = "PUBLIC_KEY"
+
+StripeEvent.setup do
+  subscribe 'charge.succeeded' do |event|
+    cust_id = Donation.find_by_cust_id(event.data.object.customer)
+    payment_id = PaymentAccount.find_by_id(cust_id.payment_account_id)
+    donor = Donor.find_by_id(payment_id.donor_id)
+    donor.send_mail
+  end
+end
