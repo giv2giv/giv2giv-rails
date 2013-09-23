@@ -3,7 +3,8 @@ require 'will_paginate/array'
 
 class Api::CharityController < Api::BaseController
 
-  before_filter :require_authentication, :only => [:show]
+  skip_before_filter :require_authentication, :only => [:index,
+                                                        :show]
 
   def index
     page = params[:page] || 1

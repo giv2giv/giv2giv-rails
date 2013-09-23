@@ -5,7 +5,7 @@ class Api::CharityGroupController < Api::BaseController
 
   def index
     page = params[:page] || 1
-    perpage = [params[:per_page], 30].compact.min
+    perpage = params[:per_page] || 1
     results = CharityGroup.find(:all).paginate(:page => page, :per_page => perpage)
 
     respond_to do |format|
