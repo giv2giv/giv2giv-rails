@@ -20,24 +20,34 @@ class PaymentAccount < ActiveRecord::Base
 
     charity_group = CharityGroup.find(charity_group_id)
     charity = charity_group.charities.all.size
+    check_donor = Donor.find(charity_group.donor_id)
 
-    if charity > 0
-      if amount.to_i < charity_group.minimum_donation_amount.to_i
-        message = {:message => "Minimum amount for create donation $#{charity_group.minimum_donation_amount}"}.to_json
+    if check_donor
+      if charity > 0
+        if amount.to_i < charity_group.minimum_donation_amount.to_i
+          message = {:message => "Minimum amount for create donation $#{charity_group.minimum_donation_amount}"}.to_json
+        else
+          if check_donor.stripe_cust_id.blank?
+            customer = Stripe::Customer.create(description: email, plan: plan, card: token, quantity: amount)
+            check_donor.update_attributes(:stripe_cust_id => "#{customer.id}")
+          else
+            customer = Stripe::Customer.retrieve(check_donor.stripe_cust_id)
+            customer.update_subscription(:plan => plan, :quantity => customer.subscription.quantity + amount.to_i)
+          end
+          donation = donor.donations.build(:amount => amount,
+                                           :charity_group_id => charity_group_id,
+                                           :transaction_processor => processor,
+                                           :payment_account_id => payment_id,
+                                           :transaction_type => "subscription"
+                                           )
+          donation.save
+          donation
+        end
       else
-        customer = Stripe::Customer.create(description: email, plan: plan, card: token, quantity: amount)
-        donation = donor.donations.build(:amount => amount,
-                                         :charity_group_id => charity_group_id,
-                                         :transaction_processor => processor,
-                                         :payment_account_id => payment_id,
-                                         :cust_id => customer.id,
-                                         :transaction_type => "subscription"
-                                         )
-        donation.save
-        donation
+        message = {:message => "You need add one or more charity to this group"}.to_json
       end
     else
-      message = {:message => "You need add one or more charity to this group"}.to_json
+      message = {:message => "Wrong donor id"}.to_json
     end
 
   end

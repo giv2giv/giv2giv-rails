@@ -8,10 +8,6 @@ module StripeHelper
     Stripe::Plan.all
   end
 
-  def retrieve_token_info(token)
-    Stripe::Token.retrieve(token)
-  end
-
   def retrieve_customer_data(cust_id)
     Stripe::Customer.retrieve(cust_id)
   end
