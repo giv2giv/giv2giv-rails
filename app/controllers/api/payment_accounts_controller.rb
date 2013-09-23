@@ -64,21 +64,17 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def donate_subscription
-    if(params.has_key?(:number) && params.has_key?(:exp_month) && params.has_key?(:exp_year) && params.has_key?(:cvc))
-      set_token = PaymentAccount.new_payment(params)
-      if set_token.id.empty?
-        render json: {:message => "Failed create payment account"}.to_json
-      else
-        respond_to do |format|
-          if current_donor_id && donation = current_donor_id.donate_subscription(params[:plan_id].to_i, params[:charity_group_id].to_s, params[:id], current_donor.email, set_token.id)
-            format.json { render json: donation }
-          else
-            format.json { head :not_found }
-          end
+    set_token = params[:stripeToken]
+    if set_token.blank?
+      render json: {:message => "Please provided your token"}.to_json
+    else
+      respond_to do |format|
+        if current_donor_id && donation = current_donor_id.donate_subscription(params[:plan_id].to_i, params[:amount].to_i, params[:charity_group_id].to_s, params[:id], current_donor.email, set_token)
+          format.json { render json: donation }
+        else
+          format.json { head :not_found }
         end
       end
-    else
-      render json: {:message => "Wrong parameters"}.to_json
     end
   end
 
@@ -89,19 +85,6 @@ class Api::PaymentAccountsController < Api::BaseController
       else
         format.json { head :not_found }
       end
-    end
-  end
-
-  def show_token_info
-    find_donation = Donation.find(params[:id].to_s)
-    check_is_current_donor = current_donor.payment_accounts.find(find_donation.payment_account_id)
-    if check_is_current_donor
-      retrieve_token = retrieve_token_info(find_donation.stripe_token)
-    else
-      retrieve_token = {:message => "Cannot retrieve token information"}.to_json
-    end
-    respond_to do |format|
-      format.json { render json: retrieve_token }
     end
   end
 

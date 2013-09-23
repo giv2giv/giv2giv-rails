@@ -327,8 +327,6 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     token        : required
 
-    P.S : amount by cents
-
     curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' http://localhost:3000/api/stripe/show_stripe_plan.json
 
     Examples Response:
@@ -339,19 +337,20 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     Arguments :
 
-    token        : required
-    number       : required << Credit Card number
-    exp_year     : required
-    exp_month    : required
-    cvc          : required
+    token            : required
+    stripeToken      : required
+    plan_id          : required << plan id in stripe
+    amount           : required << donation amount
+    charity_group_id : required
 
-    P.S : amount by cents
+    { PAYMENT_ACCOUNT_ID } 
+    http://localhost:3000/api/donors/payment_accounts/{ PAYMENT_ACCOUNT_ID }/donate_subscription.json
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"plan_id": "1", "charity_group_id":"2","number": "4242424242424242","exp_month": "9","exp_year": "2014","cvc": "314"}' http://localhost:3000/api/donors/payment_accounts/15/donate_subscription.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"stripeToken":"tok_102cgl2mGsIlOBKn7qWJu4mV", "amount":"5", "plan_id": "1", "charity_group_id":"2"}' http://localhost:3000/api/donors/payment_accounts/8/donate_subscription.json
 
     Examples Response:
 
-    {"donation":{"amount":500.0,"charity_group_id":2,"created_at":"2013-09-21T02:52:24Z","cust_id":"cus_2buK4Fe71qnRi1","id":4,"payment_account_id":15,"stripe_token":"tok_102buJ2mGsIlOBKnvqZrz7C7","transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-21T02:52:24Z"}}
+    {"donation":{"amount":100.0,"charity_group_id":2,"created_at":"2013-09-23T04:39:11Z","cust_id":"cus_2cgUzzFZSIjjTl","id":2,"payment_account_id":8,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-23T04:39:11Z"}}
 
 3. Donation List
 
@@ -368,21 +367,6 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     [{"donation":{"amount":500.0,"charity_group_id":2,"created_at":"2013-09-21T02:50:28Z","cust_id":"cus_2buIPLCrjIgzTh","id":3,"payment_account_id":15,"stripe_token":"tok_102buI2mGsIlOBKnfrmmTjXb","transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-21T02:50:28Z"}},{"donation":{"amount":500.0,"charity_group_id":2,"created_at":"2013-09-21T02:52:24Z","cust_id":"cus_2buK4Fe71qnRi1","id":4,"payment_account_id":15,"stripe_token":"tok_102buJ2mGsIlOBKnvqZrz7C7","transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-21T02:52:24Z"}}]
 
-3. Retrieve an existing token in donation
-
-    Arguments :
-
-    token           : required
-    { DONATION_ID } : required
-    
-    http://localhost:3000/api/stripe/{ DONATION_ID }/show_token_info.json
-
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' http://localhost:3000/api/donors/payment_accounts/3/show_token_info.json
-
-    Examples Response:
-
-    {"id":"tok_102buI2mGsIlOBKnfrmmTjXb","livemode":false,"created":1379731826,"used":true,"object":"token","type":"card","card":{"id":"card_102buI2mGsIlOBKn2ksa6rFw","object":"card","last4":"4242","type":"Visa","exp_month":9,"exp_year":2014,"fingerprint":"0gIyZMO2nNfr2TgC","customer":"cus_2buIPLCrjIgzTh","country":"US","name":null,"address_line1":null,"address_line2":null,"address_city":null,"address_state":null,"address_zip":null,"address_country":null}}
-
 4. Retrieve data donation subscriptions
 
     Arguments :
@@ -398,7 +382,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     {"id":"cus_2buIPLCrjIgzTh","object":"customer","created":1379731828,"livemode":false,"description":"newemail@domain.com","email":null,"delinquent":false,"subscription":{"id":"su_102buI2mGsIlOBKnyIxHEL1p","plan":{"id":"1","interval":"month","name":"Pay Permonth","amount":500,"currency":"usd","object":"plan","livemode":false,"interval_count":1,"trial_period_days":null},"object":"subscription","start":1379731828,"status":"active","customer":"cus_2buIPLCrjIgzTh","cancel_at_period_end":false,"current_period_start":1379731828,"current_period_end":1382323828,"ended_at":null,"trial_start":null,"trial_end":null,"canceled_at":null,"quantity":1,"application_fee_percent":null},"discount":null,"account_balance":0,"cards":{"object":"list","count":1,"url":"/v1/customers/cus_2buIPLCrjIgzTh/cards","data":[{"id":"card_102buI2mGsIlOBKn2ksa6rFw","object":"card","last4":"4242","type":"Visa","exp_month":9,"exp_year":2014,"fingerprint":"0gIyZMO2nNfr2TgC","customer":"cus_2buIPLCrjIgzTh","country":"US","name":null,"address_line1":null,"address_line2":null,"address_city":null,"address_state":null,"address_zip":null,"address_country":null,"cvc_check":"pass","address_line1_check":null,"address_zip_check":null}]},"default_card":"card_102buI2mGsIlOBKn2ksa6rFw"}
 
-4. Cancel donation subcscription
+5. Cancel donation subcscription
 
     Arguments :
 
