@@ -324,7 +324,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
 P.S : FOR NOW ONLY SUPPORT STRIPE
 
-1. Charity Group Donate Subscriptions
+1.  Add donor subscription to a charity_group
 
     Arguments :
 
@@ -341,26 +341,27 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     {"donation":{"amount":5.0,"charity_group_id":1,"created_at":"2013-09-24T04:56:48Z","id":1,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:56:48Z"}}
 
-3. Show Specify Charity Group Subscription Donation List 
+2.  Show all charity_group subscriptions for this donor through this payment_account
 
     Arguments :
 
     token                : required
     {PAYMENT_ACCOUNT_ID} : required
 
-    http://localhost:3000/api/donors/payment_accounts/{PAYMENT_ACCOUNT_ID}/donation_list.json
+    http://localhost:3000/api/donors/payment_accounts/{PAYMENT_ACCOUNT_ID}/subscription_list.json
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg'  http://localhost:3000/api/donors/payment_accounts/1/donation_list.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg'  http://localhost:3000/api/donors/payment_accounts/1/subscription_list.json
 
     Examples Response:
 
     [{"donation":{"amount":500.0,"charity_group_id":2,"created_at":"2013-09-21T02:50:28Z","cust_id":"cus_2buIPLCrjIgzTh","id":3,"payment_account_id":15,"stripe_token":"tok_102buI2mGsIlOBKnfrmmTjXb","transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-21T02:50:28Z"}},{"donation":{"amount":500.0,"charity_group_id":2,"created_at":"2013-09-21T02:52:24Z","cust_id":"cus_2buK4Fe71qnRi1","id":4,"payment_account_id":15,"stripe_token":"tok_102buJ2mGsIlOBKnvqZrz7C7","transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-21T02:52:24Z"}}]
 
-4. Charity Group Subscription Donation List
+3. Show all donations from this donor to 1 or all charity_groups
 
     Arguments :
 
     token                : required
+    charity_group_id 	 : optional
 
     curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg'  http://localhost:3000/api/donors/payment_accounts/all_donation_list.json
 
@@ -368,16 +369,16 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     [{"donation":{"amount":5.0,"charity_group_id":1,"created_at":"2013-09-24T04:56:48Z","id":1,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:56:48Z"}},{"donation":{"amount":5.0,"charity_group_id":1,"created_at":"2013-09-24T06:11:28Z","id":2,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T06:11:28Z"}}]
     
-5. Cancel donation subcscription
+4. Cancel charity_group subcscription
 
     Arguments :
 
     token           : required
     { DONATION_ID } : required
 
-    http://localhost:3000/api/donors/payment_accounts/{ DONATION_ID }/cancel_donate_subscription.json
+    http://localhost:3000/api/donors/payment_accounts/{ DONATION_ID }/cancel_subscription.json
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg'  http://localhost:3000/api/donors/payment_accounts/3/cancel_donate_subscription.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg'  http://localhost:3000/api/donors/payment_accounts/3/cancel_subscription.json
 
     Examples Response:
 
