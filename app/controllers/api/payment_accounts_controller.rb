@@ -92,8 +92,21 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def all_donation_list
-    respond_to do |format|
-      format.json { render json: Donation.all }
+    if current_donor
+      respond_to do |format|
+        if params.has_key?(:charity_group_id)
+            format.json { render json: Donation.find_by_charity_group_id(params[:charity_group_id]) }
+        else
+          donor_payment_accounts = current_donor.payment_accounts.all
+          donation_data = []
+          donor_payment_accounts.each do |payment_account|
+            donation_data << payment_account.donations
+          end
+          format.json { render json: donation_data }
+        end
+      end
+    else
+      render :json => {:message => "unauthorized"}.to_json
     end
   end
 

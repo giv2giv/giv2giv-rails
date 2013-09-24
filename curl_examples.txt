@@ -350,7 +350,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     http://localhost:3000/api/donors/payment_accounts/{PAYMENT_ACCOUNT_ID}/subscription_list.json
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg'  http://localhost:3000/api/donors/payment_accounts/1/subscription_list.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' http://localhost:3000/api/donors/payment_accounts/1/subscription_list.json
 
     Examples Response:
 
@@ -363,7 +363,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
     token                : required
     charity_group_id 	 : optional
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg'  http://localhost:3000/api/donors/payment_accounts/all_donation_list.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"charity_group_id":"1"}' http://localhost:3000/api/donors/payment_accounts/all_donation_list.json
 
     Examples Response:
 
