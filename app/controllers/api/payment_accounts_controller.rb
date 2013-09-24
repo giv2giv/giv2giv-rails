@@ -12,17 +12,16 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def create
-    if params.has_key?(:payment_account)
-      payment = PaymentAccount.new({:donor => current_donor}.merge(params[:payment_account]))
-      respond_to do |format|
-        if payment.save
-          format.json { render json: payment, status: :created }
-        else
-          format.json { render json: payment.errors, status: :unprocessable_entity }
-        end
-      end
+    set_token = params[:stripeToken]
+    if set_token.blank?
+      render json: {:message => "Please provided your stripe token"}.to_json
     else
-      render json: {:message => "Wrong parameters"}.to_json
+      if params.has_key?(:payment_account)
+        payment = PaymentAccount.new_account(set_token, current_donor.id, {:donor => current_donor}.merge(params[:payment_account]))
+        render json: payment.to_json
+      else
+        render json: {:message => "Wrong parameters"}.to_json
+      end
     end
   end
 
@@ -64,16 +63,11 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def donate_subscription
-    set_token = params[:stripeToken]
-    if set_token.blank?
-      render json: {:message => "Please provided your token"}.to_json
-    else
-      respond_to do |format|
-        if current_donor_id && donation = current_donor_id.donate_subscription(params[:plan_id].to_i, params[:amount].to_i, params[:charity_group_id].to_s, params[:id], current_donor.email, set_token)
-          format.json { render json: donation }
-        else
-          format.json { head :not_found }
-        end
+    respond_to do |format|
+      if current_donor_id && donation = current_donor_id.donate_subscription(params[:amount].to_i, params[:charity_group_id].to_s, params[:id], current_donor.email)
+        format.json { render json: donation }
+      else
+        format.json { head :not_found }
       end
     end
   end

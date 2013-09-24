@@ -2,6 +2,7 @@ class PaymentAccount < ActiveRecord::Base
   require "stripe"
 
   VALID_PROCESSORS = %w(stripe)
+  PLAN_ID = 1
 
   belongs_to :donor
   has_many :donations
@@ -13,10 +14,23 @@ class PaymentAccount < ActiveRecord::Base
   before_validation :set_requires_reauth, :on => :create
   before_validation :downcase_processor, :on => :create
 
-  def donate_subscription(plan, amount, charity_group_id, payment_id, email, token)
+  class << self
+    def new_account(stripeToken, donor_id, options = {})
+      check_donor = Donor.find(donor_id)
+      customer = Stripe::Customer.create( description: "Giv2Giv Subscription", email: check_donor.email, card: stripeToken)
+      payment = PaymentAccount.new(options)
+      payment.stripe_cust_id = customer.id
+      if payment.save
+        message = payment
+      else
+        message = payment.errors
+      end
+    end
+  end
+
+  def donate_subscription(amount, charity_group_id, payment_id, email)
     raise PaymentAccountInvalid if !self.valid?
     raise CharityGroupInvalid if !(charity = CharityGroup.find(charity_group_id))
-    raise PlanInvalid if plan.blank?
 
     charity_group = CharityGroup.find(charity_group_id)
     charity = charity_group.charities.all.size
@@ -27,12 +41,11 @@ class PaymentAccount < ActiveRecord::Base
         if amount.to_i < charity_group.minimum_donation_amount.to_i
           message = {:message => "Minimum amount for create donation $#{charity_group.minimum_donation_amount}"}.to_json
         else
-          if check_donor.stripe_cust_id.blank?
-            customer = Stripe::Customer.create(description: email, plan: plan, card: token, quantity: amount)
-            check_donor.update_attributes(:stripe_cust_id => "#{customer.id}")
+          customer = Stripe::Customer.retrieve(check_donor.payment_accounts.find(payment_id).stripe_cust_id)
+          if customer.subscription.blank?
+            customer.update_subscription(:plan => PLAN_ID, :quantity => amount.to_i)
           else
-            customer = Stripe::Customer.retrieve(check_donor.stripe_cust_id)
-            customer.update_subscription(:plan => plan, :quantity => customer.subscription.quantity + amount.to_i)
+            customer.update_subscription(:plan => PLAN_ID, :quantity => customer.subscription.quantity + amount.to_i)  
           end
           donation = donor.donations.build(:amount => amount,
                                            :charity_group_id => charity_group_id,
