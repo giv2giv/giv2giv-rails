@@ -1,7 +1,8 @@
 class Api::PaymentAccountsController < Api::BaseController
   include StripeHelper
   
-  before_filter :current_donor_id, :except => [:index, :create, :show_token_info, :show_data_subscription, :cancel_donate_subscription]
+  before_filter :current_donor_id, :except => [:index, :create, :cancel_donate_subscription]
+  skip_before_filter :current_donor_id, :only => [:all_donation_list]
 
   def index
     pas = current_donor.payment_accounts
@@ -26,18 +27,26 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def update
-    if params.has_key?(:payment_account)
-      respond_to do |format|
-          if current_donor_id && current_donor_id.update_attributes(params[:payment_account])
-            format.json { render json: current_donor_id }
-          elsif current_donor_id
-            format.json { render json: current_donor_id.errors, status: :unprocessable_entity }
-          else
-            format.json { head :not_found }
-          end
-      end
+    set_token = params[:stripeToken]
+    if set_token.blank?
+      render json: {:message => "Please provided your stripe token"}.to_json
     else
-      render json: {:message => "Wrong parameters"}.to_json
+      if params.has_key?(:payment_account)
+        payment = PaymentAccount.update_account(set_token, current_donor.id, current_donor_id, {:donor => current_donor}.merge(params[:payment_account]))
+
+        respond_to do |format|
+            if current_donor_id && current_donor_id.update_attributes(params[:payment_account])
+              format.json { render json: current_donor_id }
+            elsif current_donor_id
+              format.json { render json: current_donor_id.errors, status: :unprocessable_entity }
+            else
+              format.json { head :not_found }
+            end
+        end
+
+      else
+        render json: {:message => "Wrong parameters"}.to_json
+      end
     end
   end
 
@@ -82,17 +91,9 @@ class Api::PaymentAccountsController < Api::BaseController
     end
   end
 
-  def show_data_subscription
-    find_donation = Donation.find(params[:id].to_s)
-    check_is_current_donor = current_donor.payment_accounts.find(find_donation.payment_account_id)
-    
+  def all_donation_list
     respond_to do |format|
-      if check_is_current_donor
-        retrieve_customer_data = retrieve_customer_data(find_donation.cust_id)
-        format.json { render json: retrieve_customer_data }
-      else
-        format.json { head :not_found }
-      end
+      format.json { render json: Donation.all }
     end
   end
 

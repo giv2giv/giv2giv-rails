@@ -21,7 +21,7 @@
 
     Examples Response:
 
-    {"donor":{"address":null,"city":null,"country":null,"created_at":"2013-09-20T16:27:57Z","email":"email@domain.com","facebook_id":null,"id":2,"name":"donor name","phone_number":null,"state":null,"updated_at":"2013-09-20T16:27:57Z","zip":null}}
+    {"donor":{"address":null,"city":null,"country":null,"created_at":"2013-09-24T04:34:59Z","email":"email@domain.com","facebook_id":null,"id":1,"name":"donor name","phone_number":null,"state":null,"updated_at":"2013-09-24T04:34:59Z","zip":null}}
 
 2. Retrieve donor info
 
@@ -30,11 +30,11 @@
     token    : required
     > You can get token from session #authenticate
 
-    curl -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' http://localhost:3000/api/donors.json
+    curl -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' http://localhost:3000/api/donors.json
 
     Examples Response:
 
-    {"donor":{"address":null,"city":null,"country":null,"created_at":"2013-09-20T16:27:57Z","email":"email@domain.com","facebook_id":null,"id":2,"name":"donor name","phone_number":null,"state":null,"updated_at":"2013-09-20T16:27:57Z","zip":null}}
+    {"donor":{"address":null,"city":null,"country":null,"created_at":"2013-09-24T04:34:59Z","email":"email@domain.com","facebook_id":null,"id":1,"name":"donor name","phone_number":null,"state":null,"updated_at":"2013-09-24T04:34:59Z","zip":null}}
 
 3. Update donor info
 
@@ -44,11 +44,11 @@
 
     email, password, name, address, city, country, facebook_id, phone_number, state, zip  :  optional
 
-    curl -X PUT -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"email":"newemail@domain.com","name":"new name"}' http://localhost:3000/api/donors.json
+    curl -X PUT -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"email":"email@domain.com","name":"Firman"}' http://localhost:3000/api/donors.json
 
     Examples Response:
 
-    {"donor":{"address":null,"city":null,"country":null,"created_at":"2013-09-20T16:27:57Z","email":"newemail@domain.com","facebook_id":null,"id":2,"name":"new name","phone_number":null,"state":null,"updated_at":"2013-09-20T16:45:31Z","zip":null}}
+    {"donor":{"address":null,"city":null,"country":null,"created_at":"2013-09-24T04:34:59Z","email":"email@domain.com","facebook_id":null,"id":1,"name":"Firman","phone_number":null,"state":null,"updated_at":"2013-09-24T04:37:11Z","zip":null}}
 
 
 
@@ -61,11 +61,11 @@
     email    : required
     password : required
 
-    curl -X POST -H "Content-Type: application/json" -d '{"email":"newemail@domain.com","password":"password"}' http://localhost:3000/api/sessions/create.json
+    curl -X POST -H "Content-Type: application/json" -d '{"email":"email@domain.com","password":"password"}' http://localhost:3000/api/sessions/create.json
 
     Examples Response:
 
-    {"session":{"created_at":"2013-09-20T16:38:24Z","session_id":"2","token":"QR8ibV4uUAhguiA-hgI7BQ","updated_at":"2013-09-20T16:38:24Z"}}
+    {"session":{"created_at":"2013-09-24T04:35:36Z","session_id":1,"token":"ylq_9rXRdHkp2HxPklsqEg","updated_at":"2013-09-24T04:35:36Z"}}
 
 2. Destroy token
 
@@ -73,7 +73,7 @@
 
     token    : required
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '' http://localhost:3000/api/sessions/destroy.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '' http://localhost:3000/api/sessions/destroy.json
 
     Examples Response:
 
@@ -117,7 +117,7 @@
     token        : required
     keyword      : required << search by tag
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"keyword":"Domestic Fraternal Societies and Associations"}' http://localhost:3000/api/charity/search.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"keyword":"Domestic Fraternal Societies and Associations"}' http://localhost:3000/api/charity/search.json
 
     Examples Response:
 
@@ -138,7 +138,7 @@
 
     description  : optional
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"name":"Build Houses","description":"Your description","minimum_donation_amount":"5"}' http://localhost:3000/api/charity_group.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"name":"Build Houses","description":"Your description","minimum_donation_amount":"5"}' http://localhost:3000/api/charity_group.json
 
     Examples Response:
 
@@ -155,7 +155,7 @@
 
     http://localhost:3000/api/charity_group/{CHARITY_GROUP_ID}/add_charity.json
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"charity_id":"1"}' http://localhost:3000/api/charity_group/1/add_charity.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"charity_id":"1"}' http://localhost:3000/api/charity_group/1/add_charity.json
 
     Examples Response:
 
@@ -172,7 +172,7 @@
 
     http://localhost:3000/api/charity_group/{CHARITY_GROUP_ID}/remove_charity.json
 
-    curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"charity_id":"1"}' http://localhost:3000/api/charity_group/1/remove_charity.json
+    curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"charity_id":"1"}' http://localhost:3000/api/charity_group/1/remove_charity.json
 
     Examples Response:
 
@@ -190,7 +190,7 @@
 
     http://localhost:3000/api/charity_group/{CHARITY_GROUP_ID}/rename_charity_group.json
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}' http://localhost:3000/api/charity_group/1/rename_charity_group.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}' http://localhost:3000/api/charity_group/1/rename_charity_group.json
 
     Examples Response:
 
@@ -204,7 +204,7 @@
     keyword      : required << search by tag
 
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"keyword":"Veterans activities"}' http://localhost:3000/api/charity_group/search.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"keyword":"Veterans activities"}' http://localhost:3000/api/charity_group/search.json
 
     Examples Response:
 
@@ -250,11 +250,11 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
     stripeToken  : required
     processor    : "stripe"
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"processor": "stripe", "stripeToken":"tok_102cgl2mGsIlOBKn7qWJu4mV"}' http://localhost:3000/api/donors/payment_accounts.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"processor": "stripe", "stripeToken":"tok_102d3j2mGsIlOBKnPZodaNFi"}' http://localhost:3000/api/donors/payment_accounts.json
 
     Examples Response:
 
-    {"payment_account":{"created_at":"2013-09-24T03:47:11Z","donor_id":1,"id":4,"processor":"stripe","requires_reauth":false,"stripe_cust_id":"cus_2d2smz2U2CMO7U","updated_at":"2013-09-24T03:47:11Z"}
+    {"payment_account":{"created_at":"2013-09-24T04:40:15Z","donor_id":1,"id":1,"processor":"stripe","requires_reauth":false,"stripe_cust_id":"cus_2d3jQymPJ1qWWR","updated_at":"2013-09-24T04:40:15Z"}}
 
 2. Show all payment accounts
 
@@ -262,11 +262,11 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     token        : required
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' http://localhost:3000/api/donors/payment_accounts.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' http://localhost:3000/api/donors/payment_accounts.json
 
     Examples Response:
 
-    [{"payment_account":{"created_at":"2013-09-21T02:21:08Z","donor_id":2,"id":15,"processor":"stripe","requires_reauth":false,"updated_at":"2013-09-21T02:21:08Z"}}]
+    [{"payment_account":{"created_at":"2013-09-24T04:40:15Z","donor_id":1,"id":1,"processor":"stripe","requires_reauth":false,"stripe_cust_id":"cus_2d3jQymPJ1qWWR","updated_at":"2013-09-24T04:40:15Z"}}]
 
 3. Show specific payment account
 
@@ -278,11 +278,11 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     http://localhost:3000/api/donors/payment_accounts/{PAYMENT_ACCOUNT_ID}.json
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' http://localhost:3000/api/donors/payment_accounts/15.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' http://localhost:3000/api/donors/payment_accounts/1.json
 
     Examples Response:
 
-    {"payment_account":{"created_at":"2013-09-21T02:21:08Z","donor_id":2,"id":15,"processor":"stripe","requires_reauth":false,"updated_at":"2013-09-21T02:21:08Z"}}
+    {"payment_account":{"created_at":"2013-09-24T04:40:15Z","donor_id":1,"id":1,"processor":"stripe","requires_reauth":false,"stripe_cust_id":"cus_2d3jQymPJ1qWWR","updated_at":"2013-09-24T04:40:15Z"}}
 
 4. Update payment account
 
@@ -290,16 +290,17 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     token        : required
     processor    : "stripe"
+    stripeToken  : required
 
     {PAYMENT_ACCOUNT_ID} : required
 
     http://localhost:3000/api/donors/payment_accounts/{PAYMENT_ACCOUNT_ID}.json
 
-    curl -X PUT -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"processor": "stripe"}' http://localhost:3000/api/donors/payment_accounts/15.json
+    curl -X PUT -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"processor": "stripe", "stripeToken":"tok_102d3t2mGsIlOBKnFoh4bbJ7"}' http://localhost:3000/api/donors/payment_accounts/1.json
 
     Examples Response:
 
-    {"payment_account":{"created_at":"2013-09-21T02:21:08Z","donor_id":2,"id":15,"processor":"stripe","requires_reauth":false,"updated_at":"2013-09-21T02:21:08Z"}}
+    {"payment_account":{"created_at":"2013-09-24T04:40:15Z","donor_id":1,"id":1,"processor":"stripe","requires_reauth":false,"stripe_cust_id":"cus_2d3jQymPJ1qWWR","updated_at":"2013-09-24T04:40:15Z"}}
 
 5. Destroy payment account
 
@@ -311,7 +312,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     http://localhost:3000/api/donors/payment_accounts/{PAYMENT_ACCOUNT_ID}.json
 
-    curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' http://localhost:3000/api/donors/payment_accounts/15.json
+    curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' http://localhost:3000/api/donors/payment_accounts/15.json
 
     Examples Response:
 
@@ -334,13 +335,13 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
     { PAYMENT_ACCOUNT_ID } 
     http://localhost:3000/api/donors/payment_accounts/{ PAYMENT_ACCOUNT_ID }/donate_subscription.json
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"amount":"5", "charity_group_id":"2"}' http://localhost:3000/api/donors/payment_accounts/8/donate_subscription.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"amount":"5", "charity_group_id":"1"}' http://localhost:3000/api/donors/payment_accounts/1/donate_subscription.json
 
     Examples Response:
 
-    {"donation":{"amount":3.0,"charity_group_id":5,"created_at":"2013-09-24T04:18:36Z","id":9,"payment_account_id":7,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:18:36Z"}}
-    
-3. Charity Group Subscription Donation List
+    {"donation":{"amount":5.0,"charity_group_id":1,"created_at":"2013-09-24T04:56:48Z","id":1,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:56:48Z"}}
+
+3. Show Specify Charity Group Subscription Donation List 
 
     Arguments :
 
@@ -349,27 +350,24 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     http://localhost:3000/api/donors/payment_accounts/{PAYMENT_ACCOUNT_ID}/donation_list.json
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ'  http://localhost:3000/api/donors/payment_accounts/15/donation_list.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg'  http://localhost:3000/api/donors/payment_accounts/1/donation_list.json
 
     Examples Response:
 
     [{"donation":{"amount":500.0,"charity_group_id":2,"created_at":"2013-09-21T02:50:28Z","cust_id":"cus_2buIPLCrjIgzTh","id":3,"payment_account_id":15,"stripe_token":"tok_102buI2mGsIlOBKnfrmmTjXb","transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-21T02:50:28Z"}},{"donation":{"amount":500.0,"charity_group_id":2,"created_at":"2013-09-21T02:52:24Z","cust_id":"cus_2buK4Fe71qnRi1","id":4,"payment_account_id":15,"stripe_token":"tok_102buJ2mGsIlOBKnvqZrz7C7","transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-21T02:52:24Z"}}]
 
-4. Retrieve data donation subscriptions
+4. Charity Group Subscription Donation List
 
     Arguments :
 
-    token            : required
-    { DONATION_ID }  : required
+    token                : required
 
-    http://localhost:3000/api/donors/payment_accounts/{ DONATION_ID }/show_data_subscription.json
-
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ'  http://localhost:3000/api/donors/payment_accounts/3/show_data_subscription.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg'  http://localhost:3000/api/donors/payment_accounts/all_donation_list.json
 
     Examples Response:
 
-    {"id":"cus_2buIPLCrjIgzTh","object":"customer","created":1379731828,"livemode":false,"description":"newemail@domain.com","email":null,"delinquent":false,"subscription":{"id":"su_102buI2mGsIlOBKnyIxHEL1p","plan":{"id":"1","interval":"month","name":"Pay Permonth","amount":500,"currency":"usd","object":"plan","livemode":false,"interval_count":1,"trial_period_days":null},"object":"subscription","start":1379731828,"status":"active","customer":"cus_2buIPLCrjIgzTh","cancel_at_period_end":false,"current_period_start":1379731828,"current_period_end":1382323828,"ended_at":null,"trial_start":null,"trial_end":null,"canceled_at":null,"quantity":1,"application_fee_percent":null},"discount":null,"account_balance":0,"cards":{"object":"list","count":1,"url":"/v1/customers/cus_2buIPLCrjIgzTh/cards","data":[{"id":"card_102buI2mGsIlOBKn2ksa6rFw","object":"card","last4":"4242","type":"Visa","exp_month":9,"exp_year":2014,"fingerprint":"0gIyZMO2nNfr2TgC","customer":"cus_2buIPLCrjIgzTh","country":"US","name":null,"address_line1":null,"address_line2":null,"address_city":null,"address_state":null,"address_zip":null,"address_country":null,"cvc_check":"pass","address_line1_check":null,"address_zip_check":null}]},"default_card":"card_102buI2mGsIlOBKn2ksa6rFw"}
-
+    [{"donation":{"amount":5.0,"charity_group_id":1,"created_at":"2013-09-24T04:56:48Z","id":1,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:56:48Z"}},{"donation":{"amount":5.0,"charity_group_id":1,"created_at":"2013-09-24T06:11:28Z","id":2,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T06:11:28Z"}}]
+    
 5. Cancel donation subcscription
 
     Arguments :
@@ -379,7 +377,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     http://localhost:3000/api/donors/payment_accounts/{ DONATION_ID }/cancel_donate_subscription.json
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ'  http://localhost:3000/api/donors/payment_accounts/3/cancel_donate_subscription.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg'  http://localhost:3000/api/donors/payment_accounts/3/cancel_donate_subscription.json
 
     Examples Response:
 

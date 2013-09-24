@@ -26,6 +26,13 @@ class PaymentAccount < ActiveRecord::Base
         message = payment.errors
       end
     end
+
+    def update_account(stripeToken, donor_id, payment_id, options = {})
+      check_donor = Donor.find(donor_id)
+      customer = Stripe::Customer.retrieve(check_donor.payment_accounts.find(payment_id).stripe_cust_id)
+      customer.card = stripeToken
+      customer.save
+    end
   end
 
   def donate_subscription(amount, charity_group_id, payment_id, email)
