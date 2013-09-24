@@ -33,15 +33,22 @@ class PaymentAccount < ActiveRecord::Base
       customer.card = stripeToken
       customer.save
     end
+    
+    def cancel_subscription(cust_id)
+    cu = Stripe::Customer.retrieve(cust_id)
+    cu.cancel_subscription
+    end
+    
   end
 
   def donate_subscription(amount, charity_group_id, payment_id, email)
     raise PaymentAccountInvalid if !self.valid?
     raise CharityGroupInvalid if !(charity = CharityGroup.find(charity_group_id))
 
+    payment_donor = PaymentAccount.find(payment_id)
     charity_group = CharityGroup.find(charity_group_id)
     charity = charity_group.charities.all.size
-    check_donor = Donor.find(charity_group.donor_id)
+    check_donor = Donor.find(payment_donor.donor_id)
 
     if check_donor
       if charity > 0
