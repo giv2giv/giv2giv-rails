@@ -4,10 +4,6 @@ module StripeHelper
 
   protected
 
-  def retrieve_stripe_plan
-    Stripe::Plan.all
-  end
-
   def retrieve_customer_data(cust_id)
     Stripe::Customer.retrieve(cust_id)
   end

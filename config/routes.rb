@@ -1,7 +1,5 @@
-
-
 Giv2givRails::Application.routes.draw do
-
+  
   scope :format => true, :constraints => { :format => /json/ } do
     namespace :api do
 
@@ -32,7 +30,7 @@ Giv2givRails::Application.routes.draw do
       end
 
       resources :stripe, :except => [:new, :edit, :destroy, :create, :update, :show, :index] do
-        get 'show_stripe_plan', :on => :collection
+        
       end
 
     end # end namespace api
