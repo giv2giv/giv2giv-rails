@@ -9,37 +9,10 @@ require 'yaml'
 class Etrade < ActiveRecord::Base
   validates :balance, :presence => true
 
-  def self.get_auth_url
-  #TODO: MAKE THIS WORK
-    # To begin the OAuth process, send the user off to authUrl
-
-    base_uri 'https://etws.etrade.com/'
-    #HTTParty should handle this for all subsequent requests,
-    #but if we don't want to use it we can just append to api calls
-    format :xml
-
-    # Set in app.yml
-
-    consumer_key = App.etrade.oauth_consumer_key
-    access_token = App.etrade.consumer_secret
-
-    request_url = 'https://etws.etrade.com/oauth/request_token'
-    authUrl = ETrade::OAuth.get_auth_url(request_url)
-    return authUrl
-    # We still need a route for the oauth return
-
-    # STEP 2:
-    #   Exchange the temporary code given
-    #   to us in the querystring, for
-    #   a never-expiring OAuth access token like this sinatra route example
-    #get '/oauth_return' do
-      #code = params['code']
-      #token = Etrade::OAuth.get_token(code, redirect_uri)
-      #"Your never-expiring OAuth access token is: <b>#{token}</b>"
-    #end
-  end
 
   def self.authorize(oauth_consumer_key=consumer_key, oauth_token=access_token)
+    oauth_consumer_key = App.etrade.oauth_consumer_key
+    oauth_token = App.etrade.consumer_secret
     get("https://us.etrade.com/e/etws/authorize?key=#{oauth_consumer_key}&token=#{oauth_token}")
   end
 
