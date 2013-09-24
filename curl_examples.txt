@@ -25,10 +25,9 @@
 
 2. Retrieve donor info
 
-    Arguments :
+    Authorization token in Header *required*. See session #authenticate
 
-    token    : required
-    > You can get token from session #authenticate
+    Arguments : none
 
     curl -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' http://localhost:3000/api/donors.json
 
@@ -38,9 +37,9 @@
 
 3. Update donor info
 
-    Arguments :
+    Authorization token in Header *required*. See session #authenticate
 
-    token    : required
+    Arguments :
 
     email, password, name, address, city, country, facebook_id, phone_number, state, zip  :  optional
 
@@ -69,9 +68,9 @@
 
 2. Destroy token
 
-    Arguments :
+    Authorization token in Header *required*. See session #authenticate
 
-    token    : required
+    Arguments : none
 
     curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '' http://localhost:3000/api/sessions/destroy.json
 
@@ -130,9 +129,10 @@
 
 1. Create charity group
 
+    Authorization token in Header *required*. See session #authenticate
+
     Arguments :
 
-    token        : required
     name         : required, uniq
     minimum_donation_amount : required
 
@@ -146,9 +146,10 @@
 
 2. Add charity to group
 
+    Authorization token in Header *required*. See session #authenticate
+
     Arguments :
 
-    token        : required
     charity_id   : required
 
     {CHARITY_GROUP_ID} : required
@@ -163,9 +164,10 @@
 
 3. Remove charity from group
 
+    Authorization token in Header *required*. See session #authenticate
+
     Arguments :
 
-    token              : required
     charity_id         : required
 
     {CHARITY_GROUP_ID} : required
@@ -180,10 +182,10 @@
 
 4. Rename charity group
 
+    Authorization token in Header *required*. See session #authenticate
+
     Arguments :
 
-    token        : required
-    
     name, description, minimum_donation_amount : optional
 
     {CHARITY_GROUP_ID} : required
@@ -198,9 +200,10 @@
 
 5. Search charity group
 
+    Authorization token in Header *required*. See session #authenticate
+
     Arguments :
 
-    token        : required
     keyword      : required << search by tag
 
 
@@ -244,9 +247,10 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
 1. Create payment account
 
+    Authorization token in Header *required*. See session #authenticate
+
     Arguments :
 
-    token        : required
     stripeToken  : required
     processor    : "stripe"
 
@@ -258,9 +262,9 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
 2. Show all payment accounts
 
-    Arguments :
+    Authorization token in Header *required*. See session #authenticate
 
-    token        : required
+    Arguments : none
 
     curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' http://localhost:3000/api/donors/payment_accounts.json
 
@@ -270,9 +274,9 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
 3. Show specific payment account
 
-    Arguments :
+    Authorization token in Header *required*. See session #authenticate
 
-    token        : required
+    Arguments :
 
     {PAYMENT_ACCOUNT_ID} : required
 
@@ -286,9 +290,10 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
 4. Update payment account
 
+    Authorization token in Header *required*. See session #authenticate
+
     Arguments :
 
-    token        : required
     processor    : "stripe"
     stripeToken  : required
 
@@ -304,9 +309,9 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
 5. Destroy payment account
 
-    Arguments :
+    Authorization token in Header *required*. See session #authenticate
 
-    token        : required
+    Arguments :
 
     {PAYMENT_ACCOUNT_ID} : required
 
@@ -326,9 +331,10 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
 1.  Add donor subscription to a charity_group
 
+    Authorization token in Header *required*. See session #authenticate
+
     Arguments :
 
-    token            : required
     amount           : required << donation amount
     charity_group_id : required
 
@@ -343,9 +349,10 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
 2.  Show all charity_group subscriptions for this donor through this payment_account
 
+    Authorization token in Header *required*. See session #authenticate
+
     Arguments :
 
-    token                : required
     {PAYMENT_ACCOUNT_ID} : required
 
     http://localhost:3000/api/donors/payment_accounts/{PAYMENT_ACCOUNT_ID}/subscription_list.json
@@ -358,9 +365,10 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
 3. Show all donations from this donor to 1 or all charity_groups
 
+    Authorization token in Header *required*. See session #authenticate
+
     Arguments :
 
-    token                : required
     charity_group_id 	 : optional
 
     curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"charity_group_id":"1"}' http://localhost:3000/api/donors/payment_accounts/all_donation_list.json
@@ -371,9 +379,10 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
     
 4. Cancel charity_group subcscription
 
+    Authorization token in Header *required*. See session #authenticate
+
     Arguments :
 
-    token           : required
     { DONATION_ID } : required
 
     http://localhost:3000/api/donors/payment_accounts/{ DONATION_ID }/cancel_subscription.json
