@@ -1,10 +1,10 @@
-# formerly 'endowment'
 class CharityGroup < ActiveRecord::Base
   has_many :donations
   has_and_belongs_to_many :charities
 
   validates :name, :presence => true,
                    :uniqueness => { :case_sensitive => false }
+  validates :minimum_donation_amount, :presence => true, :format => { :with => /^\d+??(?:\.\d{0,2})?$/ }, :numericality => {:greater_than => 0}
 
   class << self
     def new_with_charities(options = {})

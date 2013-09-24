@@ -134,8 +134,9 @@
 
     token        : required
     name         : required, uniq
-
-    description, minimum_donation_amount : optional
+    minimum_donation_amount : required
+    
+    description  : optional
 
     curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"name":"Build Houses","description":"Your description","minimum_donation_amount":"5"}' http://localhost:3000/api/charity_group.json
 
@@ -317,21 +318,9 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
 
 
-** DONATION MANAGEMENT **
+** CHARITY GROUP SUBSCRIPTION MANAGEMENT **
 
 P.S : FOR NOW ONLY SUPPORT STRIPE
-
-1. List Donation Planing Subscriptions
-
-    Arguments :
-
-    token        : required
-
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' http://localhost:3000/api/stripe/show_stripe_plan.json
-
-    Examples Response:
-
-    {"object":"list","count":1,"url":"/v1/plans","data":[{"id":"1","interval":"month","name":"Pay Permonth","amount":500,"currency":"usd","object":"plan","livemode":false,"interval_count":1,"trial_period_days":null}]}
 
 2. Donate Subscriptions
 
@@ -339,14 +328,13 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     token            : required
     stripeToken      : required
-    plan_id          : required << plan id in stripe
     amount           : required << donation amount
     charity_group_id : required
 
     { PAYMENT_ACCOUNT_ID } 
     http://localhost:3000/api/donors/payment_accounts/{ PAYMENT_ACCOUNT_ID }/donate_subscription.json
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"stripeToken":"tok_102cgl2mGsIlOBKn7qWJu4mV", "amount":"5", "plan_id": "1", "charity_group_id":"2"}' http://localhost:3000/api/donors/payment_accounts/8/donate_subscription.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=QR8ibV4uUAhguiA-hgI7BQ' -d '{"stripeToken":"tok_102cgl2mGsIlOBKn7qWJu4mV", "amount":"5", "charity_group_id":"2"}' http://localhost:3000/api/donors/payment_accounts/8/donate_subscription.json
 
     Examples Response:
 
