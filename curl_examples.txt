@@ -87,9 +87,10 @@
     Arguments :
 
     page     : optional "default 1" << Page number
-    per page : optional "default 1" << Limit Per Page
+    per page : optional "default 10" << Limit Per Page
+    query    : optional "" << Returns the closest matching charities.
 
-    curl -X GET -H "Content-Type: application/json" -d '{"page":"2", "per_page":"1"}' http://localhost:3000/api/charity.json
+    curl -X GET -H "Content-Type: application/json" -d '{"page":"1", "per_page":"10", "query":"Veterans"}' http://localhost:3000/api/charity.json
 
     Examples Response:
 
@@ -108,20 +109,6 @@
     Examples Response:
 
     {"charity":{"activity_code":"907908000.0","address":"PO BOX 70","city":"MIDDLETOWN","classification_code":"1.0","created_at":"2013-09-19T03:42:51Z","description":null,"ein":562469560,"id":1,"name":"AMERCIAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-19T03:42:51Z","website":null,"zip":"19709-0070"}}
-
-3. Search charity
-
-    Arguments :
-
-    token        : required
-    keyword      : required << search by tag
-
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"keyword":"Domestic Fraternal Societies and Associations"}' http://localhost:3000/api/charity/search.json
-
-    Examples Response:
-
-    [{"charity":{"activity_code":"279265319","address":"818 N MARKET ST FL 3","city":"WILMINGTON","classification_code":"1.0","created_at":"2013-09-20T14:53:07Z","description":null,"ein":510011572,"id":45,"name":"ANCIENT ACCEPTED SCOTTISH RITE OF FREE MASONRY NMJ","ntee_code":"","state":"DE","subsection_code":"10.0","updated_at":"2013-09-20T14:53:07Z","website":null,"zip":"19801-3087"}}]
-
 
 
 
@@ -218,7 +205,7 @@
     Arguments :
 
     page     : optional "default 1" << Page number
-    per page : optional "default 1" << Limit Per Page
+    per page : optional "default 10" << Limit Per Page
 
     curl -X GET -H "Content-Type: application/json" -d '{"page":"1", "per_page":"10"}' http://localhost:3000/api/charity_group.json
 
