@@ -1,6 +1,6 @@
 class Api::PaymentAccountsController < Api::BaseController
   before_filter :current_donor_id, :except => [:index, :create]
-  skip_before_filter :current_donor_id, :only => [:all_donation_list, :cancel_subscription]
+  skip_before_filter :current_donor_id, :only => [:all_donation_list, :cancel_subscription, :cancel_all_subscription]
 
   def index
     pas = current_donor.payment_accounts
@@ -109,18 +109,28 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def cancel_subscription
-    find_donation = Donation.find(params[:id].to_s)
+    find_donation = Donation.find(params[:id])
     get_donor_id = PaymentAccount.find(find_donation.payment_account_id)
     
     if current_donor.id.to_s.eql?(get_donor_id.donor_id.to_s)
       respond_to do |format|
-        cancel_subscription = PaymentAccount.cancel_subscription(get_donor_id.stripe_cust_id)
+        cancel_subscription = PaymentAccount.cancel_subscription(get_donor_id.stripe_cust_id, find_donation.amount, params[:id])
         format.json { render json: cancel_subscription }
       end
     else
       render :json => {:message => "unauthorized"}.to_json
     end
+  end
 
+  def cancel_all_subscription
+    if current_donor
+      respond_to do |format|
+        cancel_all_subscription = PaymentAccount.cancel_all_subscription(current_donor)
+        format.json { render json: cancel_all_subscription }
+      end
+    else
+      render :json => {:message => "unauthorized"}.to_json
+    end
   end
 
   protected

@@ -34,11 +34,39 @@ class PaymentAccount < ActiveRecord::Base
       customer.save
     end
     
-    def cancel_subscription(cust_id)
-    cu = Stripe::Customer.retrieve(cust_id)
-    cu.cancel_subscription
+    def cancel_subscription(cust_id, amount, donate_id)
+      cu = Stripe::Customer.retrieve(cust_id)
+      total_quantity = cu.subscription.quantity.to_i
+
+      if total_quantity > amount.to_i
+        update_qty = total_quantity - amount.to_i 
+        cu.update_subscription(:plan => PLAN_ID, :quantity => update_qty.to_i)
+      else
+        cu.cancel_subscription
+      end
+
+      donation = Donation.find(donate_id)
+      
+      if donation.destroy
+        message = {:message => "Your subscription has been canceled"}.to_json
+      end
     end
-    
+
+    def cancel_all_subscription(current_donor)
+      begin
+        payment_accounts = current_donor.payment_accounts
+        payment_accounts.each do |payment_account|
+          cu = Stripe::Customer.retrieve(payment_account.stripe_cust_id)
+          cu.cancel_subscription
+          payment_account.donations.each do |donation|
+            donation.destroy
+          end
+        end
+        message = {:message => "Your subscriptions has been canceled"}.to_json
+      rescue
+        message = {:message => "Failed! No active subscription"}.to_json
+      end
+    end
   end
 
   def donate_subscription(amount, charity_group_id, payment_id, email)
