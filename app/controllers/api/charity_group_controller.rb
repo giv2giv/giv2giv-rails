@@ -6,11 +6,34 @@ class Api::CharityGroupController < Api::BaseController
   def index
     page = params[:page] || 1
     perpage = params[:per_page] || 10
-    results = CharityGroup.find(:all).paginate(:page => page, :per_page => perpage)
+    query = params[:query] || ""
 
-    respond_to do |format|
-      format.json { render json: results }
+    charity_groups = []
+    charities = []
+    tags = Tag.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ])
+    tags.each do |tag|
+      tag.charities.each do |c|
+        charities << c
+      end
     end
+
+    charities.each do |c|
+      charity_groups << c.charity_groups
+    end
+
+    CharityGroup.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ]).each do |cg|
+      charity_groups << cg
+    end
+    
+    results = charity_groups.compact.flatten.uniq.paginate(:page => page, :per_page => perpage)
+    respond_to do |format|
+      if !results.empty?
+        format.json { render json: results }
+      else
+        format.json { render json: {:message => "Not found"}.to_json }
+      end
+    end
+
   end
 
   def create
@@ -36,36 +59,6 @@ class Api::CharityGroupController < Api::BaseController
       end
     end
   end
-
-  def search
-    ss = params[:keyword]
-    
-    charity_groups = []
-    charities = []
-    tags = Tag.find(:all, :conditions=> [ "name LIKE ?", "%#{params[:keyword]}%" ])
-    tags.each do |tag|
-      tag.charities.each do |c|
-        charities << c
-      end
-    end
-
-    charities.each do |c|
-      charity_groups << c.charity_groups
-    end
-
-    CharityGroup.find(:all, :conditions=> [ "name LIKE ?", "%#{params[:keyword]}%" ]).each do |cg|
-      charity_groups << cg
-    end
-    
-    charity_groups = charity_groups.compact.flatten.uniq
-    respond_to do |format|
-      if !charity_groups.empty?
-        format.json { render json: charity_groups }
-      else
-        format.json { head :not_found }
-      end
-    end
-  end #search
 
   def rename_charity_group
     group = CharityGroup.find(params[:id].to_s)

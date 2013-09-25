@@ -185,35 +185,21 @@
 
     {"message":"Charity Group has been updated","charity_group":{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}}
 
-5. Search charity group
-
-    Authorization token in Header *required*. See session #authenticate
-
-    Arguments :
-
-    keyword      : required << search by tag
-
-
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"keyword":"Veterans activities"}' http://localhost:3000/api/charity_group/search.json
-
-    Examples Response:
-
-    [{"charity_group":{"created_at":"2013-09-20T17:31:13Z","description":"My Description","donor_id":2,"id":2,"minimum_donation_amount":3.0,"name":"Giv2Giv Build House","updated_at":"2013-09-20T17:41:22Z","charities":[{"activity_code":"907908000.0","address":"PO BOX 70","city":"MIDDLETOWN","classification_code":"1.0","created_at":"2013-09-20T14:52:54Z","description":null,"ein":562469560,"id":1,"name":"AMERCIAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-20T14:52:54Z","website":null,"zip":"19709-0070"}]}}]
-
-6. Get a list of charities group
+5. Get a list of charities group
 
     Arguments :
 
     page     : optional "default 1" << Page number
     per page : optional "default 10" << Limit Per Page
+    query    : optional "" << Limit the result set to the best matching charity group name, tag name, or associated charity name
 
-    curl -X GET -H "Content-Type: application/json" -d '{"page":"1", "per_page":"10"}' http://localhost:3000/api/charity_group.json
+    curl -X GET -H "Content-Type: application/json" -d '{"page":"1", "per_page":"10", "query":"Rescue"}' http://localhost:3000/api/charity_group.json
 
     Examples Response
 
     [{"charity_group":{"created_at":"2013-09-19T08:52:46Z","description":"My Description","donor_id":2,"id":4,"minimum_donation_amount":3.0,"name":"Giv2Giv Build House","updated_at":"2013-09-19T09:36:01Z","charities":[{"activity_code":"907908000.0","address":"PO BOX 124","city":"MILFORD","classification_code":"1.0","created_at":"2013-09-19T03:42:52Z","description":null,"ein":516022762,"id":4,"name":"AMERICAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-19T03:42:52Z","website":null,"zip":"19963-0124"}]}}]
 
-7. Show charity group data
+6. Show charity group data
 
     Arguments :
 
