@@ -320,23 +320,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     {"donation":{"amount":5.0,"charity_group_id":1,"created_at":"2013-09-24T04:56:48Z","id":1,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:56:48Z"}}
 
-2.  Show all charity_group subscriptions for this donor through this payment_account
-
-    Authorization token in Header *required*. See session #authenticate
-
-    Arguments :
-
-    {PAYMENT_ACCOUNT_ID} : required
-
-    http://localhost:3000/api/donors/payment_accounts/{PAYMENT_ACCOUNT_ID}/subscription_list.json
-
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' http://localhost:3000/api/donors/payment_accounts/1/subscription_list.json
-
-    Examples Response:
-
-    [{"donation":{"amount":500.0,"charity_group_id":2,"created_at":"2013-09-21T02:50:28Z","cust_id":"cus_2buIPLCrjIgzTh","id":3,"payment_account_id":15,"stripe_token":"tok_102buI2mGsIlOBKnfrmmTjXb","transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-21T02:50:28Z"}},{"donation":{"amount":500.0,"charity_group_id":2,"created_at":"2013-09-21T02:52:24Z","cust_id":"cus_2buK4Fe71qnRi1","id":4,"payment_account_id":15,"stripe_token":"tok_102buJ2mGsIlOBKnvqZrz7C7","transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-21T02:52:24Z"}}]
-
-3. Show all donations from this donor to 1 or all charity_groups
+2. Show all donations from this donor to 1 or all charity_groups
 
     Authorization token in Header *required*. See session #authenticate
 
@@ -350,7 +334,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     [{"donation":{"amount":5.0,"charity_group_id":1,"created_at":"2013-09-24T04:56:48Z","id":1,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:56:48Z"}},{"donation":{"amount":5.0,"charity_group_id":1,"created_at":"2013-09-24T06:11:28Z","id":2,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T06:11:28Z"}}]
     
-4. Stop subscribing to one endowment but keep subscription to all others
+3. Stop subscribing to one endowment but keep subscription to all others
 
     Authorization token in Header *required*. See session #authenticate
 
@@ -366,7 +350,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     {"id":"su_102bnk2mGsIlOBKnkLysKB6V","plan":{"id":"1","interval":"month","name":"Pay Permonth","amount":500,"currency":"usd","object":"plan","livemode":false,"interval_count":1,"trial_period_days":null},"object":"subscription","start":1379707483,"status":"canceled","customer":"cus_2bnkfxPZws93SD","cancel_at_period_end":false,"current_period_start":1379707483,"current_period_end":1382299483,"ended_at":1379723435,"trial_start":null,"trial_end":null,"canceled_at":1379723435,"quantity":1,"application_fee_percent":null}
 
-5. Stop subscribing to all endowments
+4. Stop subscribing to all endowments
 
     Authorization token in Header *required*. See session #authenticate
 
@@ -376,7 +360,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     {"message":"Your subscriptions has been canceled"}
 
-6. One-time payment #FIX ME
+5. One-time payment #FIX ME
 
     Authorization token in Header *required*. See session #authenticate
 
