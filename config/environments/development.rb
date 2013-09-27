@@ -28,4 +28,17 @@ Giv2givRails::Application.configure do
 
   # Expands the lines which load the assets
   config.assets.debug = true
+
+  config.action_mailer.default_url_options = { :host => 'localhost:3000' }
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: "smtp.mandrillapp.com",
+    port: 587,
+    domain: "mandrillapp.com",
+    authentication: "plain",
+    enable_starttls_auto: true,
+    user_name: "elga@41studio.com",
+    password: '9J5-dOptRMJI-HY6dKWGdw'
+  }
+
 end

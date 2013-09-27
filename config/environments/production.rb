@@ -65,4 +65,16 @@ Giv2givRails::Application.configure do
   # Send deprecation notices to registered listeners
   config.active_support.deprecation = :notify
 
+  config.action_mailer.default_url_options = { :host => 'https://api.giv2giv.org' }
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: "smtp.mandrillapp.com",
+    port: 587,
+    domain: "mandrillapp.com",
+    authentication: "plain",
+    enable_starttls_auto: true,
+    user_name: "elga@41studio.com",
+    password: '9J5-dOptRMJI-HY6dKWGdw'
+  }
+
 end
