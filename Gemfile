@@ -25,9 +25,6 @@ gem 'will_paginate', '~> 3.0'
 #gem 'neo4j-enterprise', '1.9'
 #gem 'neo4j-will_paginate'
 
-# CORS support
-gem 'rack-cors', :require => 'rack/cors'
-
 # Stripe events
 gem 'stripe_event'
 
@@ -51,3 +48,6 @@ group :development, :test do
   gem "debugger"
 #  gem "ruby-debug"
 end
+
+# CORS support
+gem 'rack-cors', :require => 'rack/cors'

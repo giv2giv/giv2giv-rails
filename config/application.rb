@@ -77,14 +77,14 @@ module Giv2givRails
     config.middleware.use Rack::Cors do
       allow do
         origins '*'
-	# In production we should explicitly state methods
-	#resource '/api/sessions/', :headers => :any, :methods => [:post]
-	#resource '/api/donors/payment_accounts/', :headers => :any, :methods => [:get, :post, :put, :delete]
-	#resource '/api/charity_group/', :headers => :any, :methods => [:post, :get, :put]
-	#resource '/api/', :headers => :any, :methods => [:post, :get, :put]
-
-	# Open CORS wide during development
-        resource '*', :headers => :any, :methods => [:get, :post, :put, :delete, :options, :head, :trace, :connect]
+      	if Rails.env.eql?("production")
+        	resource '/api/sessions/', :headers => :any, :methods => [:post]
+        	resource '/api/donors/payment_accounts/', :headers => :any, :methods => [:get, :post, :put, :delete]
+        	resource '/api/charity_group/', :headers => :any, :methods => [:post, :get, :put]
+        	resource '/api/', :headers => :any, :methods => [:post, :get, :put]
+        else
+        	resource '*', :headers => :any, :methods => [:get, :post, :put, :delete, :options, :head, :trace, :connect]
+        end
       end
     end
 
