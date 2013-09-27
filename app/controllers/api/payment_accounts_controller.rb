@@ -13,13 +13,13 @@ class Api::PaymentAccountsController < Api::BaseController
   def create
     set_token = params[:stripeToken]
     if set_token.blank?
-      render json: {:message => "Please provided your stripe token"}.to_json
+      render json: { :message => "Please provided your stripe token" }.to_json
     else
       if params.has_key?(:payment_account)
         payment = PaymentAccount.new_account(set_token, current_donor.id, {:donor => current_donor}.merge(params[:payment_account]))
         render json: payment.to_json
       else
-        render json: {:message => "Wrong parameters"}.to_json
+        render json: { :message => "Wrong parameters" }.to_json
       end
     end
   end
@@ -27,7 +27,7 @@ class Api::PaymentAccountsController < Api::BaseController
   def update
     set_token = params[:stripeToken]
     if set_token.blank?
-      render json: {:message => "Please provided your stripe token"}.to_json
+      render json: { :message => "Please provided your stripe token"}.to_json
     else
       if params.has_key?(:payment_account)
         payment = PaymentAccount.update_account(set_token, current_donor.id, current_donor_id, {:donor => current_donor}.merge(params[:payment_account]))
@@ -62,7 +62,7 @@ class Api::PaymentAccountsController < Api::BaseController
     respond_to do |format|
       if current_donor_id
         current_donor_id.destroy
-        render json: {:message => "Payment account has been delete"}.to_json
+        render json: { :message => "Payment account has been delete" }.to_json
       else
         format.json { head :not_found }
       end
@@ -71,11 +71,18 @@ class Api::PaymentAccountsController < Api::BaseController
 
   def donate_subscription
     respond_to do |format|
-      if current_donor_id && donation = current_donor_id.donate_subscription(params[:amount].to_i, params[:charity_group_id].to_s, params[:id], current_donor.email)
+      if current_donor_id && donation = current_donor_id.donate_subscription(params[:amount], params[:charity_group_id], params[:id], current_donor.email)
         format.json { render json: donation }
       else
         format.json { head :not_found }
       end
+    end
+  end
+
+  def one_time_payment
+     respond_to do |format|
+      donation = PaymentAccount.donate(params[:amount].to_i, params[:charity_group_id], params[:email])
+      format.json { render json: donation }
     end
   end
 
@@ -104,7 +111,7 @@ class Api::PaymentAccountsController < Api::BaseController
         end
       end
     else
-      render :json => {:message => "unauthorized"}.to_json
+      render :json => { :message => "unauthorized" }.to_json
     end
   end
 
@@ -136,7 +143,7 @@ class Api::PaymentAccountsController < Api::BaseController
   protected
 
   def current_donor_id
-    current_donor.payment_accounts.find(params[:id].to_s)
+    current_donor.payment_accounts.find(params[:id])
   end
 
 end

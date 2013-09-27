@@ -12,6 +12,7 @@ Giv2givRails::Application.routes.draw do
         resources :payment_accounts, :except => [:new, :edit] do
           post 'donate_subscription', :on => :member
           get 'donation_list', :on => :member
+          get 'one_time_payment', :on => :collection
           get 'all_donation_list', :on => :collection
           get 'cancel_subscription', :on => :member
           get 'cancel_all_subscription', :on => :collection
@@ -28,8 +29,10 @@ Giv2givRails::Application.routes.draw do
         #
       end
 
-      resources :stripe, :except => [:new, :edit, :destroy, :create, :update, :show, :index] do
-        # 
+      resources :balances, :except => [:new, :edit, :destroy, :create, :update, :show, :index] do
+        get 'get_pin_etrade', :on => :collection
+        get 'pin_etrade', :on => :collection
+        get 'show_balances', :on => :collection
       end
 
     end # end namespace api

@@ -375,3 +375,52 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
     Examples Response:
 
     {"message":"Your subscriptions has been canceled"}
+
+6. One-time payment #FIX ME
+
+    Authorization token in Header *required*. See session #authenticate
+
+    Arguments :
+
+    stripeToken      : required
+    amount           : required
+    charity_group_id : required
+    email            : required
+
+
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' -d '{"amount":"5", "charity_group_id":"1", "email":"email@email.com","stripeToken":"tok_102drE2mGsIlOBKnv6SfzVlO"}' http://localhost:3000/api/donors/payment_accounts/one_time_payment.json
+
+    Examples Response:
+
+    {"message":"Your subscriptions has been canceled"}
+
+
+
+
+### FIX ME
+
+** ETRADE INTEGRATION **
+
+1. Authenticate application to etrade
+
+    Authorization token in Header *required*. See session #authenticate
+
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' -d '' http://localhost:3000/api/balances/get_pin_etrade.json
+
+    Examples Response:
+
+    {"url":"https://us.etrade.com/e/t/etws/authorize?key=4d2fd4cd312c1904069f2970c89899df&token=SnzaVHqTyCE98Q%2F3%2FpzB%2FsKdd7LKbRIMCTOfRN7gJ88%3D"}
+
+2. Enter verifier code
+   follow this link for more detail : https://us.etrade.com/ctnt/dev-portal/getContent?contentUri=V0_Documentation-DeveloperGuides-Authorization
+
+   Authorization token in Header *required*. See session #authenticate
+
+   curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' -d '"pin":"WXTD1"' http://localhost:3000/api/balances/pin_etrade.json
+
+3. Show Giv2Giv Balance
+
+   Authorization token in Header *required*. See session #authenticate
+
+   curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/balances/show_balances.json
+

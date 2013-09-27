@@ -2,14 +2,14 @@ class PaymentAccount < ActiveRecord::Base
   require "stripe"
 
   VALID_PROCESSORS = %w(stripe)
-  PLAN_ID = 1
-
+  PLAN_ID = 1 
+  PER_SHARE_DEFAULT = 1
+  
   belongs_to :donor
   has_many :donations
 
   validates :requires_reauth, :inclusion => { :in => [false] }
-  validates :processor, :presence => true,
-                        :inclusion => { :in => VALID_PROCESSORS }
+  validates :processor, :presence => true, :inclusion => { :in => VALID_PROCESSORS }
   validates :donor, :presence => true
   before_validation :set_requires_reauth, :on => :create
   before_validation :downcase_processor, :on => :create
@@ -17,13 +17,13 @@ class PaymentAccount < ActiveRecord::Base
   class << self
     def new_account(stripeToken, donor_id, options = {})
       check_donor = Donor.find(donor_id)
-      customer = Stripe::Customer.create( description: "Giv2Giv Subscription", email: check_donor.email, card: stripeToken)
+      customer = Stripe::Customer.create(description: "Giv2Giv Subscription", email: check_donor.email, card: stripeToken)
       payment = PaymentAccount.new(options)
       payment.stripe_cust_id = customer.id
       if payment.save
-        message = payment
+        payment
       else
-        message = payment.errors
+        payment.errors
       end
     end
 
@@ -37,10 +37,10 @@ class PaymentAccount < ActiveRecord::Base
     def cancel_subscription(cust_id, amount, donate_id)
       cu = Stripe::Customer.retrieve(cust_id)
       total_quantity = cu.subscription.quantity.to_i
-
-      if total_quantity > amount.to_i
-        update_qty = total_quantity - amount.to_i 
-        cu.update_subscription(:plan => PLAN_ID, :quantity => update_qty.to_i)
+      amount = amount.to_i
+      if total_quantity > amount
+        update_qty = total_quantity - amount 
+        cu.update_subscription(:plan => PLAN_ID, :quantity => update_qty)
       else
         cu.cancel_subscription
       end
@@ -48,7 +48,7 @@ class PaymentAccount < ActiveRecord::Base
       donation = Donation.find(donate_id)
       
       if donation.destroy
-        message = {:message => "Your subscription has been canceled"}.to_json
+        {:message => "Your subscription has been canceled"}.to_json
       end
     end
 
@@ -58,36 +58,35 @@ class PaymentAccount < ActiveRecord::Base
         payment_accounts.each do |payment_account|
           cu = Stripe::Customer.retrieve(payment_account.stripe_cust_id)
           cu.cancel_subscription
-          payment_account.donations.each do |donation|
-            donation.destroy
-          end
+          payment_account.donations.destroy_all
         end
-        message = {:message => "Your subscriptions has been canceled"}.to_json
+        { :message => "Your subscriptions has been canceled" }.to_json
       rescue
-        message = {:message => "Failed! No active subscription"}.to_json
+        { :message => "Failed! No active subscription" }.to_json
       end
     end
   end
 
   def donate_subscription(amount, charity_group_id, payment_id, email)
-    raise PaymentAccountInvalid if !self.valid?
-    raise CharityGroupInvalid if !(charity = CharityGroup.find(charity_group_id))
+    raise PaymentAccountInvalid unless self.valid?
+    raise CharityGroupInvalid unless CharityGroup.find(charity_group_id)
 
     payment_donor = PaymentAccount.find(payment_id)
     charity_group = CharityGroup.find(charity_group_id)
-    charity = charity_group.charities.all.size
+    num_of_charity = charity_group.charities.count
     check_donor = Donor.find(payment_donor.donor_id)
+    amount = amount.to_i
 
     if check_donor
-      if charity > 0
-        if amount.to_i < charity_group.minimum_donation_amount.to_i
-          message = {:message => "Minimum amount for create donation $#{charity_group.minimum_donation_amount}"}.to_json
+      if num_of_charity > 0
+        if amount < charity_group.minimum_donation_amount.to_i
+          { :message => "Minimum amount for create donation $#{charity_group.minimum_donation_amount}" }.to_json
         else
           customer = Stripe::Customer.retrieve(check_donor.payment_accounts.find(payment_id).stripe_cust_id)
           if customer.subscription.blank?
-            customer.update_subscription(:plan => PLAN_ID, :quantity => amount.to_i)
+            customer.update_subscription(:plan => PLAN_ID, :quantity => amount)
           else
-            customer.update_subscription(:plan => PLAN_ID, :quantity => customer.subscription.quantity + amount.to_i)  
+            customer.update_subscription(:plan => PLAN_ID, :quantity => customer.subscription.quantity + amount)  
           end
           donation = donor.donations.build(:amount => amount,
                                            :charity_group_id => charity_group_id,
@@ -95,14 +94,47 @@ class PaymentAccount < ActiveRecord::Base
                                            :payment_account_id => payment_id,
                                            :transaction_type => "subscription"
                                            )
-          donation.save
-          donation
+          if donation.save
+            # record buying shares
+            check_charity_group = Givshare.find_by_charity_group_id(charity_group_id)
+            if check_charity_group.blank?
+              per_share = PER_SHARE_DEFAULT
+              buy_shares = amount / per_share
+              givshare = Givshare.new(
+                                    :charity_group_id => charity_group_id,
+                                    :stripe_balance => 0,
+                                    :etrade_balance => 0,
+                                    :shares_outstanding_beginning => 0,
+                                    :shares_bought_through_donations => 0,
+                                    :shares_outstanding_end => 0,
+                                    :donation_price => per_share,
+                                    :round_down_price => per_share
+                                    )
+              if givshare.save
+                givshare_id = Givshare.find_by_charity_group_id(charity_group_id)
+                share = Share.new(
+                                  :donor_id => payment_donor.donor_id,
+                                  :charity_group_id => charity_group_id,
+                                  :givshare_id => givshare_id.id,
+                                  :count => buy_shares,
+                                  :price_at_issue => 0
+                                  )
+                if share.save
+                  donation
+                else
+                  { :message => "Error" }.to_json
+                end
+              end
+            else
+              # hmmm .. still confuse
+            end
+          end #end donation.save
         end
       else
-        message = {:message => "You need add one or more charity to this group"}.to_json
+        { :message => "You need add one or more charity to this group" }.to_json
       end
     else
-      message = {:message => "Wrong donor id"}.to_json
+      { :message => "Wrong donor id" }.to_json
     end
 
   end

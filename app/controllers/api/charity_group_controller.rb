@@ -1,7 +1,6 @@
 class Api::CharityGroupController < Api::BaseController
 
-  skip_before_filter :require_authentication, :only => [:index,
-                                                        :show]
+  skip_before_filter :require_authentication, :only => [:index, :show]
 
   def index
     page = params[:page] || 1
@@ -30,7 +29,7 @@ class Api::CharityGroupController < Api::BaseController
       if !results.empty?
         format.json { render json: results }
       else
-        format.json { render json: {:message => "Not found"}.to_json }
+        format.json { render json: { :message => "Not found" }.to_json }
       end
     end
 
@@ -49,7 +48,7 @@ class Api::CharityGroupController < Api::BaseController
   end
 
   def show
-    group = CharityGroup.find(params[:id].to_s)
+    group = CharityGroup.find(params[:id])
 
     respond_to do |format|
       if group
@@ -61,55 +60,56 @@ class Api::CharityGroupController < Api::BaseController
   end
 
   def rename_charity_group
-    group = CharityGroup.find(params[:id].to_s)
+    group = CharityGroup.find(params[:id])
     if (group.donor_id.to_s.eql?(current_session.session_id))
       respond_to do |format|
         if group.donations.size >= 1
           format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
         else
           group.update_attributes(params[:charity_group])
-          format.json { render json: {:message => "Charity Group has been updated", :charity_group => params[:charity_group]}.to_json }
+          format.json { render json: { :message => "Charity Group has been updated", :charity_group => params[:charity_group] }.to_json }
         end
       end
     else
-      render json: {:message => "You cannot edit this charity group"}.to_json
+      render json: { :message => "You cannot edit this charity group" }.to_json
     end
   end
 
   def add_charity
-    group = CharityGroup.find(params[:id].to_s)
+    group = CharityGroup.find(params[:id])
+    
     if (group.donor_id.to_s.eql?(current_session.session_id))
       respond_to do |format|
         if group.donations.size < 1 
           group.add_charity(params[:charity_id])
-          format.json { render json: {:message => "Charity has been added"}.to_json }
+          format.json { render json: { :message => "Charity has been added"}.to_json }
         else
           format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
         end
       end #respond_to
     else
-      render json: {:message => "You cannot edit this charity group"}.to_json
+      render json: { :message => "You cannot edit this charity group" }.to_json
     end
   end
 
   def remove_charity
-    group = CharityGroup.find(params[:id].to_s)
+    group = CharityGroup.find(params[:id])
     if (group.donor_id.to_s.eql?(current_session.session_id))
       respond_to do |format|
         if group.donations.size < 1 
           group.remove_charity(params[:id], params[:charity_id])
-          format.json { render json: {:message => "Charity has been removed"}.to_json }
+          format.json { render json: { :message => "Charity has been removed" }.to_json }
         else
           format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
         end
       end #respond_to
     else
-      render json: {:message => "You can edit this charity group"}.to_json
+      render json: { :message => "You can edit this charity group" }.to_json
     end
   end
 
   def destroy
-    group = CharityGroup.find(params[:id].to_s)
+    group = CharityGroup.find(params[:id])
     if (group.donor_id.to_s.eql?(current_session.session_id))
       respond_to do |format|
         if group.donations.size < 1
@@ -120,7 +120,7 @@ class Api::CharityGroupController < Api::BaseController
         end
       end
     else
-      render json: {:message => "You can edit this charity group"}.to_json
+      render json: { :message => "You can edit this charity group" }.to_json
     end
   end 
 

@@ -3,8 +3,7 @@ require 'will_paginate/array'
 
 class Api::CharityController < Api::BaseController
 
-  skip_before_filter :require_authentication, :only => [:index,
-                                                        :show]
+  skip_before_filter :require_authentication, :only => [:index, :show]
 
   def index
     page = params[:page] || 1
@@ -13,19 +12,16 @@ class Api::CharityController < Api::BaseController
 
     charities = []
 
-    tags = Tag.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ])
+    tags = Tag.find(:all, conditions: [ "name LIKE ?", "%#{query}%" ])
+
     tags.each do |tag|
-      tag.charities.each do |c|
-        charities << c
-      end
+      charities += tag.charities
     end
 
-    Charity.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ]).each do |c|
-      charities << c
-    end
+    charities += Charity.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ])
 
     charities << Charity.find_by_ein(query)
-    results = charities.compact.flatten.uniq.paginate(:page => page, :per_page => perpage)
+    results = charities.compact.uniq.paginate(:page => page, :per_page => perpage)
 
     respond_to do |format|
       if !results.empty?
@@ -37,7 +33,7 @@ class Api::CharityController < Api::BaseController
   end
 
   def show
-    charity = Charity.find(params[:id].to_s)
+    charity = Charity.find(params[:id])
 
     respond_to do |format|
       if charity

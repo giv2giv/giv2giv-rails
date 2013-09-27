@@ -1,6 +1,7 @@
 require 'bigdecimal'
 
 class Share < ActiveRecord::Base
+  has_many :givshares
   validates :donor_id, :presence => true
   validates :charity_group_id, :presence => true
 
@@ -15,7 +16,3 @@ class Share < ActiveRecord::Base
   end
 
 end
-
-
-
-
