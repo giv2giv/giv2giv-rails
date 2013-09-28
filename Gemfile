@@ -51,3 +51,4 @@ end
 
 # CORS support
 gem 'rack-cors', :require => 'rack/cors'
+gem 'rufus-scheduler'

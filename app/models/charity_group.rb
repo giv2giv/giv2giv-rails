@@ -1,6 +1,6 @@
 class CharityGroup < ActiveRecord::Base
-  has_many :donations
-  has_many :givshares
+  has_many :donations, dependent: :destroy
+  has_many :givshares, dependent: :destroy
   has_and_belongs_to_many :charities
 
   validates :name, :presence => true, :uniqueness => { :case_sensitive => false }

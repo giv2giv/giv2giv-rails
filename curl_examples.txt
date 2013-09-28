@@ -125,7 +125,7 @@
 
     description  : optional
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"name":"Build Houses","description":"Your description","minimum_donation_amount":"5"}' http://localhost:3000/api/charity_group.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"name":"Build Houses","description":"Your description","minimum_donation_amount":"1"}' http://localhost:3000/api/charity_group.json
 
     Examples Response:
 

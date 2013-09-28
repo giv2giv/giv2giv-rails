@@ -96,38 +96,25 @@ class PaymentAccount < ActiveRecord::Base
                                            )
           if donation.save
             # record buying shares
-            check_charity_group = Givshare.find_by_charity_group_id(charity_group_id)
-            if check_charity_group.blank?
-              per_share = PER_SHARE_DEFAULT
-              buy_shares = amount / per_share
-              givshare = Givshare.new(
-                                    :charity_group_id => charity_group_id,
-                                    :stripe_balance => 0,
-                                    :etrade_balance => 0,
-                                    :shares_outstanding_beginning => 0,
-                                    :shares_bought_through_donations => 0,
-                                    :shares_outstanding_end => 0,
-                                    :donation_price => per_share,
-                                    :round_down_price => per_share
-                                    )
-              if givshare.save
-                givshare_id = Givshare.find_by_charity_group_id(charity_group_id)
-                share = Share.new(
-                                  :donor_id => payment_donor.donor_id,
+            per_share = PER_SHARE_DEFAULT
+            buy_shares = amount / per_share
+            givshare = Givshare.new(
                                   :charity_group_id => charity_group_id,
-                                  :givshare_id => givshare_id.id,
-                                  :count => buy_shares,
-                                  :price_at_issue => 0
+                                  :donor_id => check_donor.id,
+                                  :stripe_balance => 0,
+                                  :etrade_balance => 0,
+                                  :shares_outstanding_beginning => 0,
+                                  :shares_bought_through_donations => buy_shares,
+                                  :shares_outstanding_end => 0,
+                                  :donation_price => per_share,
+                                  :round_down_price => per_share
                                   )
-                if share.save
-                  donation
-                else
-                  { :message => "Error" }.to_json
-                end
-              end
+            if givshare.save
+              donation
             else
-              # hmmm .. still confuse
+              { :message => "Error" }.to_json
             end
+
           end #end donation.save
         end
       else
