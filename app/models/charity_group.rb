@@ -1,10 +1,14 @@
 class CharityGroup < ActiveRecord::Base
+  
+  VALID_TYPE = %w(public private)
+
   has_many :donations, dependent: :destroy
   has_many :givshares, dependent: :destroy
   has_and_belongs_to_many :charities
 
   validates :name, :presence => true, :uniqueness => { :case_sensitive => false }
   validates :minimum_donation_amount, :presence => true, :format => { :with => /^\d+??(?:\.\d{0,2})?$/ }, :numericality => {:greater_than => 0}
+  validates :type_donation, :presence => true, :inclusion => { :in => VALID_TYPE }
 
   class << self
     def new_with_charities(options = {})
