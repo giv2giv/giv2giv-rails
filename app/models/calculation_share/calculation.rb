@@ -10,9 +10,10 @@ module CalculationShare
 
       def priceshare
         stripe_balance = get_stripe_balance
-        etrade_balance = get_etrade_balance  
+        etrade_balance = get_etrade_balance
+
         givbalance = stripe_balance + etrade_balance
-        last_shares = Givshare.group(:donor_id)
+        last_shares = Givshare.group(:donation_id)
         charity_groups = Givshare.group(:charity_group_id)
         
         charity_groups.each do |charity|
@@ -25,7 +26,7 @@ module CalculationShare
           new_share_price = givbalance / share
           
           last_shares.each do |donor|
-            donor_new_record = Givshare.where(donor_id: donor.donor_id).last
+            donor_new_record = Givshare.where(donation_id: donor.donation_id).last
             new_record_share = Givshare.new(
                         :charity_group_id => charity.charity_group_id,
                         :stripe_balance => stripe_balance,
@@ -33,9 +34,10 @@ module CalculationShare
                         :shares_outstanding_beginning => donor_new_record.shares_outstanding_end,
                         :shares_bought_through_donations => donor_new_record.shares_bought_through_donations,
                         :shares_outstanding_end => share,
-                        :donation_price => new_share_price,
-                        :round_down_price => donor_new_record.round_down_price,
-                        :donor_id => donor_new_record.donor_id
+                        :donation_price => new_share_price.round(2),
+                        :round_down_price => new_share_price,
+                        :donor_id => donor_new_record.donor_id,
+                        :donation_id => donor_new_record.donation_id
                       )
             new_record_share.save
           end

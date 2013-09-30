@@ -30,9 +30,8 @@ Giv2givRails::Application.routes.draw do
       end
 
       resources :balances, :except => [:new, :edit, :destroy, :create, :update, :show, :index] do
-        get 'get_pin_etrade', :on => :collection
-        get 'pin_etrade', :on => :collection
-        get 'show_balances', :on => :collection
+        get 'show_shares', :on => :member
+        get 'share_charity_group', :on => :member
       end
 
     end # end namespace api

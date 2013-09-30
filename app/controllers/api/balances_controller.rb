@@ -1,24 +1,39 @@
 class Api::BalancesController < Api::BaseController
-  include EtradeHelper
   before_filter :require_authentication
 
-  def get_pin_etrade
-  	auth = get_auth
-  	render json: {:url => auth}.to_json
-  end
+  def show_shares
+    charity_group_id = params[:id]
+  	givshares = current_donor.givshare.group(:donation_id).all(conditions: "charity_group_id = '#{charity_group_id}'")
+    shares = []
+    givshares.each do |givshare|
+      last_donation = Givshare.where(donation_id: givshare.donation_id).last
+      shares << last_donation
+    end
 
-  def pin_etrade
-  	pin = enter_verifier(params[:pin])
-  	respond_to do |format|
-      format.json { render json: pin }
+    respond_to do |format|
+      format.json { render json: shares }
     end
   end
 
-  def show_balances
-  	stripe_balance = Stripe::Balance.retrieve
-    etrade_balance = 0
-    calc = (stripe_balance["pending"][0][:amount].to_f + 0) / 100
-    render json: {:balance => calc.to_f, :currency => stripe_balance["pending"][0][:currency]}.to_json
+  def share_charity_group
+    charity_group_id = params[:id]
+    givshares = Givshare.group(:donation_id).all(conditions: "charity_group_id = '#{charity_group_id}'")
+    shares = []
+    givshares.each do |givshare|
+      last_donation = Givshare.where(donation_id: givshare.donation_id).last
+      shares << last_donation
+    end
+
+    shares_data = {}
+    shares.each do |share|
+      pershare = (share.shares_bought_through_donations * share.donation_price).round(2)
+      temp_share = {share.donor_id => {"donor_id" => share.donor_id, "donation_id" => share.donation_id, "pershare" => pershare }}
+      shares_data.merge!(temp_share)
+    end
+
+    respond_to do |format|
+      format.json { render json: shares_data }
+    end
   end
 
 end

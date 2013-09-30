@@ -111,7 +111,8 @@ class PaymentAccount < ActiveRecord::Base
                                     :shares_bought_through_donations => buy_shares,
                                     :shares_outstanding_end => 0,
                                     :donation_price => per_share,
-                                    :round_down_price => per_share
+                                    :round_down_price => per_share,
+                                    :donation_id => donation.id
                                     )
               if givshare.save
                 donation

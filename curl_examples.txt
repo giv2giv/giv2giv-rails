@@ -381,6 +381,47 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
 
 
+### FIX ME ~NEED ENDPOINT SAMPLE~
+
+** SHARES MANAGEMENT **
+
+1. Show shares from this donor , filter by charity group id
+
+   Authorization token in Header *required*. See session #authenticate
+
+   Arguments :
+
+   { CHARITY_GROUP_ID } : required
+
+   http://localhost:3000/api/balances/{ CHARITY_GROUP_ID }/show_shares.json
+
+   curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/balances/1/show_shares.json
+   
+   Examples Response:
+
+   [{"givshare":{"charity_group_id":1,"created_at":"2013-09-30T03:51:13Z","donation_id":2,"donation_price":0.65,"donor_id":2,"etrade_balance":0.0,"id":22,"round_down_price":0.650909,"shares_bought_through_donations":3.0,"shares_outstanding_beginning":0.0,"shares_outstanding_end":11.0,"stripe_balance":7.16,"updated_at":"2013-09-30T03:51:13Z"}},{"givshare":{"charity_group_id":1,"created_at":"2013-09-30T03:51:13Z","donation_id":4,"donation_price":0.65,"donor_id":2,"etrade_balance":0.0,"id":23,"round_down_price":0.650909,"shares_bought_through_donations":3.0,"shares_outstanding_beginning":0.0,"shares_outstanding_end":11.0,"stripe_balance":7.16,"updated_at":"2013-09-30T03:51:13Z"}}]
+
+2. Show share per-price
+
+   Authorization token in Header *required*. See session #authenticate
+
+   Arguments :
+
+   { CHARITY_GROUP_ID } : required
+
+   http://localhost:3000/api/balances/{ CHARITY_GROUP_ID }/share_charity_group.json
+
+   curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/balances/1/share_charity_group.json
+
+   Examples Response:
+
+   {"1":{"donor_id":1,"donation_id":1,"pershare":3.25},"2":{"donor_id":2,"donation_id":4,"pershare":1.95}}
+
+
+
+
+
+
 
 ### FIX ME
 
@@ -408,4 +449,3 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
    Authorization token in Header *required*. See session #authenticate
 
    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/balances/show_balances.json
-
