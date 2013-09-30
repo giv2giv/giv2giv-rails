@@ -8,9 +8,13 @@ class Donor < ActiveRecord::Base
   validates :email, :presence => true,
                     :format => { :with => EMAIL_REGEX },
                     :uniqueness => { :case_sensitive => false }
-  validates :password, :presence => true
-  validates :name, :presence => true
-
+  
+  with_options :presence => true do |donor|
+    donor.validates :password
+    donor.validates :name
+    donor.validates :type_donor
+  end
+  
   class << self
     # needed because of the fulltext index
     def find_by_email(email)

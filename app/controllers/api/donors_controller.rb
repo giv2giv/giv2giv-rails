@@ -3,6 +3,7 @@ class Api::DonorsController < Api::BaseController
 
   def create
     donor = Donor.new(params[:donor])
+    donor.type_donor = "registered"
     donor.password = secure_password(params[:password])
     respond_to do |format|
       if donor.save

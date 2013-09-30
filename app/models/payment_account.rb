@@ -1,6 +1,6 @@
 class PaymentAccount < ActiveRecord::Base
   require "stripe"
-
+  
   VALID_PROCESSORS = %w(stripe)
   PLAN_ID = 1 
   PER_SHARE_DEFAULT = 1
@@ -26,6 +26,80 @@ class PaymentAccount < ActiveRecord::Base
         payment.errors
       end
     end
+
+  def one_time_payment(amount, charity_group_id, email, stripeToken)
+    raise CharityGroupInvalid unless CharityGroup.find(charity_group_id)
+
+    check_email = Donor.find_by_email(email)
+
+    if check_email.blank?
+      customer = Stripe::Customer.create(description: "Giv2Giv Donation", email: email, card: stripeToken)
+      # entry as unregistered donor
+      random_password = SecureRandom.hex(10)
+      random_name = SecureRandom.hex(5)
+      donor = Donor.new(
+                         :name => random_name,
+                         :email => email,
+                         :password => random_password,
+                         :type_donor => 'unregistered'
+                       )
+
+      if donor.save
+        # create new payment
+        payment = PaymentAccount.new(
+                                     :processor => "stripe",
+                                     :donor_id => donor.id,
+                                     :requires_reauth => 0,
+                                     :stripe_cust_id => customer.id
+                                    )
+        if payment.save
+          cust_charge = Stripe::Charge.create(
+                                :amount => amount * 100,
+                                :currency => "usd",
+                                :description => "Charge for #{email}",
+                                :customer => payment.stripe_cust_id
+                               )
+
+          donation = Donation.new(
+                                 :amount => amount,
+                                 :charity_group_id => charity_group_id,
+                                 :transaction_processor => payment.processor,
+                                 :payment_account_id => payment.id,
+                                 :transaction_type => "one-time payment"
+                                 )
+          if donation.save
+            per_share = PER_SHARE_DEFAULT
+            buy_shares = amount / per_share
+            givshare = Givshare.new(
+                                  :charity_group_id => charity_group_id,
+                                  :donor_id => donor.id,
+                                  :stripe_balance => 0,
+                                  :etrade_balance => 0,
+                                  :shares_outstanding_beginning => 0,
+                                  :shares_bought_through_donations => buy_shares,
+                                  :shares_outstanding_end => 0,
+                                  :donation_price => per_share,
+                                  :round_down_price => per_share,
+                                  :donation_id => donation.id
+                                  )
+            if givshare.save
+              donation
+            else
+              { :message => "Error" }.to_json
+            end # end givshare save
+          else
+            donation.errors
+          end # end donation save
+        else
+          payment.errors
+        end # end payment save
+      else
+        { :message => "Error! Creating payment account" }.to_json    
+      end # end donor save
+    else
+      { :message => "Email address is already been taken" }.to_json
+    end #end check email
+  end
 
     def update_account(stripeToken, donor_id, payment_id, options = {})
       check_donor = Donor.find(donor_id)
@@ -65,7 +139,8 @@ class PaymentAccount < ActiveRecord::Base
         { :message => "Failed! No active subscription" }.to_json
       end
     end
-  end
+
+  end # end self
 
   def donate_subscription(amount, charity_group_id, payment_id, email)
     raise PaymentAccountInvalid unless self.valid?
@@ -127,7 +202,6 @@ class PaymentAccount < ActiveRecord::Base
       else
         { :message => "Wrong donor id" }.to_json
       end
-
     end #end check type donation
 
   end

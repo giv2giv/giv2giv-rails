@@ -1,6 +1,7 @@
 class Api::PaymentAccountsController < Api::BaseController
-  before_filter :current_donor_id, :except => [:index, :create]
+  before_filter :current_donor_id, :except => [:index, :create, :one_time_payment]
   skip_before_filter :current_donor_id, :only => [:all_donation_list, :cancel_subscription, :cancel_all_subscription]
+  skip_before_filter :require_authentication, :only => :one_time_payment
 
   def index
     pas = current_donor.payment_accounts
@@ -80,8 +81,8 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def one_time_payment
-     respond_to do |format|
-      donation = PaymentAccount.donate(params[:amount].to_i, params[:charity_group_id], params[:email])
+    respond_to do |format|
+      donation = PaymentAccount.one_time_payment(params[:amount].to_i, params[:charity_group_id], params[:email], params[:stripeToken])
       format.json { render json: donation }
     end
   end
