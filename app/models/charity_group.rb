@@ -8,7 +8,7 @@ class CharityGroup < ActiveRecord::Base
 
   validates :name, :presence => true, :uniqueness => { :case_sensitive => false }
   validates :minimum_donation_amount, :presence => true, :format => { :with => /^\d+??(?:\.\d{0,2})?$/ }, :numericality => {:greater_than => 0}
-  validates :type_donation, :presence => true, :inclusion => { :in => VALID_TYPE }
+  validates :charity_group_visibility, :presence => true, :inclusion => { :in => VALID_TYPE }
 
   class << self
     def new_with_charities(options = {})

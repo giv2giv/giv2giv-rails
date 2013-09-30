@@ -77,7 +77,7 @@ class PaymentAccount < ActiveRecord::Base
     check_donor = Donor.find(payment_donor.donor_id)
     amount = amount.to_i
 
-    if (charity_group.type_donation.eql?("private")) and (payment_donor.donor_id != charity_group.donor_id)
+    if (charity_group.charity_group_visibility.eql?("private")) and (payment_donor.donor_id != charity_group.donor_id)
       { :message => "Sorry! You cannot make subscription to this charity group" }.to_json
     else
 
@@ -118,7 +118,6 @@ class PaymentAccount < ActiveRecord::Base
               else
                 { :message => "Error" }.to_json
               end
-
             end #end donation.save
           end
         else
