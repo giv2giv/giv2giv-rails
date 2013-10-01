@@ -3,8 +3,9 @@ class PaymentAccount < ActiveRecord::Base
   
   VALID_PROCESSORS = %w(stripe)
   PLAN_ID = 1 
-  PER_SHARE_DEFAULT = 1
-  
+  PER_SHARE_DEFAULT = 10000
+  SHARE_TOTAL_DEFAULT = 0
+
   belongs_to :donor
   has_many :donations
 
@@ -69,19 +70,25 @@ class PaymentAccount < ActiveRecord::Base
                                  )
           if donation.save
             per_share = PER_SHARE_DEFAULT
-            buy_shares = amount / per_share
-            givshare = Givshare.new(
-                                  :charity_group_id => charity_group_id,
-                                  :donor_id => donor.id,
-                                  :stripe_balance => 0,
-                                  :etrade_balance => 0,
-                                  :shares_outstanding_beginning => 0,
-                                  :shares_bought_through_donations => buy_shares,
-                                  :shares_outstanding_end => 0,
-                                  :donation_price => per_share,
-                                  :round_down_price => per_share,
-                                  :donation_id => donation.id
-                                  )
+            buy_shares = amount.to_f / per_share.to_f
+              givshare = Givshare.new(
+                                    :charity_group_id => charity_group_id,
+                                    :donor_id => check_donor.id,
+                                    :stripe_balance => 0,
+                                    :etrade_balance => 0,
+                                    :shares_outstanding_beginning => 0,
+                                    :shares_bought_through_donations => buy_shares,
+                                    :shares_outstanding_end => 0,
+                                    :donation_price => per_share,
+                                    :round_down_price => per_share,
+                                    :donation_id => donation.id,
+                                    :share_total => 0,
+                                    :share_granted => 0,
+                                    :donor_grant => 0,
+                                    :is_grant => 0,
+                                    :etrade_adjustment => 0,
+                                    :charity_group_balance => 0
+                                    )
             if givshare.save
               donation
             else
@@ -176,7 +183,7 @@ class PaymentAccount < ActiveRecord::Base
             if donation.save
               # record buying shares
               per_share = PER_SHARE_DEFAULT
-              buy_shares = amount / per_share
+              buy_shares = amount.to_f / per_share.to_f
               givshare = Givshare.new(
                                     :charity_group_id => charity_group_id,
                                     :donor_id => check_donor.id,
@@ -187,7 +194,14 @@ class PaymentAccount < ActiveRecord::Base
                                     :shares_outstanding_end => 0,
                                     :donation_price => per_share,
                                     :round_down_price => per_share,
-                                    :donation_id => donation.id
+                                    :donation_id => donation.id,
+                                    :share_total => 0,
+                                    :share_granted => 0,
+                                    :donor_grant => 0,
+                                    :is_grant => 0,
+                                    :etrade_adjustment => 0,
+                                    :charity_group_balance => 0,
+                                    :count => 1
                                     )
               if givshare.save
                 donation

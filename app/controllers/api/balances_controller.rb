@@ -26,8 +26,7 @@ class Api::BalancesController < Api::BaseController
 
     shares_data = {}
     shares.each do |share|
-      pershare = (share.shares_bought_through_donations * share.donation_price).round(2)
-      temp_share = {share.donor_id => {"donor_id" => share.donor_id, "donation_id" => share.donation_id, "pershare" => pershare }}
+      temp_share = {share.donation_id => {"donor_id" => share.donor_id, "donation_share_price" => share.donation_price, "donation" => Donation.find(share.donation_id).amount,  "grant" => 0, "share_total" => share.share_total, "grant" => share.donor_grant, "share_granted" => share.share_granted, "charity_group_balance" => share.charity_group_balance }}
       shares_data.merge!(temp_share)
     end
 
