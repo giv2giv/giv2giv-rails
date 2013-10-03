@@ -8,60 +8,66 @@ module CalculationShare
 
     class << self
 
+      # everyday 00:00:00
       def priceshare
-        # stripe_balance = get_stripe_balance
-        # etrade_balance = get_etrade_balance
+        stripe_balance = get_stripe_balance
+        etrade_balance = get_etrade_balance.to_f
 
-        stripe_balance = 25
-        etrade_balance = 0
-        etrade_adjustment = 5
-
+        # get charity group balance
         givbalance = stripe_balance + etrade_balance
 
-        last_shares = Givshare.group(:donation_id)
-        charity_groups = Givshare.group(:charity_group_id)
-        
-        charity_groups.each do |charity|
-          share = 0
-          last_shares.each do |donor|
-            giv = Givshare.find_by_donor_id(donor.donor_id)
-            share += giv.shares_bought_through_donations
-          end
+        # get shares_added_by_donation
+        donor_shares = Donation.sum(:shares_added).to_f
+        donors_shares_total_beginning = Share.order("created_At DESC").last.share_total_end.to_f rescue 0.0
+        share_total_before = Share.order("created_At DESC").last.share_total_beginning.to_f rescue 0.0
+        share_total_end = donor_shares + share_total_before
 
-          new_donation_share_price = givbalance / share
+        # get donation share price
+        share_price = givbalance / donor_shares
 
-          last_shares.each do |donor|
-           
-            donor_new_record = Givshare.where(donation_id: donor.donation_id).last
-            shared_donated = Donation.find(donor_new_record.donation_id).amount
-
-            share_donated = shared_donated.to_f / donor_new_record.donation_price.to_f
-            share_total_before = Givshare.where(donation_id: donor.donation_id).offset(donor_new_record.count).first.share_total rescue 0
-            share_total = share_total_before + donor_new_record.shares_bought_through_donations
-            charity_group_balance = share_total.to_f * donor_new_record.donation_price.to_f * (1 + (etrade_adjustment.to_f / 100).to_f).to_f
-
-            new_record_share = Givshare.new(
-                        :charity_group_id => charity.charity_group_id,
-                        :stripe_balance => stripe_balance,
-                        :etrade_balance => etrade_balance,
-                        :shares_outstanding_beginning => donor_new_record.shares_outstanding_end,
-                        :shares_bought_through_donations => share_donated,
-                        :shares_outstanding_end => share,
-                        :donation_price => (new_donation_share_price * 10).ceil / 10.0,
-                        :round_down_price => new_donation_share_price.round(2),
-                        :donor_id => donor_new_record.donor_id,
-                        :donation_id => donor_new_record.donation_id,
-                        :share_total => share_total,
-                        :share_granted => 0,
-                        :donor_grant => 0,
-                        :is_grant => 0,
-                        :etrade_adjustment => etrade_adjustment,
-                        :charity_group_balance => charity_group_balance.to_f,
-                        :count => donor_new_record.count + 1
-                      )
-            new_record_share.save
-          end
+        if share_price.to_f.nan?
+          share_price = 100000
         end
+
+        round_up_share_price = (share_price * 10).ceil / 10.0
+        grant_amount = (1.25 / 100) * givbalance
+
+        new_record_share = Share.new(
+                                     :stripe_balance => stripe_balance,
+                                     :etrade_balance => etrade_balance,
+                                     :share_total_beginning => donors_shares_total_beginning,
+                                     :shares_added_by_donation => donor_shares,
+                                     :shares_subtracted_by_grants => grant_amount,
+                                     :share_total_end => share_total_end,
+                                     :share_price => round_up_share_price
+                                    )
+        if new_record_share.save
+          puts "Share Price has been updated"
+        else
+          puts "ERROR"
+        end        
+      end
+
+      # every 90 days
+      def grant_to_charities
+        stripe_balance = get_stripe_balance
+        etrade_balance = get_etrade_balance.to_f
+        givbalance = stripe_balance + etrade_balance
+
+        grant = ( 1.25 / 100 ) * givbalance
+        givpayment = ( 4 / 100 ) * grant
+        
+        charity_group_id = Donation.group(:charity_group_id)
+
+        charity_group_id.each do |charity|
+          search_charities = CharityGroup.find(charity.charity_group_id)
+          charities = search_charities.charities
+
+          grant_amount = (1.25 / 100) * charity_group.Balance
+          giv2giv_payment += (4 / 100) * grant_amount
+
+        end
+
       end
 
     private

@@ -3,7 +3,7 @@ class PaymentAccount < ActiveRecord::Base
   
   VALID_PROCESSORS = %w(stripe)
   PLAN_ID = 1 
-  PER_SHARE_DEFAULT = 10000
+  PER_SHARE_DEFAULT = 100000
   SHARE_TOTAL_DEFAULT = 0
 
   belongs_to :donor
@@ -174,40 +174,28 @@ class PaymentAccount < ActiveRecord::Base
             else
               customer.update_subscription(:plan => PLAN_ID, :quantity => customer.subscription.quantity + amount)  
             end
+
+            check_share_price = Share.last
+            if check_share_price.blank?
+              per_share = PER_SHARE_DEFAULT
+            else
+              per_share = check_share_price.share_price
+            end
+
+            buy_shares = amount.to_f / per_share.to_f
             donation = donor.donations.build(:amount => amount,
                                              :charity_group_id => charity_group_id,
                                              :transaction_processor => processor,
                                              :payment_account_id => payment_id,
-                                             :transaction_type => "subscription"
+                                             :transaction_type => "subscription",
+                                             :shares_purchased => "pending",
+                                             :shares_added => buy_shares,
+                                             :donor_id => donor.id
                                              )
             if donation.save
-              # record buying shares
-              per_share = PER_SHARE_DEFAULT
-              buy_shares = amount.to_f / per_share.to_f
-              givshare = Givshare.new(
-                                    :charity_group_id => charity_group_id,
-                                    :donor_id => check_donor.id,
-                                    :stripe_balance => 0,
-                                    :etrade_balance => 0,
-                                    :shares_outstanding_beginning => 0,
-                                    :shares_bought_through_donations => buy_shares,
-                                    :shares_outstanding_end => 0,
-                                    :donation_price => per_share,
-                                    :round_down_price => per_share,
-                                    :donation_id => donation.id,
-                                    :share_total => 0,
-                                    :share_granted => 0,
-                                    :donor_grant => 0,
-                                    :is_grant => 0,
-                                    :etrade_adjustment => 0,
-                                    :charity_group_balance => 0,
-                                    :count => 1
-                                    )
-              if givshare.save
-                donation
-              else
-                { :message => "Error" }.to_json
-              end
+              donation
+            else
+              { :message => "Error" }.to_json
             end #end donation.save
           end
         else

@@ -1,5 +1,19 @@
 class Api::BalancesController < Api::BaseController
+  include EtradeHelper
   before_filter :require_authentication
+
+  def new_etrade_token
+    newtoken = EtradeToken.new(:token => params[:token], :secret => params[:secret])
+
+    respond_to do |format|
+      if newtoken.save
+        format.json { render json: newtoken }
+      else
+        format.json { render json: newtoken.errors }
+      end
+    end
+
+  end
 
   def show_shares
     charity_group_id = params[:id]
