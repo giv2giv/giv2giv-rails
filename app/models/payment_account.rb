@@ -60,40 +60,25 @@ class PaymentAccount < ActiveRecord::Base
                                 :description => "Charge for #{email}",
                                 :customer => payment.stripe_cust_id
                                )
-
+          check_share_price = Share.last
+          if check_share_price.blank?
+            per_share = PER_SHARE_DEFAULT
+          else
+            per_share = check_share_price.share_price
+          end
+          buy_shares = amount.to_f / per_share.to_f
           donation = Donation.new(
                                  :amount => amount,
                                  :charity_group_id => charity_group_id,
                                  :transaction_processor => payment.processor,
                                  :payment_account_id => payment.id,
-                                 :transaction_type => "one-time payment"
+                                 :transaction_type => "subscription",
+                                 :shares_purchased => "pending",
+                                 :shares_added => buy_shares,
+                                 :donor_id => donor.id
                                  )
           if donation.save
-            per_share = PER_SHARE_DEFAULT
-            buy_shares = amount.to_f / per_share.to_f
-              givshare = Givshare.new(
-                                    :charity_group_id => charity_group_id,
-                                    :donor_id => check_donor.id,
-                                    :stripe_balance => 0,
-                                    :etrade_balance => 0,
-                                    :shares_outstanding_beginning => 0,
-                                    :shares_bought_through_donations => buy_shares,
-                                    :shares_outstanding_end => 0,
-                                    :donation_price => per_share,
-                                    :round_down_price => per_share,
-                                    :donation_id => donation.id,
-                                    :share_total => 0,
-                                    :share_granted => 0,
-                                    :donor_grant => 0,
-                                    :is_grant => 0,
-                                    :etrade_adjustment => 0,
-                                    :charity_group_balance => 0
-                                    )
-            if givshare.save
-              donation
-            else
-              { :message => "Error" }.to_json
-            end # end givshare save
+            donation
           else
             donation.errors
           end # end donation save
@@ -127,7 +112,7 @@ class PaymentAccount < ActiveRecord::Base
       end
 
       donation = Donation.find(donate_id)
-      
+        donation
       if donation.destroy
         {:message => "Your subscription has been canceled"}.to_json
       end

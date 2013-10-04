@@ -6,6 +6,7 @@ dwolla:
    api_key:        asdf
    api_secret:     meow
    account_id:     123-456-7890
+   pin_account:    pin_account
    company_token:  woof
 
 etrade:

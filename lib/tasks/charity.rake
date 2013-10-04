@@ -24,4 +24,15 @@ namespace :charity do
     raise ArgumentError, 'Must specify xls_name' if xls_name.nil?
     CharityImport::Importer.import_single_file(xls_name, skip_download)
   end
+
+  # bundle exec rake charity:add_email charity_id={charity id} charity_email={charity email}
+  desc 'Add email to charities'
+  task :add_email => :environment do
+    charity_id = ENV['charity_id']
+    charity_email = ENV['charity_email']
+
+    raise ArgumentError, 'Must specify charity id and charity email' if charity_email.nil? or charity_id.nil?
+    CharityImport::Importer.add_email_charity(charity_id, charity_email)
+  end
+
  end

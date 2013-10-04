@@ -32,7 +32,6 @@ Giv2givRails::Application.routes.draw do
       resources :balances, :except => [:new, :edit, :destroy, :create, :update, :show, :index] do
         get 'show_shares', :on => :member
         get 'share_charity_group', :on => :member
-        get 'new_etrade_token', :on => :collection
       end
 
     end # end namespace api

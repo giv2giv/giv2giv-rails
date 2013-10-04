@@ -73,7 +73,12 @@ module EtradeHelper
   def update_balance(account_id)
     balance = self.get_net_account_value
     fees = self.get_cumulative_fee_total(account_id)
-    Etrade.create({ :balance => balance, :fees => fees, :date => Time.now.to_datetime })
+    new_calc = Etrade.new({ :balance => balance, :fees => fees, :date => Time.now.to_datetime })
+    if new_calc.save
+      new_calc
+    else
+      new_calc.errors
+    end
   end
 
 end

@@ -376,8 +376,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     Examples Response:
 
-    {"message":"Your subscriptions has been canceled"}
-
+   {"donation":{"amount":5.0,"charity_group_id":1,"created_at":"2013-09-24T04:56:48Z","id":1,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:56:48Z"}}
 
 
 
@@ -416,36 +415,3 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
    Examples Response:
 
    {"1":{"donor_id":1,"donation_id":1,"pershare":3.25},"2":{"donor_id":2,"donation_id":4,"pershare":1.95}}
-
-
-
-
-
-
-
-### FIX ME
-
-** ETRADE INTEGRATION **
-
-1. Authenticate application to etrade
-
-    Authorization token in Header *required*. See session #authenticate
-
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' -d '' http://localhost:3000/api/balances/get_pin_etrade.json
-
-    Examples Response:
-
-    {"url":"https://us.etrade.com/e/t/etws/authorize?key=4d2fd4cd312c1904069f2970c89899df&token=SnzaVHqTyCE98Q%2F3%2FpzB%2FsKdd7LKbRIMCTOfRN7gJ88%3D"}
-
-2. Enter verifier code
-   follow this link for more detail : https://us.etrade.com/ctnt/dev-portal/getContent?contentUri=V0_Documentation-DeveloperGuides-Authorization
-
-   Authorization token in Header *required*. See session #authenticate
-
-   curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' -d '"pin":"WXTD1"' http://localhost:3000/api/balances/pin_etrade.json
-
-3. Show Giv2Giv Balance
-
-   Authorization token in Header *required*. See session #authenticate
-
-   curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/balances/show_balances.json

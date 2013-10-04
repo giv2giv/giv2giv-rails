@@ -44,6 +44,11 @@ module CharityImport
         read_excel(file_name)
       end
 
+      def add_email_charity(charity_id, charity_email)
+        charity = Charity.find(charity_id)
+        charity.update_attributes(:email => charity_email)
+      end
+
     private
 
       def get_irs_page

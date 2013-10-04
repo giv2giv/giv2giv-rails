@@ -4,4 +4,11 @@ namespace :calcshare do
   task :startcalculation => :environment do
     CalculationShare::Calculation.priceshare
   end
- end
+
+  # bundle exec rake calcshare:startgrantcalculation
+  desc 'Calculate Grants'
+  task :startgrantcalculation => :environment do
+    CalculationShare::Calculation.grantshare
+  end
+
+end
