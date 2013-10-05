@@ -1,37 +1,16 @@
 class Api::BalancesController < Api::BaseController
   before_filter :require_authentication
 
-  def show_shares
-    charity_group_id = params[:id]
-  	givshares = current_donor.givshare.group(:donation_id).all(conditions: "charity_group_id = '#{charity_group_id}'")
-    shares = []
-    givshares.each do |givshare|
-      last_donation = Givshare.where(donation_id: givshare.donation_id).last
-      shares << last_donation
+  def show_grants
+
+    if params.has_key?(:start_date) and params.has_key?(:end_date)
+      grants = Grant.where("created_at >= '#{params[:start_date]}' AND created_at <= '#{params[:end_date]}'")
+    else
+      grants = Grant.all
     end
 
     respond_to do |format|
-      format.json { render json: shares }
-    end
-  end
-
-  def share_charity_group
-    charity_group_id = params[:id]
-    givshares = Givshare.group(:donation_id).all(conditions: "charity_group_id = '#{charity_group_id}'")
-    shares = []
-    givshares.each do |givshare|
-      last_donation = Givshare.where(donation_id: givshare.donation_id).last
-      shares << last_donation
-    end
-
-    shares_data = {}
-    shares.each do |share|
-      temp_share = {share.donation_id => {"donor_id" => share.donor_id, "donation_share_price" => share.donation_price, "donation" => Donation.find(share.donation_id).amount,  "grant" => 0, "share_total" => share.share_total, "grant" => share.donor_grant, "share_granted" => share.share_granted, "charity_group_balance" => share.charity_group_balance }}
-      shares_data.merge!(temp_share)
-    end
-
-    respond_to do |format|
-      format.json { render json: shares_data }
+      format.json { render json: grants }
     end
   end
 

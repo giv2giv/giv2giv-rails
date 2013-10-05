@@ -73,7 +73,6 @@ class PaymentAccount < ActiveRecord::Base
                                  :transaction_processor => payment.processor,
                                  :payment_account_id => payment.id,
                                  :transaction_type => "subscription",
-                                 :shares_purchased => "pending",
                                  :shares_added => buy_shares,
                                  :donor_id => donor.id
                                  )
@@ -173,7 +172,6 @@ class PaymentAccount < ActiveRecord::Base
                                              :transaction_processor => processor,
                                              :payment_account_id => payment_id,
                                              :transaction_type => "subscription",
-                                             :shares_purchased => "pending",
                                              :shares_added => buy_shares,
                                              :donor_id => donor.id
                                              )

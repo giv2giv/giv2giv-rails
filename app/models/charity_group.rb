@@ -3,6 +3,7 @@ class CharityGroup < ActiveRecord::Base
   VALID_TYPE = %w(public private)
 
   has_many :donations, dependent: :destroy
+  has_many :grants, dependent: :destroy
   has_and_belongs_to_many :charities
 
   validates :name, :presence => true, :uniqueness => { :case_sensitive => false }

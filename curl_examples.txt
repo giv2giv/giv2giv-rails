@@ -390,28 +390,13 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
    Arguments :
 
-   { CHARITY_GROUP_ID } : required
+   start_date : optional
+   end_date   : optional
 
-   http://localhost:3000/api/balances/{ CHARITY_GROUP_ID }/show_shares.json
+   http://localhost:3000/api/balances/show_grants.json
 
-   curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/balances/1/show_shares.json
+   curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' -d '{"start_date":"2013-10-04", "end_date":"2013-10-06"}' http://localhost:3000/api/balances/show_grants.json
    
    Examples Response:
 
-   [{"givshare":{"charity_group_id":1,"created_at":"2013-09-30T03:51:13Z","donation_id":2,"donation_price":0.65,"donor_id":2,"etrade_balance":0.0,"id":22,"round_down_price":0.650909,"shares_bought_through_donations":3.0,"shares_outstanding_beginning":0.0,"shares_outstanding_end":11.0,"stripe_balance":7.16,"updated_at":"2013-09-30T03:51:13Z"}},{"givshare":{"charity_group_id":1,"created_at":"2013-09-30T03:51:13Z","donation_id":4,"donation_price":0.65,"donor_id":2,"etrade_balance":0.0,"id":23,"round_down_price":0.650909,"shares_bought_through_donations":3.0,"shares_outstanding_beginning":0.0,"shares_outstanding_end":11.0,"stripe_balance":7.16,"updated_at":"2013-09-30T03:51:13Z"}}]
-
-2. Show share per-price
-
-   Authorization token in Header *required*. See session #authenticate
-
-   Arguments :
-
-   { CHARITY_GROUP_ID } : required
-
-   http://localhost:3000/api/balances/{ CHARITY_GROUP_ID }/share_charity_group.json
-
-   curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/balances/1/share_charity_group.json
-
-   Examples Response:
-
-   {"1":{"donor_id":1,"donation_id":1,"pershare":3.25},"2":{"donor_id":2,"donation_id":4,"pershare":1.95}}
+   [{"grant":{"charity_group_id":1,"charity_id":1,"created_at":"2013-10-05T05:56:00Z","date":"2013-10-05","donor_id":1,"dwolla_transaction_id":null,"givfee":0.0344925,"id":4,"shares_subtracted":1.69925e-07,"updated_at":"2013-10-05T05:56:00Z"}}]

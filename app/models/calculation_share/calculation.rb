@@ -4,8 +4,9 @@ require 'oauth'
 include OAuth::Helper
 include EtradeHelper
 
-GIV_PERCENTAGE = App.giv["giv_fee_percentage"]
+GIV_FEE_AMOUNT = 1 - App.giv["giv_fee_percentage"].to_f
 GIV_GRANT_AMOUNT = App.giv["giv_grant_amount"]
+CHECK_AMOUNT_MINIMAL = 0.01 / 100
 
 module CalculationShare
   class Calculation
@@ -20,7 +21,7 @@ module CalculationShare
         if Rails.env.eql?("production")
           givbalance = stripe_balance + etrade_balance
         else
-          givbalance = 30
+          givbalance = 20.0
         end
 
         date_yesterday = Date.yesterday.strftime('%Y%m%d')
@@ -37,6 +38,8 @@ module CalculationShare
         donors_shares_total_beginning = Share.order("created_At DESC").last.share_total_end.to_f rescue 0.0
 
         share_total_end = donors_shares_total_beginning + shares_donated_yesterday - shares_donated_today - shares_granted_yesterday + shares_granted_today
+
+        # share_total_end = shares_donated_today - shares_granted_yesterday + shares_granted_today
 
         # get donation share price
         # givbalance / total_donor_shares_all_time
@@ -71,13 +74,16 @@ module CalculationShare
         stripe_balance = get_stripe_balance
         etrade_balance = get_etrade_balance
 
-        givbalance = stripe_balance + etrade_balance
-        grant_price = Share.last.share_price rescue 0.0
+        if Rails.env.eql?("production")
+          givbalance = stripe_balance + etrade_balance
+        else
+          givbalance = 20.0
+        end
+
+        grant_price = Share.last.donation_price rescue 0.0
 
         giv2giv_fee = givbalance * (GIV_GRANT_AMOUNT) * (GIV_FEE_AMOUNT)
 
-        all_charity_group_balance = givbalance
-  
         charity_groups = CharityGroup.all
 
         charity_groups.each do |charity_group|
@@ -90,22 +96,29 @@ module CalculationShare
 
           charitygroup_grant = charity_group_gross_grant_amount - charity_group_fee
 
-
           charities = charity_group.charities
           charities.each do |charity|
             grant_charity = charity
             grant_amount_charity = charitygroup_grant / charity_group.charities.count
             grant_charity_donor = charity_group.donor_id
             grant_charity_group = charity_group.id
-            grant_shares_sold = grant_amount_charity / grant_price  #MUST USE BIGDECIMAL to 20 digits
+            grant_shares_sold = grant_amount_charity / grant_price
 
-            grant_record = Grant.new(:donor_id => grant_charity_donor, :charity_group_id => grant_charity_group, :date => Date.today, :shares_subtracted => charitygroup_grant, :charity_id => charity.id, :giv2giv_total_grant_fee => giv2giv_fee)
-            grant_record.save
+            if grant_amount_charity > CHECK_AMOUNT_MINIMAL
+              grant_record = Grant.new(
+                                      :donor_id => grant_charity_donor, 
+                                      :charity_group_id => grant_charity_group, 
+                                      :date => Date.today, 
+                                      :shares_subtracted => charitygroup_grant, 
+                                      :charity_id => charity.id, 
+                                      :giv2giv_total_grant_fee => giv2giv_fee
+                                      )
+              grant_record.save
+            end # end grant_amount_charity
           end # end charities
         end # end charity_groups
       end
 
-      #close issue #7
       def cumulative_etrade_balance(account_id)
         Etrade.update_balance(account_id)
       end
