@@ -380,7 +380,6 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
 
 
-### FIX ME ~NEED ENDPOINT SAMPLE~
 
 ** SHARES MANAGEMENT **
 
@@ -393,3 +392,19 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
    Examples Response:
 
    [{"grant":{"charity_group_id":1,"charity_id":1,"created_at":"2013-10-05T05:56:00Z","date":"2013-10-05","donor_id":1,"dwolla_transaction_id":null,"givfee":0.0344925,"id":4,"shares_subtracted":1.69925e-07,"updated_at":"2013-10-05T05:56:00Z"}}]
+
+2. Approve Charity
+
+   Authorization token in Header *required*. See session #authenticate
+
+   Arguments :
+
+   { GRANT_ID }           : required
+
+   http://localhost:3000/api/balances/{ GRANT_ID }/approve_charity.json
+
+   curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/balances/1/approve_charity.json
+
+3. Show Charity Group Balance
+
+   Authorization token in Header *required*. See session #authenticate

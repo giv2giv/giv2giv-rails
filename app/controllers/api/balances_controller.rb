@@ -12,8 +12,8 @@ class Api::BalancesController < Api::BaseController
   end
 
   def approve_charity
-    if params[:grant_id].has_key?
-      grant = Grant.find(params[:grant_id])
+    if params.has_key?(:id)
+      grant = Grant.find(params[:id])
       if grant.blank?
         render json: {:error => "Grant is not available"}.to_json
       else
@@ -23,8 +23,8 @@ class Api::BalancesController < Api::BaseController
         amount = Grant.where("charity_group_id = #{grant.charity_group_id}").sum(:shares_subtracted)        
         # send money to dwolla
         transaction_id = make_donation(email, notes, amount=nil)
-        if transaction_id.blank?
-          dump_grant_sent = GrantSent.new(
+        if !transaction_id.blank?
+          dump_grant_sent = SentGrant.new(
                                           :date => Date.today,
                                           :charity_id => grant.charity_id,
                                           :dwolla_transaction_id => transaction_id,
@@ -38,10 +38,12 @@ class Api::BalancesController < Api::BaseController
                                                      :fee => grant.giv2giv_total_grant_fee,
                                                      :balance => amount
                                                     )
+            render json: {:error => "Transfer success!"}.to_json
           else
             render json: {:error => "Error creating grant sent!"}.to_json
           end
-
+        else
+          render json: {:error => "Error creating grant sent!"}.to_json
         end # end transaction
       end # end grant blank
     else
