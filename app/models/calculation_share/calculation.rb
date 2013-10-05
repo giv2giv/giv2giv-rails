@@ -4,6 +4,9 @@ require 'oauth'
 include OAuth::Helper
 include EtradeHelper
 
+GIV_PERCENTAGE = App.giv["giv_fee_percentage"]
+GIV_GRANT_AMOUNT = App.giv["giv_grant_amount"]
+
 module CalculationShare
   class Calculation
 
@@ -14,31 +17,30 @@ module CalculationShare
         stripe_balance = get_stripe_balance
         etrade_balance = get_etrade_balance
 
-        # get charity group balance
-        givbalance = stripe_balance + etrade_balance
+        # shares_added_by_donation
+        date_yesterday = Date.yesterday.strftime('%Y%m%d')
+        donor_shares = Donation.where("date_format(created_at, '%Y%m%d') = '#{date_yesterday}'").sum(:shares_added)
 
-        # get shares_added_by_donation
-        donor_shares_group = Donation.group("date_format(created_at, '%Y%m%d')").sum(:shares_added)
-        date_today = Date.yesterday.strftime('%Y%m%d')
-        if date_today.eql?(donor_shares_group.keys.last)      
-          donor_shares = donor_shares_group.values.last.to_f
-        else
-          donor_shares = 0.0
-        end
-        
+        # get total donor shares
+        date_today = Date.today.strftime('%Y%m%d')
+        shares_today = Donation.where("date_format(created_at, '%Y%m%d') = '#{date_today}'").sum(:shares_added)
+
+        total_donor_shares = Donation.sum(:shares_added).to_f - shares_today
         donors_shares_total_beginning = Share.order("created_At DESC").last.share_total_end.to_f rescue 0.0
         share_total_before = Share.order("created_At DESC").last.share_total_beginning.to_f rescue 0.0
-        share_total_end = donor_shares + share_total_before
+        
+        share_total_end = total_donor_shares + share_total_before
 
         # get donation share price
-        share_price = givbalance / share_total_end
-
+        # givbalance / total_donor_shares_all_time
+        share_price = givbalance / share_total_end 
+        share_price = 100000.0 unless share_price.finite?
         if share_price.to_f.nan?
-          share_price = 100000
+          share_price = 100000.0
         end
 
         round_up_share_price = (share_price * 10).ceil / 10.0
-        grant_amount = givbalance * (1.25 / 100) * (96.0 / 100)
+        grant_amount = givbalance * (1.25 / 100) * (GIV_GRANT_AMOUNT)
 
         new_record_share = Share.new(
                                      :stripe_balance => stripe_balance,
@@ -64,16 +66,16 @@ module CalculationShare
         givbalance = stripe_balance + etrade_balance
         grant_price = Share.last.share_price.round(2) rescue 0.0
 
-        grant_amount = givbalance * (1.25 / 100) * (96.0 / 100)
-        giv2giv_fee = givbalance * (1.25 / 100) * (4.0 / 100)
+        grant_amount = givbalance * (1.25 / 100) * (GIV_GRANT_AMOUNT)
+        giv2giv_fee = givbalance * (1.25 / 100) * (GIV_PERCENTAGE)
         total_amount_and_fee = givbalance * (1.25 / 100)
 
         all_charity_group_balance = givbalance
   
         charity_groups = CharityGroup.all
         charity_groups.each do |charity_group|
-          giv2giv_fee = giv2giv_fee + (charity_group.donations.sum(:amount) - (charity_group.donations.sum(:amount) * 2.9 / 100)) * (1.25 / 100) * (4.0 / 100)
-          charitygroup_total_grant = (charity_group.donations.sum(:amount) - (charity_group.donations.sum(:amount) * 2.9 / 100)) * (1.25 / 100) * (96.0 / 100)
+          giv2giv_fee = giv2giv_fee + (charity_group.donations.sum(:amount) - (charity_group.donations.sum(:amount) * 2.9 / 100)) * (1.25 / 100) * (GIV_PERCENTAGE)
+          charitygroup_total_grant = (charity_group.donations.sum(:amount) - (charity_group.donations.sum(:amount) * 2.9 / 100)) * (1.25 / 100) * (GIV_PERCENTAGE)
 
           charities = charity_group.charities
           charities.each do |charity|
