@@ -1,4 +1,3 @@
-
 #### CURL EXAMPLES
 #### THESE ARE HTTP *ONLY* FOR LOCAL DEV   { http://localhost:3000 }
 #### PRODUCTION WILL *ONLY* SUPPORT HTTPS  { https://api.giv2giv.org }
@@ -363,8 +362,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
 5. One-time payment
 
-    Authorization token in Header *required*. See session #authenticate
-
+    
     Arguments :
 
     amount           : required
