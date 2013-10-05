@@ -74,9 +74,7 @@ module CalculationShare
         givbalance = stripe_balance + etrade_balance
         grant_price = Share.last.share_price rescue 0.0
 
-        #grant_amount = givbalance * (1.25 / 100) * (GIV_GRANT_AMOUNT)
-        #giv2giv_fee = givbalance * (1.25 / 100) * (GIV_PERCENTAGE)
-        total_amount_and_fee = givbalance * (1.25 / 100)
+        giv2giv_fee = givbalance * (GIV_GRANT_AMOUNT) * (GIV_FEE_AMOUNT)
 
         all_charity_group_balance = givbalance
   
@@ -90,8 +88,6 @@ module CalculationShare
 
           charity_group_fee = charity_group_gross_grant_amount * GIV_FEE_AMOUNT
 
-          giv2giv_fee = giv2giv_fee + charity_group_fee
-
           charitygroup_grant = charity_group_gross_grant_amount - charity_group_fee
 
 
@@ -103,7 +99,7 @@ module CalculationShare
             grant_charity_group = charity_group.id
             grant_shares_sold = grant_amount_charity / grant_price  #MUST USE BIGDECIMAL to 20 digits
 
-            grant_record = Grant.new(:donor_id => grant_charity_donor, :charity_group_id => grant_charity_group, :date => Date.today, :shares_subtracted => charitygroup_grant, :charity_id => charity.id, :givfee => charity_group_fee)
+            grant_record = Grant.new(:donor_id => grant_charity_donor, :charity_group_id => grant_charity_group, :date => Date.today, :shares_subtracted => charitygroup_grant, :charity_id => charity.id, :giv2giv_total_grant_fee => giv2giv_fee)
             grant_record.save
           end # end charities
         end # end charity_groups
