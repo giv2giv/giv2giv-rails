@@ -23,19 +23,20 @@ module CalculationShare
           givbalance = 30
         end
 
-        # shares_added_by_donation
         date_yesterday = Date.yesterday.strftime('%Y%m%d')
-        donor_shares = Donation.where("date_format(created_at, '%Y%m%d') = '#{date_yesterday}'").sum(:shares_added)
-
-        # get total donor shares
         date_today = Date.today.strftime('%Y%m%d')
-        shares_today = Donation.where("date_format(created_at, '%Y%m%d') = '#{date_today}'").sum(:shares_added)
 
-        total_donor_shares = Donation.sum(:shares_added).to_f - shares_today
+        # shares added by donation
+        shares_donated_today = Donation.where("date_format(created_at, '%Y%m%d') = '#{date_today}'").sum(:shares_added)
+        shares_donated_yesterday = Donation.where("date_format(created_at, '%Y%m%d') = '#{date_yesterday}'").sum(:shares_added)
+
+        # shares removed by grant
+        shares_granted_today = Grant.where("date_format(created_at, '%Y%m%d') = '#{date_today}'").sum(:shares_subtracted)
+        shares_granted_yesterday = Grant.where("date_format(created_at, '%Y%m%d') = '#{date_yesterday}'").sum(:shares_subtracted)
+
         donors_shares_total_beginning = Share.order("created_At DESC").last.share_total_end.to_f rescue 0.0
-        share_total_before = Share.order("created_At DESC").last.share_total_beginning.to_f rescue 0.0
-        
-        share_total_end = total_donor_shares + share_total_before
+
+        share_total_end = donors_shares_total_beginning + shares_donated_yesterday - shares_donated_today - shares_granted_yesterday + shares_granted_today
 
         # get donation share price
         # givbalance / total_donor_shares_all_time
@@ -45,17 +46,18 @@ module CalculationShare
           share_price = 100000.0
         end
 
-        round_up_share_price = (share_price * 10).ceil / 10.0
-        grant_amount = givbalance * (1.25 / 100) * (GIV_GRANT_AMOUNT)
-
+        donation_share_price = (share_price * 10).ceil / 10.0
+        grant_share_price = (share_price * 10).floor / 10.0
+        
         new_record_share = Share.new(
                                      :stripe_balance => stripe_balance,
                                      :etrade_balance => etrade_balance,
                                      :share_total_beginning => donors_shares_total_beginning,
-                                     :shares_added_by_donation => donor_shares,
-                                     :shares_subtracted_by_grants => grant_amount,
+                                     :shares_added_by_donation => shares_donated_yesterday,
+                                     :shares_subtracted_by_grants => shares_granted_yesterday,
                                      :share_total_end => share_total_end,
-                                     :share_price => round_up_share_price
+                                     :donation_price => donation_share_price,
+                                     :grant_price => grant_share_price,
                                     )
         if new_record_share.save
           puts "Share Price has been updated"
