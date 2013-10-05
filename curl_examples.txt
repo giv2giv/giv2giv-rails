@@ -383,16 +383,12 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
 ** SHARES MANAGEMENT **
 
-1. Show shares from this donor , filter by charity group id
+1. Show grants
 
    Authorization token in Header *required*. See session #authenticate
 
    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/balances/show_grants.json
    
-   Examples Response:
-
-   [{"grant":{"charity_group_id":1,"charity_id":1,"created_at":"2013-10-05T05:56:00Z","date":"2013-10-05","donor_id":1,"dwolla_transaction_id":null,"givfee":0.0344925,"id":4,"shares_subtracted":1.69925e-07,"updated_at":"2013-10-05T05:56:00Z"}}]
-
 2. Approve Charity
 
    Authorization token in Header *required*. See session #authenticate
@@ -408,3 +404,23 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 3. Show Charity Group Balance
 
    Authorization token in Header *required*. See session #authenticate
+
+   Arguments :   
+
+   { CHARITY_GROUP_ID } : required
+
+   http://localhost:3000/api/balances/{ CHARITY_GROUP_ID }/show_charity_group_balance..json
+
+   curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/balances/1/show_charity_group_balance.json
+
+4. Show Donor Balance
+
+   Authorization token in Header *required*. See session #authenticate
+
+   Arguments :   
+
+   { DONOR_ID } : required
+
+   http://localhost:3000/api/balances/{ DONOR_ID }/show_donor_balance.json
+
+   curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/balances/1/show_donor_balance.json

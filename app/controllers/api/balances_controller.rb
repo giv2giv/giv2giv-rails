@@ -34,9 +34,12 @@ class Api::BalancesController < Api::BaseController
           # if dwolla send, update balance and fee to charity
           if dump_grant_sent.save
             charity_update = Charity.find(grant.charity_id)
+            # round up charity balance
+            charity_balance = (SentGrant.where("charity_id = '#{grant.charity_id}'").sum(:amount)) * 10).ceil / 10.0
+            charity_balance = (charity_balance * 10).ceil / 10.0
             update_charity_fee_balance = charity_update.update_attributes(
                                                      :fee => grant.giv2giv_total_grant_fee,
-                                                     :balance => amount
+                                                     :balance => charity_balance
                                                     )
             render json: {:error => "Transfer success!"}.to_json
           else
@@ -49,6 +52,22 @@ class Api::BalancesController < Api::BaseController
     else
       render json: {:error => "Required grant id"}.to_json
     end
+  end
+
+  def show_charity_group_balance
+    charity_group = CharityGroup.find(params[:id])
+    share_balance = charity_group.donations.sum(:shares_added) - charity_group.grants.sum(:shares_subtracted) 
+    charity_group_balance = ((share_balance * Share.last.donation_price) * 10).ceil / 10.0
+    charity_group_current_money_balance = charity_group_balance / Share.last.grant_price
+    render json: {:charity_group_id => charity_group.id, :charity_group_balance => charity_group_balance, :charity_group_current_money_balance => charity_group_current_money_balance}.to_json
+  end
+
+  def show_donor_balance
+    donor = Donor.find(params[:id])
+    share_added = donor.donations.sum(:shares_added) - donor.grants.sum(:shares_subtracted)
+    donor_balance = ((share_added * Share.last.donation_price) * 10).ceil / 10.0
+    donor_current_money_balance = donor_balance / Share.last.grant_price
+    render json: {:donor_id => donor.id, :donor_balance => donor_balance, :donor_current_money_balance => donor_current_money_balance}.to_json    
   end
 
 end

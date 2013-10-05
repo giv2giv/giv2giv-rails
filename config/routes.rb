@@ -32,6 +32,8 @@ Giv2givRails::Application.routes.draw do
       resources :balances, :except => [:new, :edit, :destroy, :create, :update, :show, :index] do
         get 'show_grants', :on => :collection
         post 'approve_charity', :on => :member
+        get 'show_charity_group_balance', :on => :member
+        get 'show_donor_balance', :on => :member
       end
 
     end # end namespace api
