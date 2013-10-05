@@ -86,13 +86,11 @@ module CalculationShare
 
           charity_group_share_balance = charity_group.donations.sum(:shares_added) - charity_group.grants.sum(:shares_subtracted)
 
-          charity_group_money_balance = charity_group_share_balance * Share.last.grant_price
-
           charity_group_gross_grant_amount = charity_group_share_balance * GIV_GRANT_AMOUNT
 
           giv2giv_fee = giv2giv_fee + (charity_group_gross_grant_amount * GIV_FEE_AMOUNT)
 
-          charitygroup_total_grant = charity_group_gross_grant_amount * (1-GIV_FEE_AMOUNT)
+          charitygroup_total_grant = charity_group_gross_grant_amount - giv2giv_fee
 
 
           charities = charity_group.charities
