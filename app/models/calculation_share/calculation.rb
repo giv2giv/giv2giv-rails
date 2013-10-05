@@ -17,6 +17,12 @@ module CalculationShare
         stripe_balance = get_stripe_balance
         etrade_balance = get_etrade_balance
 
+        if Rails.env.eql?("production")
+          givbalance = stripe_balance + etrade_balance
+        else
+          givbalance = 30
+        end
+
         # shares_added_by_donation
         date_yesterday = Date.yesterday.strftime('%Y%m%d')
         donor_shares = Donation.where("date_format(created_at, '%Y%m%d') = '#{date_yesterday}'").sum(:shares_added)
