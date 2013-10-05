@@ -25,8 +25,11 @@ class CharityGroup < ActiveRecord::Base
     super(:include =>[:charities])
   end
 
-  def add_charity(charity_id)
-    self.charities << Charity.find(charity_id)
+  def add_charity(charity_ids)
+    charity_ids = charity_ids.split(",").map { |s| s.to_i }
+    charity_ids.each do |charity_id| 
+      self.charities << Charity.find(charity_id)
+    end
   end
 
   def remove_charity(group_id, charity_id)
