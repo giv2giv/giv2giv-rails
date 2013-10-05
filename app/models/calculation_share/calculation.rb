@@ -72,18 +72,28 @@ module CalculationShare
         etrade_balance = get_etrade_balance
 
         givbalance = stripe_balance + etrade_balance
-        grant_price = Share.last.share_price.round(2) rescue 0.0
+        grant_price = Share.last.share_price rescue 0.0
 
-        grant_amount = givbalance * (1.25 / 100) * (GIV_GRANT_AMOUNT)
-        giv2giv_fee = givbalance * (1.25 / 100) * (GIV_PERCENTAGE)
+        #grant_amount = givbalance * (1.25 / 100) * (GIV_GRANT_AMOUNT)
+        #giv2giv_fee = givbalance * (1.25 / 100) * (GIV_PERCENTAGE)
         total_amount_and_fee = givbalance * (1.25 / 100)
 
         all_charity_group_balance = givbalance
   
         charity_groups = CharityGroup.all
+
         charity_groups.each do |charity_group|
-          giv2giv_fee = giv2giv_fee + (charity_group.donations.sum(:amount) - (charity_group.donations.sum(:amount) * 2.9 / 100)) * (1.25 / 100) * (GIV_PERCENTAGE)
-          charitygroup_total_grant = (charity_group.donations.sum(:amount) - (charity_group.donations.sum(:amount) * 2.9 / 100)) * (1.25 / 100) * (GIV_PERCENTAGE)
+
+          charity_group_share_balance = charity_group.donations.sum(:shares_added) - charity_group.grants.sum(:shares_subtracted)
+
+          charity_group_money_balance = charity_group_share_balance * Share.last.grant_price
+
+          charity_group_gross_grant_amount = charity_group_share_balance * GIV_GRANT_AMOUNT
+
+          giv2giv_fee = giv2giv_fee + (charity_group_gross_grant_amount * GIV_FEE_AMOUNT)
+
+          charitygroup_total_grant = charity_group_gross_grant_amount * (1-GIV_FEE_AMOUNT)
+
 
           charities = charity_group.charities
           charities.each do |charity|
@@ -91,7 +101,7 @@ module CalculationShare
             grant_amount_charity = charitygroup_total_grant / charity_group.charities.count
             grant_charity_donor = charity_group.donor_id
             grant_charity_group = charity_group.id
-            grant_shares_sold = grant_amount_charity / grant_price
+            grant_shares_sold = grant_amount_charity / grant_price  #MUST USE BIGDECIMAL to 20 digits
 
             grant_record = Grant.new(:donor_id => grant_charity_donor, :charity_group_id => grant_charity_group, :date => Date.today, :shares_subtracted => grant_shares_sold, :charity_id => charity.id, :givfee => giv2giv_fee)
             grant_record.save
