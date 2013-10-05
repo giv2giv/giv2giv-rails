@@ -88,20 +88,22 @@ module CalculationShare
 
           charity_group_gross_grant_amount = charity_group_share_balance * GIV_GRANT_AMOUNT
 
-          giv2giv_fee = giv2giv_fee + (charity_group_gross_grant_amount * GIV_FEE_AMOUNT)
+          charity_group_fee = charity_group_gross_grant_amount * GIV_FEE_AMOUNT
 
-          charitygroup_total_grant = charity_group_gross_grant_amount - giv2giv_fee
+          giv2giv_fee = giv2giv_fee + charity_group_fee
+
+          charitygroup_grant = charity_group_gross_grant_amount - charity_group_fee
 
 
           charities = charity_group.charities
           charities.each do |charity|
             grant_charity = charity
-            grant_amount_charity = charitygroup_total_grant / charity_group.charities.count
+            grant_amount_charity = charitygroup_grant / charity_group.charities.count
             grant_charity_donor = charity_group.donor_id
             grant_charity_group = charity_group.id
             grant_shares_sold = grant_amount_charity / grant_price  #MUST USE BIGDECIMAL to 20 digits
 
-            grant_record = Grant.new(:donor_id => grant_charity_donor, :charity_group_id => grant_charity_group, :date => Date.today, :shares_subtracted => grant_shares_sold, :charity_id => charity.id, :givfee => giv2giv_fee)
+            grant_record = Grant.new(:donor_id => grant_charity_donor, :charity_group_id => grant_charity_group, :date => Date.today, :shares_subtracted => charitygroup_grant, :charity_id => charity.id, :givfee => charity_group_fee)
             grant_record.save
           end # end charities
         end # end charity_groups
