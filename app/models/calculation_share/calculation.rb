@@ -6,7 +6,7 @@ include EtradeHelper
 
 GIV_FEE_AMOUNT = 1 - App.giv["giv_fee_percentage"].to_f
 GIV_GRANT_AMOUNT = App.giv["giv_grant_amount"]
-CHECK_AMOUNT_MINIMAL = 0.01 / 100
+# CHECK_AMOUNT_MINIMAL = 0.01 / 100
 
 module CalculationShare
   class Calculation
@@ -104,7 +104,7 @@ module CalculationShare
             grant_charity_group = charity_group.id
             grant_shares_sold = grant_amount_charity / grant_price
 
-            if grant_amount_charity > CHECK_AMOUNT_MINIMAL
+            # if grant_amount_charity > CHECK_AMOUNT_MINIMAL
               grant_record = Grant.new(
                                       :donor_id => grant_charity_donor, 
                                       :charity_group_id => grant_charity_group, 
@@ -114,7 +114,7 @@ module CalculationShare
                                       :giv2giv_total_grant_fee => giv2giv_fee
                                       )
               grant_record.save
-            end # end grant_amount_charity
+            # end # end grant_amount_charity
           end # end charities
         end # end charity_groups
       end

@@ -39,9 +39,9 @@ module DwollaHelper
   def make_donation(email, notes, amount=nil)
     begin
       transactionId = Dwolla::Transactions.send({:destinationId => ACC_ID, :pin => PIN, :destinationType => email, :amount => amount, :notes => notes})
-      return "Success send money !"
+      return transactionId
     rescue Dwolla::APIError => error
-      return "Failed send money !"
+      return nil
     end
   end
 

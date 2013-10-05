@@ -16,3 +16,7 @@ etrade:
 stripe:
    api_key:       happy
    publishable_key:  fun
+
+giv:
+  giv_fee_percentage: 0.04
+  giv_grant_amount: .0125

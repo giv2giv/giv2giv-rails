@@ -388,14 +388,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
    Authorization token in Header *required*. See session #authenticate
 
-   Arguments :
-
-   start_date : optional
-   end_date   : optional
-
-   http://localhost:3000/api/balances/show_grants.json
-
-   curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' -d '{"start_date":"2013-10-04", "end_date":"2013-10-06"}' http://localhost:3000/api/balances/show_grants.json
+   curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/balances/show_grants.json
    
    Examples Response:
 
