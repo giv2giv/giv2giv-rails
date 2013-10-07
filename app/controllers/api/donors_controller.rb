@@ -14,6 +14,14 @@ class Api::DonorsController < Api::BaseController
     end
   end
 
+  def balance_information
+    share_added = current_donor.donations.sum(:shares_added) - current_donor.grants.sum(:shares_subtracted)
+    donor_balance = ((share_added * Share.last.donation_price) * 10).ceil / 10.0
+    total_donations = current_donor.donations.sum(:amount)
+    total_grants = ((Share.last.grant_price * current_donor.donations.sum(:shares_added)) * App.giv["giv_grant_amount"]).round(2)
+    render json: {:balance => donor_balance, :total_donations => total_donations, :total_grants => total_grants}.to_json    
+  end
+
   def update
     donor = current_donor
 

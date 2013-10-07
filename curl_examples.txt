@@ -48,7 +48,15 @@
 
     {"donor":{"address":null,"city":null,"country":null,"created_at":"2013-09-24T04:34:59Z","email":"email@domain.com","facebook_id":null,"id":1,"name":"Firman","phone_number":null,"state":null,"updated_at":"2013-09-24T04:37:11Z","zip":null}}
 
+4. Show Donor Balance Information
 
+    Authorization token in Header *required*. See session #authenticate
+
+    http://localhost:3000/api/donors/balance_information.json
+
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' http://localhost:3000/api/donors/balance_information.json
+
+    
 
 ** SESSION MANAGEMENT **
 
@@ -137,13 +145,13 @@
 
     Arguments :
 
-    charity_id   : required
+    charity_id   : required ( separated by comma )
 
     {CHARITY_GROUP_ID} : required
 
     http://localhost:3000/api/charity_group/{CHARITY_GROUP_ID}/add_charity.json
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"charity_id":"1"}' http://localhost:3000/api/charity_group/1/add_charity.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"charity_id":"1,24,6,4,3"}' http://localhost:3000/api/charity_group/1/add_charity.json
 
     Examples Response:
 
@@ -410,15 +418,3 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
    http://localhost:3000/api/balances/{ CHARITY_GROUP_ID }/show_charity_group_balance..json
 
    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/balances/1/show_charity_group_balance.json
-
-4. Show Donor Balance
-
-   Authorization token in Header *required*. See session #authenticate
-
-   Arguments :   
-
-   { DONOR_ID } : required
-
-   http://localhost:3000/api/balances/{ DONOR_ID }/show_donor_balance.json
-
-   curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/balances/1/show_donor_balance.json

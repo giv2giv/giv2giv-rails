@@ -9,6 +9,7 @@ Giv2givRails::Application.routes.draw do
       post 'sessions/create' => 'sessions#create'
 
       resource :donors, :except => [:new, :edit, :destroy] do
+        get 'balance_information', :on => :member
         resources :payment_accounts, :except => [:new, :edit] do
           post 'donate_subscription', :on => :member
           get 'donation_list', :on => :member
@@ -33,7 +34,6 @@ Giv2givRails::Application.routes.draw do
         get 'show_grants', :on => :collection
         post 'approve_charity', :on => :member
         get 'show_charity_group_balance', :on => :member
-        get 'show_donor_balance', :on => :member
       end
 
     end # end namespace api
