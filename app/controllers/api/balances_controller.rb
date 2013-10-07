@@ -54,12 +54,4 @@ class Api::BalancesController < Api::BaseController
     end
   end
 
-  def show_charity_group_balance
-    charity_group = CharityGroup.find(params[:id])
-    share_balance = charity_group.donations.sum(:shares_added) - charity_group.grants.sum(:shares_subtracted) 
-    charity_group_balance = ((share_balance * Share.last.donation_price) * 10).ceil / 10.0
-    charity_group_current_money_balance = charity_group_balance / Share.last.grant_price
-    render json: {:charity_group_id => charity_group.id, :charity_group_balance => charity_group_balance, :charity_group_current_money_balance => charity_group_current_money_balance}.to_json
-  end
-
 end

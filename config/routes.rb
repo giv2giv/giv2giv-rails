@@ -24,6 +24,7 @@ Giv2givRails::Application.routes.draw do
         post 'add_charity', :on => :member
         delete 'remove_charity', :on => :member
         post 'rename_charity_group', :on => :member
+        get 'share_balance_information', :on => :member
       end
 
       resources :charity, :except => [:new, :edit, :destroy, :update, :create] do
@@ -33,7 +34,6 @@ Giv2givRails::Application.routes.draw do
       resources :balances, :except => [:new, :edit, :destroy, :create, :update, :show, :index] do
         get 'show_grants', :on => :collection
         post 'approve_charity', :on => :member
-        get 'show_charity_group_balance', :on => :member
       end
 
     end # end namespace api
