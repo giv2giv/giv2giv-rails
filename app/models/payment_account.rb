@@ -64,7 +64,7 @@ class PaymentAccount < ActiveRecord::Base
           if check_share_price.blank?
             per_share = PER_SHARE_DEFAULT
           else
-            per_share = check_share_price.share_price
+            per_share = check_share_price.donation_price
           end
           buy_shares = amount.to_f / per_share.to_f
           donation = Donation.new(
@@ -72,7 +72,7 @@ class PaymentAccount < ActiveRecord::Base
                                  :charity_group_id => charity_group_id,
                                  :transaction_processor => payment.processor,
                                  :payment_account_id => payment.id,
-                                 :transaction_type => "subscription",
+                                 :transaction_type => "onetime-payment",
                                  :shares_added => buy_shares,
                                  :donor_id => donor.id
                                  )

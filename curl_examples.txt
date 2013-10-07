@@ -383,7 +383,6 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
 5. One-time payment
 
-    
     Arguments :
 
     amount           : required
@@ -391,7 +390,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
     email            : required
     stripeToken      : required
 
-    curl -X GET -H "Content-Type: application/json" -d '{"amount":"5", "charity_group_id":"1", "email":"email@email.com","stripeToken":"tok_102drE2mGsIlOBKnv6SfzVlO"}' http://localhost:3000/api/donors/payment_accounts/one_time_payment.json
+    curl -X POST -H "Content-Type: application/json" -d '{"amount":"5", "charity_group_id":"1", "email":"email@email.com","stripeToken":"tok_102drE2mGsIlOBKnv6SfzVlO"}' http://localhost:3000/api/donors/payment_accounts/one_time_payment.json
 
     Examples Response:
 
