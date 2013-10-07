@@ -3,20 +3,20 @@
 force_ssl: true
 
 dwolla:
-   api_key:        asdf
-   api_secret:     meow
-   account_id:     123-456-7890
-   pin_account:    pin_account
-   company_token:  woof
+  api_key            : api_key
+  api_secret         : api_secret
+  account_id         : account_id
+  pin_account        : pin_account
+  company_token      : company_token
 
 etrade:
-   oauth_consumer_key:  happy
-   consumer_secret:     fun
+  oauth_consumer_key : oauth_consumer_key
+  consumer_secret    : consumer_secret
 
 stripe:
-   api_key:       happy
-   publishable_key:  fun
+  api_key            : api_key
+  publishable_key    : publishable_key
 
 giv:
-  giv_fee_percentage: 0.04
-  giv_grant_amount: .0125
+  giv_fee_percentage : 0.04
+  giv_grant_amount   : .0125
