@@ -15,6 +15,7 @@ module CharityImport
     # schools, some  churches and some governmental entities.
     DESIRED_DEDUCTION_CODE = '1.0'
     DESIRED_FOUNDATION_CODE = '0.0'
+    DESIRED_EXEMPT_CODE = '1.0'
 
     @@verbose = true
     @@verbose_with_misses = false
@@ -174,10 +175,12 @@ module CharityImport
           name = row[1].to_s.strip
 			    deduction_code = row[12].to_s.strip
 			    foundation_code = row[13].to_s.strip
+          exemption_code = row[16].to_s.strip
 
 			    puts "EIN:#{ein} Name:#{name} Deduction Code:#{deduction_code} Foundation Code:#{foundation_code}" if @@verbose_with_misses
 			    next if deduction_code != DESIRED_DEDUCTION_CODE
           next if foundation_code != DESIRED_FOUNDATION_CODE
+          next if exemption_code != DESIRED_EXEMPT_CODE
 
           options = { :ein => ein,
 			                :name => name,
