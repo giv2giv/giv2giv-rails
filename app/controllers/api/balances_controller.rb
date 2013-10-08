@@ -17,16 +17,10 @@ class Api::BalancesController < Api::BaseController
       if grant.blank?
         render json: {:error => "Grant is not available"}.to_json
       else
-        # Email notes
         email = grant.charity.email
         notes = "Congratulations"
-
         # amount to send dwolla
-        charity_group = CharityGroup.find(grant.charity_group_id)
-        last_donation_price = Share.last.donation_price
-        share_balance = charity_group.donations.sum(:shares_added) - charity_group.grants.sum(:shares_subtracted) 
-        amount = ((share_balance * last_donation_price) * 10).ceil / 10.0
-
+        amount = Grant.where("charity_group_id = #{grant.charity_group_id}").sum(:shares_subtracted)        
         # send money to dwolla
         transaction_id = make_donation(email, notes, amount=nil)
         if !transaction_id.blank?
@@ -41,7 +35,7 @@ class Api::BalancesController < Api::BaseController
           if dump_grant_sent.save
             charity_update = Charity.find(grant.charity_id)
             # round up charity balance
-            charity_balance = (SentGrant.where("charity_id = '#{grant.charity_id}'").sum(:amount)) * 10).ceil / 10.0
+            charity_balance = ((SentGrant.where("charity_id = '#{grant.charity_id}'").sum(:amount)) * 10).ceil / 10.0
             charity_balance = (charity_balance * 10).ceil / 10.0
             update_charity_fee_balance = charity_update.update_attributes(
                                                      :fee => grant.giv2giv_total_grant_fee,
