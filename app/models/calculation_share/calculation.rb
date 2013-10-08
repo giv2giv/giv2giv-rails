@@ -105,15 +105,17 @@ module CalculationShare
             grant_shares_sold = grant_amount_charity / grant_price
 
             # if grant_amount_charity > CHECK_AMOUNT_MINIMAL
-              grant_record = Grant.new(
-                                      :donor_id => grant_charity_donor, 
-                                      :charity_group_id => grant_charity_group, 
-                                      :date => Date.today, 
-                                      :shares_subtracted => charitygroup_grant, 
-                                      :charity_id => charity.id, 
-                                      :giv2giv_total_grant_fee => giv2giv_fee
-                                      )
-              grant_record.save
+              if charity.status.eql?("active")
+                grant_record = Grant.new(
+                                        :donor_id => grant_charity_donor, 
+                                        :charity_group_id => grant_charity_group, 
+                                        :date => Date.today, 
+                                        :shares_subtracted => charitygroup_grant, 
+                                        :charity_id => charity.id, 
+                                        :giv2giv_total_grant_fee => giv2giv_fee
+                                        )
+                grant_record.save
+              end
             # end # end grant_amount_charity
           end # end charities
         end # end charity_groups

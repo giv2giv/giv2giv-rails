@@ -17,10 +17,16 @@ class Api::BalancesController < Api::BaseController
       if grant.blank?
         render json: {:error => "Grant is not available"}.to_json
       else
+        # Email notes
         email = grant.charity.email
         notes = "Congratulations"
+
         # amount to send dwolla
-        amount = Grant.where("charity_group_id = #{grant.charity_group_id}").sum(:shares_subtracted)        
+        charity_group = CharityGroup.find(grant.charity_group_id)
+        last_donation_price = Share.last.donation_price
+        share_balance = charity_group.donations.sum(:shares_added) - charity_group.grants.sum(:shares_subtracted) 
+        amount = ((share_balance * last_donation_price) * 10).ceil / 10.0
+
         # send money to dwolla
         transaction_id = make_donation(email, notes, amount=nil)
         if !transaction_id.blank?

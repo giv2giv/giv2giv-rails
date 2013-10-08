@@ -26,6 +26,8 @@ module CharityImport
         @@verbose_with_misses = with_misses
         files = nil
 
+        collect_charities_ein = collect_charities
+        
         if skip_downloading
           files = files_from_dir
         else
@@ -34,15 +36,48 @@ module CharityImport
           files.each { |file| download_eo_file(file) }
         end
 
-        files.each { |file| read_excel(file) }
+        files.each do |file|
+          total_left_charities = read_excel(file, collect_charities_ein)
+          collect_charities_ein = total_left_charities
+        end
+
+        if collect_charities_ein.size > 0
+          update_charities(collect_charities_ein)
+        end
+
       end
 
       def import_single_file(file_name, skip_downloading = true)
+        collect_charities_ein = collect_charities
+
         if !skip_downloading
           create_excel_dir_if_needed
           download_eo_file(file_name)
         end
-        read_excel(file_name)
+
+        total_left_charities = read_excel(file_name, collect_charities_ein)
+
+        if total_left_charities.size > 0
+          update_charities(total_left_charities)
+        end
+
+      end
+
+      def collect_charities
+        charities_date = Charity.all
+        collect_charities_ein = []
+        charities_date.each do |charity|
+          collect_charities_ein << charity.ein
+        end
+        return collect_charities_ein
+      end
+
+      def update_charities(collect_charities_ein)
+        collect_charities_ein.each do |a|
+          charity = Charity.find_by_ein(a)
+          charity.update_attribute :status, "inactive"
+          puts "EIN:#{charity.ein} Has been inactive"
+        end
       end
 
       def add_email_charity(charity_id, charity_email)
@@ -157,12 +192,10 @@ module CharityImport
         ntee_core_codes[ntee_code] if ntee_code.present?
       end
 
-      def read_excel(file)
+      def read_excel(file, collect_charities_ein)
         file_with_dir = charity_excel_dir + file
         raise ArgumentError, "File not found: #{file_with_dir}" if !File.exists?(file_with_dir)
-
         puts "Reading spreadsheet: #{file}" if @@verbose
-
         book = Spreadsheet.open(file_with_dir)
 #        book = POI::Workbook.open(file_with_dir)
         sheet = book.worksheet(0)
@@ -177,8 +210,10 @@ module CharityImport
 			    foundation_code = row[13].to_s.strip
           exemption_code = row[16].to_s.strip
 
-			    puts "EIN:#{ein} Name:#{name} Deduction Code:#{deduction_code} Foundation Code:#{foundation_code}" if @@verbose_with_misses
-			    next if deduction_code != DESIRED_DEDUCTION_CODE
+			    puts "EIN:#{ein} Name:#{name} Deduction Code:#{deduction_code} Foundation Code:#{foundation_code}" if @@verbose_with_misses 
+          collect_charities_ein.delete_if {|x| x == ein.to_i }
+
+          next if deduction_code != DESIRED_DEDUCTION_CODE
           next if foundation_code != DESIRED_FOUNDATION_CODE
           next if exemption_code != DESIRED_EXEMPT_CODE
 
@@ -191,14 +226,16 @@ module CharityImport
 			                :ntee_code => row[30].to_s.strip,
 			                :subsection_code => row[8].to_s.strip,
 			                :classification_code => row[10].to_s.strip,
-			                :activity_code => row[14].to_s.strip }
+			                :activity_code => row[14].to_s.strip,
+                      :status => 'active'
+                    }
 
 			    puts "---Creating Charity with #{options.inspect}" if @@verbose
           charity = Charity.create_or_update(options)
           tag_charity(charity)
         end
+        return collect_charities_ein
       end # end read_excel
-
     end # end self
   end
 end

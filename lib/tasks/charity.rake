@@ -35,4 +35,4 @@ namespace :charity do
     CharityImport::Importer.add_email_charity(charity_id, charity_email)
   end
 
- end
+end
