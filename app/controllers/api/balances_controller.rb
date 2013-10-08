@@ -35,7 +35,7 @@ class Api::BalancesController < Api::BaseController
           if dump_grant_sent.save
             charity_update = Charity.find(grant.charity_id)
             # round up charity balance
-            charity_balance = (SentGrant.where("charity_id = '#{grant.charity_id}'").sum(:amount)) * 10).ceil / 10.0
+            charity_balance = ((SentGrant.where("charity_id = '#{grant.charity_id}'").sum(:amount)) * 10).ceil / 10.0
             charity_balance = (charity_balance * 10).ceil / 10.0
             update_charity_fee_balance = charity_update.update_attributes(
                                                      :fee => grant.giv2giv_total_grant_fee,
