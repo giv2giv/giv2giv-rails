@@ -27,7 +27,7 @@ module CharityImport
         files = nil
 
         collect_charities_ein = collect_charities
-        
+
         if skip_downloading
           files = files_from_dir
         else
@@ -64,6 +64,9 @@ module CharityImport
       end
 
       def collect_charities
+        # why are we loading all charities here?
+        # we shouldn't keep all of the charities in memory
+        # we should not be excluding charities regardlesscd
         charities_date = Charity.all
         collect_charities_ein = []
         charities_date.each do |charity|
@@ -210,7 +213,9 @@ module CharityImport
 			    foundation_code = row[13].to_s.strip
           exemption_code = row[16].to_s.strip
 
-			    puts "EIN:#{ein} Name:#{name} Deduction Code:#{deduction_code} Foundation Code:#{foundation_code}" if @@verbose_with_misses 
+			    puts "EIN:#{ein} Name:#{name} Deduction Code:#{deduction_code} Foundation Code:#{foundation_code}" if @@verbose_with_misses
+          # we should not be deleting this charity. it might need to be updated
+
           collect_charities_ein.delete_if {|x| x == ein.to_i }
 
           next if deduction_code != DESIRED_DEDUCTION_CODE

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130902213431) do
+ActiveRecord::Schema.define(:version => 20131007093623) do
 
   create_table "charities", :force => true do |t|
     t.string   "name",                :null => false
@@ -28,6 +28,10 @@ ActiveRecord::Schema.define(:version => 20130902213431) do
     t.string   "website"
     t.datetime "created_at",          :null => false
     t.datetime "updated_at",          :null => false
+    t.string   "email"
+    t.float    "fee"
+    t.float    "balance"
+    t.string   "status"
   end
 
   add_index "charities", ["ein"], :name => "index_charities_on_ein"
@@ -49,30 +53,35 @@ ActiveRecord::Schema.define(:version => 20130902213431) do
   add_index "charities_tags", ["charity_id", "tag_id"], :name => "index_charities_tags_on_charity_id_and_tag_id", :unique => true
 
   create_table "charity_groups", :force => true do |t|
-    t.string   "name",                    :null => false
+    t.string   "name",                     :null => false
     t.string   "description"
     t.float    "minimum_donation_amount"
-    t.datetime "created_at",              :null => false
-    t.datetime "updated_at",              :null => false
+    t.datetime "created_at",               :null => false
+    t.datetime "updated_at",               :null => false
+    t.integer  "donor_id"
+    t.string   "charity_group_visibility"
   end
 
   create_table "donations", :force => true do |t|
     t.float    "amount",                :null => false
     t.integer  "charity_group_id",      :null => false
     t.integer  "payment_account_id",    :null => false
-    t.string   "transaction_id",        :null => false
+    t.string   "transaction_id"
     t.string   "transaction_processor", :null => false
     t.datetime "created_at",            :null => false
     t.datetime "updated_at",            :null => false
+    t.string   "transaction_type"
+    t.float    "shares_added"
+    t.integer  "donor_id"
   end
 
   add_index "donations", ["charity_group_id"], :name => "index_donations_on_charity_group_id"
   add_index "donations", ["payment_account_id"], :name => "index_donations_on_payment_account_id"
 
   create_table "donors", :force => true do |t|
-    t.string   "name",          :null => false
-    t.string   "email",         :null => false
-    t.string   "password_hash", :null => false
+    t.string   "name",         :null => false
+    t.string   "email",        :null => false
+    t.string   "password",     :null => false
     t.string   "facebook_id"
     t.string   "address"
     t.string   "city"
@@ -80,8 +89,16 @@ ActiveRecord::Schema.define(:version => 20130902213431) do
     t.string   "zip"
     t.string   "country"
     t.string   "phone_number"
-    t.datetime "created_at",    :null => false
-    t.datetime "updated_at",    :null => false
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+    t.string   "type_donor"
+  end
+
+  create_table "etrade_tokens", :force => true do |t|
+    t.string   "token"
+    t.string   "secret"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "etrades", :force => true do |t|
@@ -92,27 +109,60 @@ ActiveRecord::Schema.define(:version => 20130902213431) do
     t.float    "fees"
   end
 
+  create_table "grants", :force => true do |t|
+    t.integer  "donor_id"
+    t.integer  "charity_group_id"
+    t.date     "date"
+    t.float    "shares_subtracted"
+    t.datetime "created_at",              :null => false
+    t.datetime "updated_at",              :null => false
+    t.integer  "charity_id"
+    t.float    "giv2giv_total_grant_fee"
+  end
+
   create_table "payment_accounts", :force => true do |t|
     t.string   "processor",                          :null => false
-    t.string   "token"
-    t.string   "pin"
     t.integer  "donor_id",                           :null => false
     t.boolean  "requires_reauth", :default => false
     t.datetime "created_at",                         :null => false
     t.datetime "updated_at",                         :null => false
+    t.string   "stripe_cust_id"
   end
 
   add_index "payment_accounts", ["donor_id"], :name => "index_payment_accounts_on_donor_id"
 
+  create_table "sent_grants", :force => true do |t|
+    t.date     "date"
+    t.integer  "charity_id"
+    t.integer  "dwolla_transaction_id"
+    t.float    "amount"
+    t.float    "fee"
+    t.datetime "created_at",            :null => false
+    t.datetime "updated_at",            :null => false
+  end
+
   create_table "sessions", :force => true do |t|
     t.string   "session_id", :null => false
-    t.text     "data"
+    t.string   "token",      :null => false
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
 
   add_index "sessions", ["session_id"], :name => "index_sessions_on_session_id"
   add_index "sessions", ["updated_at"], :name => "index_sessions_on_updated_at"
+
+  create_table "shares", :force => true do |t|
+    t.float    "stripe_balance"
+    t.float    "etrade_balance"
+    t.float    "share_total_beginning"
+    t.float    "shares_added_by_donation"
+    t.float    "shares_subtracted_by_grants"
+    t.float    "share_total_end"
+    t.float    "donation_price"
+    t.datetime "created_at",                  :null => false
+    t.datetime "updated_at",                  :null => false
+    t.float    "grant_price"
+  end
 
   create_table "tags", :force => true do |t|
     t.text     "name"

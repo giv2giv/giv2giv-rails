@@ -8,6 +8,9 @@ GIV_FEE_AMOUNT = 1 - App.giv["giv_fee_percentage"].to_f
 GIV_GRANT_AMOUNT = App.giv["giv_grant_amount"]
 # CHECK_AMOUNT_MINIMAL = 0.01 / 100
 
+# THIS SHOULD NOT HAVE RESCUES IN IT
+# IF SOMETHING FAILS, IT NEEDS TO FAIL AND TELL US NOW
+# WE CANNOT LET SHAREPRICE BECOME 0
 module CalculationShare
   class Calculation
 
@@ -17,6 +20,8 @@ module CalculationShare
       def priceshare
         stripe_balance = get_stripe_balance
         etrade_balance = get_etrade_balance
+        # the balance will have shares purchased today. should they be added in?
+        # if so we might want to find them based on the current Time AT THIS POINT
 
         if Rails.env.eql?("production")
           givbalance = stripe_balance + etrade_balance
@@ -43,7 +48,7 @@ module CalculationShare
 
         # get donation share price
         # givbalance / total_donor_shares_all_time
-        share_price = givbalance / share_total_end 
+        share_price = givbalance / share_total_end
         share_price = 100000.0 unless share_price.finite?
         if share_price.to_f.nan?
           share_price = 100000.0
@@ -51,7 +56,7 @@ module CalculationShare
 
         donation_share_price = (share_price * 10).ceil / 10.0
         grant_share_price = (share_price * 10).floor / 10.0
-        
+
         new_record_share = Share.new(
                                      :stripe_balance => stripe_balance,
                                      :etrade_balance => etrade_balance,
@@ -66,7 +71,7 @@ module CalculationShare
           puts "Share Price has been updated"
         else
           puts "ERROR"
-        end        
+        end
       end
 
       # every 90 days
@@ -94,26 +99,45 @@ module CalculationShare
 
           charity_group_fee = charity_group_gross_grant_amount * GIV_FEE_AMOUNT
 
+          # we need to do something with this money
+          # move it out so it's not part of priceshare calculation
+          # let it linger in dwolla until 'grants for charity' is approved?
+          # alternative solution
+          # dont use shares_substracted in the priceshare calculation
+          # only use shared_substracted for grants that have been sent (have a dwolla_transaction_id)
           charitygroup_grant = charity_group_gross_grant_amount - charity_group_fee
 
           charities = charity_group.charities
+          grant_charity_group = charity_group.id
+          grant_amount_charity = charitygroup_grant / charity_group.charities.count
+          grant_shares_sold = grant_amount_charity / grant_price
+
           charities.each do |charity|
             grant_charity = charity
-            grant_amount_charity = charitygroup_grant / charity_group.charities.count
+
+            # count of number of shares at this point
+            # does it include shares that were already sold?
+            # we need to make a grant object (a single push of money to dwolla)
+            # that knows the grant_share_price at this point
+            # then we can figure out the individual donors contributions based on
+            # how many shares they have for this charity_group * GIV_GRANT_AMOUNT * grant_share_price
             grant_charity_donor = charity_group.donor_id
-            grant_charity_group = charity_group.id
-            grant_shares_sold = grant_amount_charity / grant_price
+            # donor_id doesn't do anything. at this point, we need to iterate over each donor in the group
 
             # if grant_amount_charity > CHECK_AMOUNT_MINIMAL
+              # move this 'active' check to be a Charity.method (or even validation)
               if charity.status.eql?("active")
+                # there needs to be attribute of not approved for grant approval
+                # we need to move this money
                 grant_record = Grant.new(
-                                        :donor_id => grant_charity_donor, 
-                                        :charity_group_id => grant_charity_group, 
-                                        :date => Date.today, 
-                                        :shares_subtracted => charitygroup_grant, 
-                                        :charity_id => charity.id, 
+                                        :donor_id => grant_charity_donor,
+                                        :charity_group_id => grant_charity_group,
+                                        :date => Date.today,
+                                        :shares_subtracted => charitygroup_grant,
+                                        :charity_id => charity.id,
                                         :giv2giv_total_grant_fee => giv2giv_fee
                                         )
+
                 grant_record.save
               end
             # end # end grant_amount_charity
@@ -126,7 +150,7 @@ module CalculationShare
       end
 
     private
-     
+
       def get_stripe_balance
         stripe_balance = Stripe::Balance.retrieve
         stripe_pending = (stripe_balance["pending"][0][:amount].to_f) / 100
@@ -136,6 +160,8 @@ module CalculationShare
 
       def get_etrade_balance
         if Rails.env.eql?("production")
+          # if the API request fails, we should fail immediately
+          # we do not want to sit the shareprice artificially low
           etrade_balance = Etrade.get_net_account_value rescue 0.0
         else
           etrade_balance = 0.0

@@ -3,9 +3,12 @@ class Api::BalancesController < Api::BaseController
   include DwollaHelper
 
   def show_grants
+    # this needs to take a param input (or anything that has not been approved)
+    # we need to group ALL grants for a charity_id and date
+    # so either each grant has approved flag or there's a container grant object
     date_today = Date.today.strftime('%Y-%m-%d')
     grants = Grant.where("date = '#{date_today}'")
-    
+
     respond_to do |format|
       format.json { render json: grants }
     end
@@ -20,7 +23,7 @@ class Api::BalancesController < Api::BaseController
         email = grant.charity.email
         notes = "Congratulations"
         # amount to send dwolla
-        amount = Grant.where("charity_group_id = #{grant.charity_group_id}").sum(:shares_subtracted)        
+        amount = Grant.where("charity_group_id = #{grant.charity_group_id}").sum(:shares_subtracted)
         # send money to dwolla
         transaction_id = make_donation(email, notes, amount=nil)
         if !transaction_id.blank?

@@ -1,5 +1,5 @@
 class CharityGroup < ActiveRecord::Base
-  
+
   VALID_TYPE = %w(public private)
 
   has_many :donations, dependent: :destroy
@@ -19,7 +19,7 @@ class CharityGroup < ActiveRecord::Base
 
       group
     end
-  end # end self
+  end # end selfx
 
   def as_json(options = {})
     super(:include =>[:charities])
@@ -27,7 +27,7 @@ class CharityGroup < ActiveRecord::Base
 
   def add_charity(charity_ids)
     charity_ids = charity_ids.split(",").map { |s| s.to_i }
-    charity_ids.each do |charity_id| 
+    charity_ids.each do |charity_id|
       self.charities << Charity.find(charity_id)
     end
   end
