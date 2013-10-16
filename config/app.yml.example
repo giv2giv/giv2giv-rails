@@ -8,6 +8,7 @@ dwolla:
   account_id         : account_id
   pin_account        : pin_account
   company_token      : company_token
+  dwolla_grant_source_account : dwolla_grant_source_account
 
 etrade:
   oauth_consumer_key : oauth_consumer_key
@@ -20,3 +21,4 @@ stripe:
 giv:
   giv_fee_percentage : 0.04
   giv_grant_amount   : .0125
+  share_precision: 20

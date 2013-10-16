@@ -1,59 +1,78 @@
 class Api::BalancesController < Api::BaseController
   before_filter :require_authentication
   include DwollaHelper
+  
+  GIV_FEE_AMOUNT = 1 - App.giv["giv_fee_percentage"].to_f
+  GIV_GRANT_AMOUNT = App.giv["giv_grant_amount"]
+  SHARE_PRECISION = App.giv["share_precision"]
+  PIN_DWOLLA = App.dwolla["pin_account"]
+  DWOLLA_GRANT_SOURCE_ACCOUNT = App.dwolla["dwolla_grant_source_account"]
 
   def show_grants
-    # this needs to take a param input (or anything that has not been approved)
-    # we need to group ALL grants for a charity_id and date
-    # so either each grant has approved flag or there's a container grant object
-    date_today = Date.today.strftime('%Y-%m-%d')
-    grants = Grant.where("date = ?", date_today)
+    pending_grants = DonorGrant.where("status = ?",'pending')
 
+    show_grants = pending_grants.group(:charity_id).map do |charity|
+      {
+        'charity_id' => charity.charity_id,
+        'charity_email' => charity.charity.email,
+        'grant_amount' => DonorGrant.where("charity_id = ?", charity.charity_id).sum(:shares_pending) * Share.last.grant_price
+      }
+    end
     respond_to do |format|
-      format.json { render json: grants }
+      format.json { render json: show_grants }
     end
   end
 
-  def approve_charity
-    if params.has_key?(:id)
-      grant = Grant.find(params[:id])
-      if grant.blank?
-        render json: {:error => "Grant is not available"}.to_json
-      else
-        email = grant.charity.email
-        notes = "Congratulations"
-        # amount to send dwolla
-        amount = Grant.where("charity_group_id = ?", grant.charity_group_id).sum(:shares_subtracted)
-        # send money to dwolla
-        transaction_id = make_donation(email, notes, amount=nil)
-        if !transaction_id.blank?
-          dump_grant_sent = SentGrant.new(
-                                          :date => Date.today,
-                                          :charity_id => grant.charity_id,
-                                          :dwolla_transaction_id => transaction_id,
-                                          :amount => amount,
-                                          :fee => grant.giv2giv_total_grant_fee
-                                         )
-          # if dwolla send, update balance and fee to charity
-          if dump_grant_sent.save
-            charity_update = Charity.find(grant.charity_id)
-            # round up charity balance
-            charity_balance = ((SentGrant.where("charity_id = ?", grant.charity_id).sum(:amount)) * 10).ceil / 10.0
-            charity_balance = (charity_balance * 10).ceil / 10.0
-            update_charity_fee_balance = charity_update.update_attributes(
-                                                     :fee => grant.giv2giv_total_grant_fee,
-                                                     :balance => charity_balance
-                                                    )
-            render json: {:error => "Transfer success!"}.to_json
-          else
-            render json: {:error => "Error creating grant sent!"}.to_json
-          end
-        else
-          render json: {:error => "Error creating grant sent!"}.to_json
-        end # end transaction
-      end # end grant blank
-    else
-      render json: {:error => "Required grant id"}.to_json
+  def deny_grant(charity_id)
+    denied_grants = DonorGrant.where("status = ? AND charity_id = ?", "pending", charity_id)
+    denied_grants.each do |deny_grant|
+      deny_grant.update_attributes(:status => 'denied')
+    end
+  end 
+
+  def approve_donor_grants
+    pending_grants = DonorGrant.where("status = ?", "pending")
+    pending_grants.group(:charity_id).each do |pending_grant| 
+      grant_shares = pending_grant.sum(:shares_pending)
+      # round to amount
+      gross_amount = ((BigDecimal("#{grant_shares}") * BigDecimal("#{SharePrice.last.grant_price}")).to_f * 10).ceil / 10.0
+      giv2giv_fee = (gross_amount * GIV_FEE_AMOUNT * 10).ceil / 10.0
+      net_amount = gross_amount - giv2giv_fee
+      total_giv2giv_fee = total_giv2giv_fee + giv2giv_fee
+      # set text message to charity email
+      text_note = ""
+      transaction_id = Dwolla::Transactions.send({:destinationId => pending_grant.charity.email, :pin => PIN_DWOLLA, :destinationType => email, :amount => amount, :notes => text_note, :fundsSource => DWOLLA_GRANT_SOURCE_ACCOUNT})
+      dwolla_fee = dwolla_transaction.fee
+
+      # set status = 'sent' for all DonorGrants rows for this charity_id
+      pending_grant.update_attributes(:status => "sent", :transaction_id => transaction_id)
+
+      sent_grant = CharityGrant.new(
+                                    :date => Date.today,
+                                    :charity_id => pending_grant.charity_id,
+                                    :charity_group_id => pending_grant.charity_group_id,
+                                    :donor_id => pending_grant.donor_id,
+                                    :transaction_id => transaction_id,
+                                    :transaction_fee => dwolla_fee,
+                                    :giv2giv_fee => giv2giv_fee,
+                                    :shares_subtracted => grant_shares,
+                                    :gross_amount => gross_amount,
+                                    :grant_amount => net_amount - dwolla_fee,
+                                    :status => "sent"
+                                    )
+      sent_grant.save
+
+      charity_update = Charity.find(pending_grant.charity_id)
+      # round up charity balance
+      charity_balance = ((CharityGrant.where("charity_id = ?", charity_id).sum(:grant_amount)) * 10).ceil / 10.0
+      fee_balance = ((CharityGrant.where("charity_id = ?", charity_id).sum(:giv2giv_fee)) * 10).ceil / 10.0
+      charity_balance = (charity_balance * 10).ceil / 10.0
+      fee_balance = (fee_balance * 10).ceil / 10.0
+      update_charity_fee_balance = charity_update.update_attributes(
+        :balance => charity_balance,
+        :fee => fee_balance
+      )
+
     end
   end
 

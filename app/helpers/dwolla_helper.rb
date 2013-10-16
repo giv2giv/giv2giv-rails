@@ -36,7 +36,7 @@ module DwollaHelper
     Dwolla::Transactions.get
   end
 
-  def make_donation(email, notes, amount=nil)
+  def dwolla_send(email, notes = "", amount=nil)
     begin
       transactionId = Dwolla::Transactions.send({:destinationId => ACC_ID, :pin => PIN, :destinationType => email, :amount => amount, :notes => notes})
       return transactionId

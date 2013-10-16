@@ -4,6 +4,8 @@ class CharityGroup < ActiveRecord::Base
 
   has_many :donations, dependent: :destroy
   has_many :grants, dependent: :destroy
+  has_many :charity_grants, dependent: :destroy
+  belongs_to :donor
   has_and_belongs_to_many :charities
 
   validates :name, :presence => true, :uniqueness => { :case_sensitive => false }

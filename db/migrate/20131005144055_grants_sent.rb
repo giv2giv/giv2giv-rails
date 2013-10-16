@@ -4,8 +4,8 @@ class GrantsSent < ActiveRecord::Migration
       t.date :date
       t.integer :charity_id
       t.integer :dwolla_transaction_id
-      t.float :amount
-      t.float :fee
+      t.decimal :amount
+      t.decimal :fee
       t.timestamps
     end
   end

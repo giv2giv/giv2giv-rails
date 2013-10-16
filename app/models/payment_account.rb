@@ -57,7 +57,7 @@ class PaymentAccount < ActiveRecord::Base
           cust_charge = Stripe::Charge.create(
                                 :amount => amount * 100,
                                 :currency => "usd",
-                                :description => "Charge for #{email}",
+                                :description => "giv2giv.org donation to #{CharityGroup.find(charity_group_id).name}",
                                 :customer => payment.stripe_cust_id
                                )
           check_share_price = Share.last
@@ -66,7 +66,8 @@ class PaymentAccount < ActiveRecord::Base
           else
             per_share = check_share_price.donation_price
           end
-          buy_shares = amount.to_f / per_share.to_f
+
+          buy_shares = BigDecimal("#{amount}") / BigDecimal("#{per_share}")
           donation = Donation.new(
                                  :amount => amount,
                                  :charity_group_id => charity_group_id,
@@ -113,7 +114,7 @@ class PaymentAccount < ActiveRecord::Base
       donation = Donation.find(donate_id)
         donation
       if donation.destroy
-        {:message => "Your subscription has been canceled"}.to_json
+        { :message => "Your subscription has been canceled" }.to_json
       end
     end
 
@@ -123,7 +124,6 @@ class PaymentAccount < ActiveRecord::Base
         payment_accounts.each do |payment_account|
           cu = Stripe::Customer.retrieve(payment_account.stripe_cust_id)
           cu.cancel_subscription
-          payment_account.donations.destroy_all
         end
         { :message => "Your subscriptions has been canceled" }.to_json
       rescue
@@ -166,7 +166,8 @@ class PaymentAccount < ActiveRecord::Base
               per_share = check_share_price.share_price
             end
 
-            buy_shares = amount.to_f / per_share.to_f
+            # We should only buy shares if there is an immediate charge and we have a transaction_id !
+            buy_shares = BigDecimal("#{amount}") / BigDecimal("#{per_share}", 20)
             donation = donor.donations.build(:amount => amount,
                                              :charity_group_id => charity_group_id,
                                              :transaction_processor => processor,
@@ -179,7 +180,7 @@ class PaymentAccount < ActiveRecord::Base
               donation
             else
               { :message => "Error" }.to_json
-            end #end donation.save
+            end # end donation.save
           end
         else
           { :message => "You need add one or more charity to this group" }.to_json
