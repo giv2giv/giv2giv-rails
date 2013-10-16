@@ -33,12 +33,12 @@ module CalculationShare
         date_today = Date.today.strftime('%Y%m%d')
 
         # shares added by donation
-        shares_donated_today = Donation.where("date_format(created_at, '%Y%m%d') = '#{date_today}'").sum(:shares_added)
-        shares_donated_yesterday = Donation.where("date_format(created_at, '%Y%m%d') = '#{date_yesterday}'").sum(:shares_added)
+        shares_donated_today = Donation.where("date_format(created_at, '%Y%m%d') = ?", date_today).sum(:shares_added)
+        shares_donated_yesterday = Donation.where("date_format(created_at, '%Y%m%d') = ?", date_yesterday).sum(:shares_added)
 
         # shares removed by grant
-        shares_granted_today = Grant.where("date_format(created_at, '%Y%m%d') = '#{date_today}'").sum(:shares_subtracted)
-        shares_granted_yesterday = Grant.where("date_format(created_at, '%Y%m%d') = '#{date_yesterday}'").sum(:shares_subtracted)
+        shares_granted_today = Grant.where("date_format(created_at, '%Y%m%d') = ?", date_today).sum(:shares_subtracted)
+        shares_granted_yesterday = Grant.where("date_format(created_at, '%Y%m%d') = ?", date_yesterday).sum(:shares_subtracted)
 
         donors_shares_total_beginning = Share.order("created_At DESC").last.share_total_end.to_f rescue 0.0
 

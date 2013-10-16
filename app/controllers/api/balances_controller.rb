@@ -7,7 +7,7 @@ class Api::BalancesController < Api::BaseController
     # we need to group ALL grants for a charity_id and date
     # so either each grant has approved flag or there's a container grant object
     date_today = Date.today.strftime('%Y-%m-%d')
-    grants = Grant.where("date = '#{date_today}'")
+    grants = Grant.where("date = ?", date_today)
 
     respond_to do |format|
       format.json { render json: grants }
@@ -23,7 +23,7 @@ class Api::BalancesController < Api::BaseController
         email = grant.charity.email
         notes = "Congratulations"
         # amount to send dwolla
-        amount = Grant.where("charity_group_id = #{grant.charity_group_id}").sum(:shares_subtracted)
+        amount = Grant.where("charity_group_id = ?", grant.charity_group_id).sum(:shares_subtracted)
         # send money to dwolla
         transaction_id = make_donation(email, notes, amount=nil)
         if !transaction_id.blank?
@@ -38,7 +38,7 @@ class Api::BalancesController < Api::BaseController
           if dump_grant_sent.save
             charity_update = Charity.find(grant.charity_id)
             # round up charity balance
-            charity_balance = ((SentGrant.where("charity_id = '#{grant.charity_id}'").sum(:amount)) * 10).ceil / 10.0
+            charity_balance = ((SentGrant.where("charity_id = ?", grant.charity_id).sum(:amount)) * 10).ceil / 10.0
             charity_balance = (charity_balance * 10).ceil / 10.0
             update_charity_fee_balance = charity_update.update_attributes(
                                                      :fee => grant.giv2giv_total_grant_fee,
