@@ -4,7 +4,7 @@ require 'oauth'
 include OAuth::Helper
 include EtradeHelper
 
-GIV_FEE_AMOUNT = 1 - App.giv["giv_fee_percentage"].to_f
+GIV_FEE_AMOUNT = App.giv["giv_fee_percentage"].to_f
 GIV_GRANT_AMOUNT = App.giv["giv_grant_amount"]
 SHARE_PRECISION = App.giv["share_precision"]
 
@@ -51,7 +51,7 @@ module CalculationShare
                                      :shares_subtracted_by_grants => shares_granted_yesterday,
                                      :share_total_end => share_total_end,
                                      :donation_price => donation_share_price,
-                                     :grant_price => grant_share_price,
+                                     :grant_price => grant_share_price
                                     )
         if new_record_share.save
           puts "Share Price has been updated"
@@ -68,14 +68,12 @@ module CalculationShare
         
         givbalance = 20.0
         
-        grant_price = Share.last.grant_price rescue 0.0
-        giv2giv_fee = givbalance * (GIV_GRANT_AMOUNT) * (GIV_FEE_AMOUNT)
         charity_groups = CharityGroup.all
 
         charity_groups.each do |charity_group|
 
-          charity_group_share_balance = charity_group.donations.sum(:shares_added) - charity_group.charity_grants.sum(:shares_subtracted)
-          charity_group_grant_shares = charity_group_share_balance * GIV_GRANT_AMOUNT
+          charity_group_share_balance = BigDecimal("#{charity_group.donations.sum(:shares_added)}") - BigDecimal("#{charity_group.charity_grants.sum(:shares_subtracted)}")
+          charity_group_grant_shares = BigDecimal("#{charity_group_share_balance}") * BigDecimal("#{GIV_GRANT_AMOUNT}")
           charity_grant_shares = (BigDecimal("#{charity_group_grant_shares}") / BigDecimal("#{charity_group.charities.count}")).round(SHARE_PRECISION)
 
           # charity_group_donors = charity_group.donors.all

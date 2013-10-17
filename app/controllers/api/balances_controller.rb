@@ -2,7 +2,7 @@ class Api::BalancesController < Api::BaseController
   before_filter :require_authentication
   include DwollaHelper
   
-  GIV_FEE_AMOUNT = 1 - App.giv["giv_fee_percentage"].to_f
+  GIV_FEE_AMOUNT = App.giv["giv_fee_percentage"].to_f
   GIV_GRANT_AMOUNT = App.giv["giv_grant_amount"]
   SHARE_PRECISION = App.giv["share_precision"]
   PIN_DWOLLA = App.dwolla["pin_account"]
@@ -15,7 +15,7 @@ class Api::BalancesController < Api::BaseController
       {
         'charity_id' => charity.charity_id,
         'charity_email' => charity.charity.email,
-        'grant_amount' => DonorGrant.where("charity_id = ?", charity.charity_id).sum(:shares_pending) * Share.last.grant_price
+        'grant_amount' => (BigDecimal("#{DonorGrant.where("charity_id = ?", charity.charity_id).sum(:shares_pending)}") * BigDecimal("#{Share.last.grant_price}")).round(SHARE_PRECISION)
       }
     end
     respond_to do |format|
