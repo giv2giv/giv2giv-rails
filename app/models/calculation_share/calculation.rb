@@ -14,11 +14,12 @@ module CalculationShare
     class << self
 
       def priceshare
-        # stripe_balance = get_stripe_balance
-        # etrade_balance = get_etrade_balance
-        # givbalance = stripe_balance + etrade_balance
-        
-        givbalance = 20.0
+        stripe_balance = get_stripe_balance
+        etrade_balance = get_etrade_balance
+        puts stripe_balance
+        puts etrade_balance
+        givbalance = stripe_balance + etrade_balance
+        # givbalance = 20.0
         date_yesterday = Date.yesterday.strftime('%Y%m%d')
         
         # shares added by donation
@@ -62,11 +63,11 @@ module CalculationShare
 
       def grantshare
 
-        # stripe_balance = get_stripe_balance
-        # etrade_balance = get_etrade_balance
-        # givbalance = stripe_balance + etrade_balance
+        stripe_balance = get_stripe_balance
+        etrade_balance = get_etrade_balance
+        givbalance = stripe_balance + etrade_balance
         
-        givbalance = 20.0
+        # givbalance = 20.0
         
         charity_groups = CharityGroup.all
 
@@ -110,18 +111,17 @@ module CalculationShare
           stripe_pending = (stripe_balance["pending"][0][:amount].to_f) / 100
           stripe_available = (stripe_balance["available"][0][:amount].to_f) / 100
           total_stripe = stripe_pending + stripe_available
+          puts "Stripe Balance : #{total_stripe}"
+          return total_stripe
         rescue Stripe::CardError => e
           puts "Message is: #{err[:message]}"
         end
       end
 
       def get_etrade_balance
-        begin
-          etrade_balance = Etrade.get_net_account_value
-          return etrade_balance.to_f
-        rescue
-          puts "Message is: API! Error"
-        end
+        etrade_balance = Etrade.get_net_account_value
+        puts "Etrade Balance : #{etrade_balance}"
+        return etrade_balance
       end
 
     end # end self
