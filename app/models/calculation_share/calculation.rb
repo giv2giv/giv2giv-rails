@@ -33,7 +33,7 @@ module CalculationShare
 
         # get donation share price
         # givbalance / total_donor_shares_all_time
-        preliminary_share_price = (BigDecimal("#{givbalance}") / share_total_end).to_f
+        preliminary_share_price = (BigDecimal("#{givbalance}") / BigDecimal("#{share_total_end}")).to_f
 
         preliminary_share_price = 100000.0 unless preliminary_share_price.finite?
         if preliminary_share_price.to_f.nan?
@@ -73,7 +73,7 @@ module CalculationShare
         charity_groups.each do |charity_group|
 
           charity_group_share_balance = BigDecimal("#{charity_group.donations.sum(:shares_added)}") - BigDecimal("#{charity_group.charity_grants.sum(:shares_subtracted)}")
-          charity_group_grant_shares = BigDecimal("#{charity_group_share_balance}") * BigDecimal("#{GIV_GRANT_AMOUNT}")
+          charity_group_grant_shares = (BigDecimal("#{charity_group_share_balance}") * BigDecimal("#{GIV_GRANT_AMOUNT}")).round(SHARE_PRECISION)
           charity_grant_shares = (BigDecimal("#{charity_group_grant_shares}") / BigDecimal("#{charity_group.charities.count}")).round(SHARE_PRECISION)
 
           # charity_group_donors = charity_group.donors.all
