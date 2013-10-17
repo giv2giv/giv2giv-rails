@@ -17,18 +17,15 @@ module CalculationShare
         # stripe_balance = get_stripe_balance
         # etrade_balance = get_etrade_balance
         # givbalance = stripe_balance + etrade_balance
-        
+
         givbalance = 20.0
         date_yesterday = Date.yesterday.strftime('%Y%m%d')
-        
+
         # shares added by donation
         shares_donated_yesterday = Donation.where("date_format(created_at, '%Y%m%d') = ?", date_yesterday).sum(:shares_added)
-
         # shares removed by grant
         shares_granted_yesterday = CharityGrant.where("status = ?", "sent").where("date_format(created_at, '%Y%m%d') = ?", date_yesterday).sum(:shares_subtracted)
-
         donors_shares_total_beginning = Share.order("created_At DESC").last.share_total_end.to_f rescue 0.0
-
         share_total_end = (BigDecimal("#{donors_shares_total_beginning}") + BigDecimal("#{shares_donated_yesterday}") - BigDecimal("#{shares_granted_yesterday}")).round(SHARE_PRECISION)
 
         # get donation share price
@@ -112,6 +109,7 @@ module CalculationShare
           total_stripe = stripe_pending + stripe_available
         rescue Stripe::CardError => e
           puts "Message is: #{err[:message]}"
+          return -1
         end
       end
 
@@ -121,6 +119,7 @@ module CalculationShare
           return etrade_balance.to_f
         rescue
           puts "Message is: API! Error"
+          return -1
         end
       end
 
