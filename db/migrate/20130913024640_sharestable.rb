@@ -5,7 +5,7 @@ class Sharestable < ActiveRecord::Migration
       t.integer :donor_id, null: false
       t.integer :charity_group_id, null: false
       t.string :count, null: false
-      t.decimal :price_at_issue
+      t.float :price_at_issue
     end
   end
 end

@@ -3,8 +3,8 @@ class CreateEtradeTable < ActiveRecord::Migration
     create_table :etrades do |t|
       t.timestamps
       t.datetime :date
-      t.decimal :balance, null: false
-      t.decimal :fees
+      t.float :balance, null: false
+      t.float :fees
     end
   end
 end
