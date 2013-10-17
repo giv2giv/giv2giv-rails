@@ -14,9 +14,14 @@ module CalculationShare
     class << self
 
       def priceshare
-        # stripe_balance = get_stripe_balance
-        # etrade_balance = get_etrade_balance
-        # givbalance = stripe_balance + etrade_balance
+        stripe_balance = -1
+        etrade_balance = -1
+        while (stripe_balance < 0) || (etrade_balance < 0)
+          sleep 10
+          stripe_balance = get_stripe_balance
+          etrade_balance = get_etrade_balance
+        end
+        givbalance = stripe_balance + etrade_balance
 
         givbalance = 20.0
         date_yesterday = Date.yesterday.strftime('%Y%m%d')
