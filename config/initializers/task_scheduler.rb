@@ -16,13 +16,13 @@ class SchedulerPrice
         ret = system 'bundle exec rake calcshare:startcalculation'
         if ret == false
           puts "Task failed, try again in 5 minutes"
-          job.scheduler.in '10s', self
+          job.scheduler.in '5m', self
         else
           puts "Finished running task at #{DateTime.now}"
         end
       rescue Exception => e
         puts "Request failed - recheduling: #{e}"
-        job.scheduler.in '5s'
+        job.scheduler.in '5m'
       end
     else
       ErrorJobMailer.error_priceshare(App.giv["email_support"]).deliver
@@ -46,13 +46,13 @@ class GrantPrice
         ret = system 'bundle exec rake calcshare:startgrantcalculation'
         if ret == false
           puts "Task failed, try again in 5 minutes"
-          job.scheduler.in '10s', self
+          job.scheduler.in '5m', self
         else
           puts "Finished running task at #{DateTime.now}"
         end
       rescue Exception => e
         puts "Request failed - recheduling: #{e}"
-        job.scheduler.in '5s'
+        job.scheduler.in '5m'
       end
     else
       ErrorJobMailer.error_priceshare(App.giv["email_support"]).deliver
