@@ -406,15 +406,29 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
    Authorization token in Header *required*. See session #authenticate
 
    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/balances/show_grants.json
-   
-2. Approve Charity
+
+   Examples Response:
+   [{"charity_id":1,"charity_email":null,"grant_amount":"0.05"},{"charity_id":3,"charity_email":null,"grant_amount":"0.05"},{"charity_id":4,"charity_email":null,"grant_amount":"0.05"},{"charity_id":6,"charity_email":null,"grant_amount":"0.05"},{"charity_id":24,"charity_email":null,"grant_amount":"0.05"}]
+
+2. Deny grants
 
    Authorization token in Header *required*. See session #authenticate
 
    Arguments :
 
-   { GRANT_ID }           : required
+   charity_id : { CHARITY_ID }
+   
+   http://localhost:3000//api/balances/CHARITY_ID/deny_grant.json
 
-   http://localhost:3000/api/balances/{ GRANT_ID }/approve_charity.json
+   curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' -d '' http://localhost:3000//api/balances/1/deny_grant.json
 
-   curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/balances/1/approve_charity.json
+   Examples Response:
+   {"message":"Successfully denied charity"}
+   
+3. Approve Charity
+
+   Authorization token in Header *required*. See session #authenticate
+
+   curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' -d '' http://localhost:3000/api/balances/approve_donor_grants.json
+
+   Examples Response:

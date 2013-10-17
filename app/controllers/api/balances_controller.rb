@@ -23,30 +23,37 @@ class Api::BalancesController < Api::BaseController
     end
   end
 
-  def deny_grant(charity_id)
+  def deny_grant
+    charity_id = params[:id]
     denied_grants = DonorGrant.where("status = ? AND charity_id = ?", "pending", charity_id)
     denied_grants.each do |deny_grant|
       deny_grant.update_attributes(:status => 'denied')
     end
+    
+    respond_to do |format|
+      format.json { render json: {:message => "Successfully denied charity"}.to_json }
+    end
+
   end 
 
   def approve_donor_grants
     pending_grants = DonorGrant.where("status = ?", "pending")
     pending_grants.group(:charity_id).each do |pending_grant| 
-      grant_shares = pending_grant.sum(:shares_pending)
+      grant_shares = DonorGrant.where("charity_id = ?", pending_grant.charity_id).sum(:shares_pending)
       # round to amount
-      gross_amount = ((BigDecimal("#{grant_shares}") * BigDecimal("#{SharePrice.last.grant_price}")).to_f * 10).ceil / 10.0
+      gross_amount = ((BigDecimal("#{grant_shares}") * BigDecimal("#{Share.last.grant_price}")).to_f * 10).ceil / 10.0
       giv2giv_fee = (gross_amount * GIV_FEE_AMOUNT * 10).ceil / 10.0
       net_amount = gross_amount - giv2giv_fee
-      total_giv2giv_fee = total_giv2giv_fee + giv2giv_fee
+      total_giv2giv_fee = net_amount + giv2giv_fee
       # set text message to charity email
       text_note = ""
-      transaction_id = Dwolla::Transactions.send({:destinationId => pending_grant.charity.email, :pin => PIN_DWOLLA, :destinationType => email, :amount => amount, :notes => text_note, :fundsSource => DWOLLA_GRANT_SOURCE_ACCOUNT})
-      dwolla_fee = dwolla_transaction.fee
+      transaction_id = Dwolla::Transactions.send({:destinationId => pending_grant.charity.email, :pin => PIN_DWOLLA, :destinationType => 'email', :amount => amount, :notes => text_note, :fundsSource => DWOLLA_GRANT_SOURCE_ACCOUNT})
+      # need fix dwolla fee
+      # dwolla_fee = dwolla_transaction.fee
+      dwolla_fee = 0
 
       # set status = 'sent' for all DonorGrants rows for this charity_id
       pending_grant.update_attributes(:status => "sent", :transaction_id => transaction_id)
-
       sent_grant = CharityGrant.new(
                                     :date => Date.today,
                                     :charity_id => pending_grant.charity_id,
@@ -64,8 +71,8 @@ class Api::BalancesController < Api::BaseController
 
       charity_update = Charity.find(pending_grant.charity_id)
       # round up charity balance
-      charity_balance = ((CharityGrant.where("charity_id = ?", charity_id).sum(:grant_amount)) * 10).ceil / 10.0
-      fee_balance = ((CharityGrant.where("charity_id = ?", charity_id).sum(:giv2giv_fee)) * 10).ceil / 10.0
+      charity_balance = ((CharityGrant.where("charity_id = ?", pending_grant.charity_id).sum(:grant_amount)) * 10).ceil / 10.0
+      fee_balance = ((CharityGrant.where("charity_id = ?", pending_grant.charity_id).sum(:giv2giv_fee)) * 10).ceil / 10.0
       charity_balance = (charity_balance * 10).ceil / 10.0
       fee_balance = (fee_balance * 10).ceil / 10.0
       update_charity_fee_balance = charity_update.update_attributes(
@@ -73,6 +80,10 @@ class Api::BalancesController < Api::BaseController
         :fee => fee_balance
       )
 
+    end
+      
+    respond_to do |format|
+      format.json { render json: {:message => "Successfully approve charity"}.to_json }
     end
   end
 

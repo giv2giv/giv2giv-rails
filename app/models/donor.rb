@@ -1,7 +1,8 @@
 class Donor < ActiveRecord::Base
   has_many :donations, through: :payment_accounts, dependent: :destroy
   has_many :payment_accounts, dependent: :destroy
-  has_many :grants, dependent: :destroy
+  has_many :charity_grants, dependent: :destroy
+  has_many :donor_grants, dependent: :destroy
   
   EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
 

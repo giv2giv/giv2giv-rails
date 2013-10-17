@@ -5,6 +5,7 @@ class PaymentAccount < ActiveRecord::Base
   PLAN_ID = 1 
   PER_SHARE_DEFAULT = 100000
   SHARE_TOTAL_DEFAULT = 0
+  SHARE_PRECISION = App.giv["share_precision"]
 
   belongs_to :donor
   has_many :donations

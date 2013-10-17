@@ -3,7 +3,7 @@ class CharityGroup < ActiveRecord::Base
   VALID_TYPE = %w(public private)
 
   has_many :donations, dependent: :destroy
-  has_many :grants, dependent: :destroy
+  has_many :donor_grants, dependent: :destroy
   has_many :charity_grants, dependent: :destroy
   belongs_to :donor
   has_and_belongs_to_many :charities
