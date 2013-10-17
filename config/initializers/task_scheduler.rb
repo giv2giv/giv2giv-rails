@@ -63,4 +63,4 @@ end # end class
 
 scheduler = Rufus::Scheduler.start_new
 scheduler.cron '1 0 * * *', SchedulerPrice.new, :blocking => true
-scheduler.every '30d', GrantPrice.new, :blocking => true
+scheduler.every '90d', GrantPrice.new, :blocking => true
