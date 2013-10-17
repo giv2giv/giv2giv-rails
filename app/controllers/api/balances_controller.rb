@@ -72,12 +72,17 @@ class Api::BalancesController < Api::BaseController
       charity_update = Charity.find(pending_grant.charity_id)
       # round up charity balance
       charity_balance = ((CharityGrant.where("charity_id = ?", pending_grant.charity_id).sum(:grant_amount)) * 10).ceil / 10.0
-      fee_balance = ((CharityGrant.where("charity_id = ?", pending_grant.charity_id).sum(:giv2giv_fee)) * 10).ceil / 10.0
+      giv2giv_fee_balance = ((CharityGrant.where("charity_id = ?", pending_grant.charity_id).sum(:giv2giv_fee)) * 10).ceil / 10.0
+      transaction_fee_balance = ((CharityGrant.where("charity_id = ?", pending_grant.charity_id).sum(:transaction_fee)) * 10).ceil / 10.0
+
       charity_balance = (charity_balance * 10).ceil / 10.0
-      fee_balance = (fee_balance * 10).ceil / 10.0
+      giv2giv_fee_balance = (giv2giv_fee_balance * 10).ceil / 10.0
+      transaction_fee_balance = (transaction_fee_balance * 10).ceil / 10.0
+
       update_charity_fee_balance = charity_update.update_attributes(
         :balance => charity_balance,
-        :fee => fee_balance
+        :giv2giv_fees => giv2giv_fee_balance,
+        :transaction_fees => transaction_fee_balance
       )
 
     end
