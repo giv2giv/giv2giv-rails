@@ -67,7 +67,7 @@ class PaymentAccount < ActiveRecord::Base
             per_share = check_share_price.donation_price
           end
 
-          buy_shares = BigDecimal("#{amount}") / BigDecimal("#{per_share}")
+          buy_shares = (BigDecimal("#{amount}") / BigDecimal("#{per_share}")).round(SHARE_PRECISION)
           donation = Donation.new(
                                  :amount => amount,
                                  :charity_group_id => charity_group_id,
@@ -167,7 +167,7 @@ class PaymentAccount < ActiveRecord::Base
             end
 
             # We should only buy shares if there is an immediate charge and we have a transaction_id !
-            buy_shares = BigDecimal("#{amount}") / BigDecimal("#{per_share}", 20)
+            buy_shares = (BigDecimal("#{amount}") / BigDecimal("#{per_share}")).round(SHARE_PRECISION)
             donation = donor.donations.build(:amount => amount,
                                              :charity_group_id => charity_group_id,
                                              :transaction_processor => processor,
