@@ -50,7 +50,7 @@ class Api::BalancesController < Api::BaseController
       net_amount = gross_amount - giv2giv_fee
       total_giv2giv_fee += giv2giv_fee
       # set text message to charity email
-      text_note = "Please accept this anonymous, unrestricted grant from donors at www.giv2giv.org. Contact info@giv2giv.org with any questions. Enjoy!"
+      text_note = "$#{amount} is being sent to you via Dwolla. Please accept this anonymous, unrestricted grant from donors at www.giv2giv.org. Contact info@giv2giv.org with any questions. Enjoy!"
 
       begin
         transaction_id = Dwolla::Transactions.send({:destinationId => pending_grant.charity.email, :pin => PIN_DWOLLA, :destinationType => 'email', :amount => amount, :notes => text_note, :fundsSource => DWOLLA_GRANT_SOURCE_ACCOUNT})
