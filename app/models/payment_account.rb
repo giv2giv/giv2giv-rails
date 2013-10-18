@@ -141,6 +141,7 @@ class PaymentAccount < ActiveRecord::Base
   end # end self
 
   def donate_subscription(amount, charity_group_id, payment_id, email)
+
     raise PaymentAccountInvalid unless self.valid?
     raise CharityGroupInvalid unless CharityGroup.find(charity_group_id)
 
@@ -172,7 +173,7 @@ class PaymentAccount < ActiveRecord::Base
               end
               
               transaction_fee = (amount - (amount * STRIPE_FEES)) - STRIPE_FEES_CENTS
-              net_amount = amount - ( amount - transaction_fee)
+              net_amount = amount - transaction_fee
 
               buy_shares = (BigDecimal("#{amount}") / BigDecimal("#{per_share}")).round(SHARE_PRECISION)
               donation = donor.donations.build(:gross_amount => amount,
