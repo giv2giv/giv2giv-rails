@@ -100,8 +100,12 @@ class Api::PaymentAccountsController < Api::BaseController
   def all_donation_list
     if current_donor
       respond_to do |format|
-        if params.has_key?(:charity_group_id)
-            format.json { render json: Donation.find_by_charity_group_id(params[:charity_group_id]) }
+        if params.has_key?(:start_date) and params.has_key?(:end_date) and params.has_key?(:charity_group_id)
+          format.json { render json: Donation.where("charity_group_id = ? AND DATE(created_at) between ? AND ?", params[:charity_group_id], params[:start_date], params[:end_date]) }   
+        elsif params.has_key?(:start_date) and params.has_key?(:end_date)   
+          format.json { render json: Donation.where("DATE(created_at) between ? AND ?", params[:start_date], params[:end_date]) }
+        elsif params.has_key?(:charity_group_id)
+          format.json { render json: Donation.where("charity_group_id = ?", params[:charity_group_id]) }
         else
           donor_payment_accounts = current_donor.payment_accounts.all
           donation_data = []

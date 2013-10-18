@@ -348,8 +348,10 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
     Arguments :
 
     charity_group_id 	 : optional
+    start_date           : optional ( ex : 2013-10-15 )
+    end_date             : optional ( ex : 2013-10-17 )
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"charity_group_id":"1"}' http://localhost:3000/api/donors/payment_accounts/all_donation_list.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"charity_group_id":"1", "start_date":"2013-10-15", "end_date":"2013-10-17"}' http://localhost:3000/api/donors/payment_accounts/all_donation_list.json
 
     Examples Response:
 
