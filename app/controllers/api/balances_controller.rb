@@ -59,7 +59,8 @@ class Api::BalancesController < Api::BaseController
         return
       end
 
-      dwolla_fee = get_detail_transaction(transaction_id)
+      detail_transaction = get_detail_transaction(transaction_id)
+      dwolla_fee = detail_transaction["fees"]["amount"]
 
       pending_grant.update_attributes(:status => "sent", :transaction_id => transaction_id)
       sent_grant = CharityGrant.new(

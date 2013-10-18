@@ -162,37 +162,39 @@ class PaymentAccount < ActiveRecord::Base
             customer = Stripe::Customer.retrieve(check_donor.payment_accounts.find(payment_id).stripe_cust_id)
             if customer.subscription.blank?
               customer.update_subscription(:plan => PLAN_ID, :quantity => amount)
+
+              # FIX ME FOR RECURRING BILLING 
+              check_share_price = Share.last
+              if check_share_price.blank?
+                per_share = PER_SHARE_DEFAULT
+              else
+                per_share = check_share_price.donation_price
+              end
+              
+              transaction_fee = (amount - (amount * STRIPE_FEES)) - STRIPE_FEES_CENTS
+              net_amount = amount - ( amount - transaction_fee)
+
+              buy_shares = (BigDecimal("#{amount}") / BigDecimal("#{per_share}")).round(SHARE_PRECISION)
+              donation = donor.donations.build(:gross_amount => amount,
+                                               :charity_group_id => charity_group_id,
+                                               :transaction_processor => processor,
+                                               :payment_account_id => payment_id,
+                                               :transaction_type => "subscription",
+                                               :shares_added => buy_shares,
+                                               :donor_id => donor.id,
+                                               :transaction_fees => transaction_fee,
+                                               :net_amount => net_amount
+                                               )
+              if donation.save
+                donation
+              else
+                { :message => "Error" }.to_json
+              end # end donation.save
+
             else
               customer.update_subscription(:plan => PLAN_ID, :quantity => customer.subscription.quantity + amount)  
-            end
-
-            check_share_price = Share.last
-            if check_share_price.blank?
-              per_share = PER_SHARE_DEFAULT
-            else
-              per_share = check_share_price.donation_price
-            end
-            
-            transaction_fee = (amount - (amount * STRIPE_FEES)) - STRIPE_FEES_CENTS
-            net_amount = amount - ( amount - transaction_fee)
-            # We should only buy shares if there is an immediate charge and we have a transaction_id !
-            buy_shares = (BigDecimal("#{amount}") / BigDecimal("#{per_share}")).round(SHARE_PRECISION)
-            donation = donor.donations.build(:gross_amount => amount,
-                                             :charity_group_id => charity_group_id,
-                                             :transaction_processor => processor,
-                                             :payment_account_id => payment_id,
-                                             :transaction_type => "subscription",
-                                             :shares_added => buy_shares,
-                                             :donor_id => donor.id,
-                                             :transaction_fees => transaction_fee,
-                                             :net_amount => net_amount
-                                             )
-            if donation.save
-              donation
-            else
-              { :message => "Error" }.to_json
-            end # end donation.save
-          end
+            end # end customer subscription            
+          end # end check minimum donation
         else
           { :message => "You need add one or more charity to this group" }.to_json
         end

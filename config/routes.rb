@@ -1,9 +1,9 @@
 Giv2givRails::Application.routes.draw do
-  
+
+  mount StripeEvent::Engine => '/stripe'
+   
   scope :format => true, :constraints => { :format => /json/ } do
     namespace :api do
-
-      mount StripeEvent::Engine => '/stripe_webhook' # should make stripe webhooks available at /api/stripe_webhook
 
       post 'sessions/destroy' => 'sessions#destroy'
       post 'sessions/create' => 'sessions#create'
