@@ -39,7 +39,7 @@ class Api::BalancesController < Api::BaseController
   def approve_donor_grants
 
     pending_grants = DonorGrant.where("status = ?", "pending")
-
+    total_giv2giv_fee = 0.0
     pending_grants.group(:charity_id).each do |pending_grant| 
 
       grant_shares = DonorGrant.where("charity_id = ?", pending_grant.charity_id).sum(:shares_pending)
@@ -54,10 +54,8 @@ class Api::BalancesController < Api::BaseController
       begin
         transaction_id = Dwolla::Transactions.send({:destinationId => pending_grant.charity.email, :pin => PIN_DWOLLA, :destinationType => 'email', :amount => amount, :notes => text_note, :fundsSource => DWOLLA_GRANT_SOURCE_ACCOUNT})
       rescue Dwolla::APIError => error
-        if error.message == "Insufficient funds."
-	        render json: { :message => error.message }.to_json
-          return
-        end
+        render json: { :message => error.message }.to_json
+        return
       end
 
       dwolla_fee = get_detail_transaction(transaction_id)
@@ -95,6 +93,8 @@ class Api::BalancesController < Api::BaseController
       )
 
     end
+
+    # Dwolla.transfer(from_account=etrade, to_account=giv2giv_checking_account, amount=total_giv2giv_fee)
       
     respond_to do |format|
       format.json { render json: {:message => "Successfully approve charity"}.to_json }
