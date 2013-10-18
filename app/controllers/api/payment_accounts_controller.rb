@@ -14,7 +14,7 @@ class Api::PaymentAccountsController < Api::BaseController
   def create
     set_token = params[:stripeToken]
     if set_token.blank?
-      render json: { :message => "Please provided your stripe token" }.to_json
+      render json: { :message => "Please provide your stripe token" }.to_json
     else
       if params.has_key?(:payment_account)
         payment = PaymentAccount.new_account(set_token, current_donor.id, {:donor => current_donor}.merge(params[:payment_account]))
@@ -28,7 +28,7 @@ class Api::PaymentAccountsController < Api::BaseController
   def update
     set_token = params[:stripeToken]
     if set_token.blank?
-      render json: { :message => "Please provided your stripe token"}.to_json
+      render json: { :message => "Please provide your stripe token"}.to_json
     else
       if params.has_key?(:payment_account)
         payment = PaymentAccount.update_account(set_token, current_donor.id, current_donor_id, {:donor => current_donor}.merge(params[:payment_account]))
