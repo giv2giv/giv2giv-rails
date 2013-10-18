@@ -6,6 +6,8 @@ class PaymentAccount < ActiveRecord::Base
   PER_SHARE_DEFAULT = 100000
   SHARE_TOTAL_DEFAULT = 0
   SHARE_PRECISION = App.giv["share_precision"]
+  STRIPE_FEES = App.stripe["fees"]
+  STRIPE_FEES_CENTS = App.stripe["fees_cents"]
 
   belongs_to :donor
   has_many :donations
@@ -68,15 +70,19 @@ class PaymentAccount < ActiveRecord::Base
             per_share = check_share_price.donation_price
           end
 
+          transaction_fee = (amount * STRIPE_FEES) - STRIPE_FEES_CENTS
+          net_amount = amount - ( amount - transaction_fee)
           buy_shares = (BigDecimal("#{amount}") / BigDecimal("#{per_share}")).round(SHARE_PRECISION)
           donation = Donation.new(
-                                 :amount => amount,
+                                 :gross_amount => amount,
                                  :charity_group_id => charity_group_id,
                                  :transaction_processor => payment.processor,
                                  :payment_account_id => payment.id,
                                  :transaction_type => "onetime-payment",
                                  :shares_added => buy_shares,
-                                 :donor_id => donor.id
+                                 :donor_id => donor.id,
+                                 :transaction_fee => transaction_fee,
+                                 :net_amount => net_amount
                                  )
           if donation.save
             donation
@@ -164,18 +170,22 @@ class PaymentAccount < ActiveRecord::Base
             if check_share_price.blank?
               per_share = PER_SHARE_DEFAULT
             else
-              per_share = check_share_price.share_price
+              per_share = check_share_price.donation_price
             end
-
+            
+            transaction_fee = (amount - (amount * STRIPE_FEES)) - STRIPE_FEES_CENTS
+            net_amount = amount - ( amount - transaction_fee)
             # We should only buy shares if there is an immediate charge and we have a transaction_id !
             buy_shares = (BigDecimal("#{amount}") / BigDecimal("#{per_share}")).round(SHARE_PRECISION)
-            donation = donor.donations.build(:amount => amount,
+            donation = donor.donations.build(:gross_amount => amount,
                                              :charity_group_id => charity_group_id,
                                              :transaction_processor => processor,
                                              :payment_account_id => payment_id,
                                              :transaction_type => "subscription",
                                              :shares_added => buy_shares,
-                                             :donor_id => donor.id
+                                             :donor_id => donor.id,
+                                             :transaction_fees => transaction_fee,
+                                             :net_amount => net_amount
                                              )
             if donation.save
               donation

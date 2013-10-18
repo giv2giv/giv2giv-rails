@@ -17,7 +17,9 @@ etrade:
 stripe:
   api_key            : api_key
   publishable_key    : publishable_key
-
+  fees               : 0.029
+  fees_cents         : 0.30
+  
 giv:
   giv_fee_percentage : 0.04
   giv_grant_amount   : .0125

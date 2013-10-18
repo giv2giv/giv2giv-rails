@@ -58,13 +58,9 @@ module CalculationShare
 
       def grantshare
 
-        # stripe_balance = get_stripe_balance
-        # etrade_balance = get_etrade_balance
-        # givbalance = stripe_balance + etrade_balance
-        
-        stripe_balance = 20.0
-        etrade_balance = 0.0
-        givbalance = 20.0
+        stripe_balance = get_stripe_balance
+        etrade_balance = get_etrade_balance
+        givbalance = stripe_balance + etrade_balance
         
         charity_groups = CharityGroup.all
 
