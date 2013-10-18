@@ -47,25 +47,21 @@ class Api::BalancesController < Api::BaseController
       gross_amount = ((BigDecimal("#{grant_shares}") * BigDecimal("#{Share.last.grant_price}")).to_f * 10).ceil / 10.0
       giv2giv_fee = (gross_amount * GIV_FEE_AMOUNT * 10).ceil / 10.0
       net_amount = gross_amount - giv2giv_fee
-      total_giv2giv_fee = net_amount + giv2giv_fee
+      total_giv2giv_fee += giv2giv_fee
       # set text message to charity email
       text_note = "Please accept this anonymous, unrestricted grant from donors at www.giv2giv.org. Contact info@giv2giv.org with any questions. Enjoy!"
-      transaction_id = Dwolla::Transactions.send({:destinationId => pending_grant.charity.email, :pin => PIN_DWOLLA, :destinationType => 'email', :amount => amount, :notes => text_note, :fundsSource => DWOLLA_GRANT_SOURCE_ACCOUNT})
 
+      begin
+        transaction_id = Dwolla::Transactions.send({:destinationId => pending_grant.charity.email, :pin => PIN_DWOLLA, :destinationType => 'email', :amount => amount, :notes => text_note, :fundsSource => DWOLLA_GRANT_SOURCE_ACCOUNT})
       rescue Dwolla::APIError => error
-         if error.message == "Insufficient funds."
-	     respond_to do |format|
-                format.json { render json: {:message => error.message}.to_json }
-		return
-    	     end
-         end
+        if error.message == "Insufficient funds."
+	        render json: { :message => error.message }.to_json
+          return
+        end
       end
 
-      # need fix dwolla fee
-      # dwolla_fee = dwolla_transaction.fee
-      dwolla_fee = 0
+      dwolla_fee = get_detail_transaction(transaction_id)
 
-      # set status = 'sent' for all DonorGrants rows for this charity_id
       pending_grant.update_attributes(:status => "sent", :transaction_id => transaction_id)
       sent_grant = CharityGrant.new(
                                     :date => Date.today,
