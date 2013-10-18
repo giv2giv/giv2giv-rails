@@ -8,7 +8,8 @@ dwolla:
   account_id         : account_id
   pin_account        : pin_account
   company_token      : company_token
-  dwolla_grant_source_account : dwolla_grant_source_account
+  dwolla_grant_source_account: dwolla_grant_source_account
+  dwolla_fee_destination_account: dwolla_fee_destination_account
 
 etrade:
   oauth_consumer_key : oauth_consumer_key

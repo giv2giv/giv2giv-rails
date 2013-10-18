@@ -5,8 +5,8 @@ namespace :etradeauth do
     require 'oauth'
     include OAuth::Helper
 
-    CUST_KEY = "4d2fd4cd312c1904069f2970c89899df"
-    CUST_SECRET = "57ae0f198d4b8efb4e73d95d35cfcc3f"
+    CUST_KEY = App.etrade["oauth_consumer_key"]
+    CUST_SECRET = App.etrade["consumer_secret"]
 
     consumer = OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {:site => "https://etws.etrade.com", :http_method => :get})
     request_token = consumer.get_request_token()

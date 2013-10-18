@@ -7,6 +7,7 @@ class Api::BalancesController < Api::BaseController
   SHARE_PRECISION = App.giv["share_precision"]
   PIN_DWOLLA = App.dwolla["pin_account"]
   DWOLLA_GRANT_SOURCE_ACCOUNT = App.dwolla["dwolla_grant_source_account"]
+  DWOLLA_FEE_DESTINATION_ACCOUNT = App.dwolla["dwolla_fee_destination_account"]
 
   def show_grants
     pending_grants = DonorGrant.where("status = ?",'pending')
@@ -94,8 +95,19 @@ class Api::BalancesController < Api::BaseController
 
     end
 
-    # Dwolla.transfer(from_account=etrade, to_account=giv2giv_checking_account, amount=total_giv2giv_fee)
-      
+    # FIX ME
+    begin
+      dwolla_id = Dwolla::FundingSources.withdraw(DWOLLA_GRANT_SOURCE_ACCOUNT, {:pin => PIN_DWOLLA, :amount => total_giv2giv_fee})
+    rescue Dwolla::APIError => error
+      render json: { :message => error.message }.to_json
+    end
+
+    save_withdraw = GivPayment.new(
+                                  :dwolla_transaction_id => dwolla_id,
+                                  :amount => total_giv2giv_fee
+                                  )
+    save_withdraw.save
+
     respond_to do |format|
       format.json { render json: {:message => "Successfully approve charity"}.to_json }
     end
