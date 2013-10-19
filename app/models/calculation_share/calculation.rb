@@ -110,7 +110,7 @@ module CalculationShare
           total_stripe = stripe_pending + stripe_available
           puts "Stripe Balance : #{total_stripe}"
           return total_stripe
-        rescue Stripe::CardError => e
+        rescue Stripe::StripeError => e
           puts "Message is: #{err[:message]}"
         end
       end
