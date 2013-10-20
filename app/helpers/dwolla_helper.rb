@@ -32,8 +32,12 @@ module DwollaHelper
     Dwolla::Users.get
   end
 
-  def get_detail_transaction
+  def get_all_transaction
     Dwolla::Transactions.get
+  end
+
+  def get_detail_transaction(transactionId)
+    Dwolla::Transactions.get(transactionId)
   end
 
   def dwolla_send(email, notes = "", amount=nil)

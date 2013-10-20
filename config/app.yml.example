@@ -8,7 +8,8 @@ dwolla:
   account_id         : account_id
   pin_account        : pin_account
   company_token      : company_token
-  dwolla_grant_source_account : dwolla_grant_source_account
+  dwolla_grant_source_account: dwolla_grant_source_account
+  dwolla_fee_destination_account: dwolla_fee_destination_account
 
 etrade:
   oauth_consumer_key : oauth_consumer_key
@@ -17,7 +18,9 @@ etrade:
 stripe:
   api_key            : api_key
   publishable_key    : publishable_key
-
+  fees               : 0.029
+  fees_cents         : 0.30
+  
 giv:
   giv_fee_percentage : 0.04
   giv_grant_amount   : .0125

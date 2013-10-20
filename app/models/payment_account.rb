@@ -6,6 +6,8 @@ class PaymentAccount < ActiveRecord::Base
   PER_SHARE_DEFAULT = 100000
   SHARE_TOTAL_DEFAULT = 0
   SHARE_PRECISION = App.giv["share_precision"]
+  STRIPE_FEES = App.stripe["fees"]
+  STRIPE_FEES_CENTS = App.stripe["fees_cents"]
 
   belongs_to :donor
   has_many :donations
@@ -29,69 +31,108 @@ class PaymentAccount < ActiveRecord::Base
       end
     end
 
-  def one_time_payment(amount, charity_group_id, email, stripeToken)
+  def one_time_payment(amount, charity_group_id, email = nil, stripeToken = nil)
     raise CharityGroupInvalid unless CharityGroup.find(charity_group_id)
 
-    check_email = Donor.find_by_email(email)
+    charity_group = CharityGroup.find(charity_group_id)
+    num_of_charity = charity_group.charities.count
+    check_donor = Donor.find_by_email(email)
+    amount = amount.to_i
 
-    if check_email.blank?
-      customer = Stripe::Customer.create(description: "Giv2Giv Donation", email: email, card: stripeToken)
-      # entry as unregistered donor
-      random_password = SecureRandom.hex(10)
-      random_name = SecureRandom.hex(5)
-      donor = Donor.new(
-                         :name => random_name,
-                         :email => email,
-                         :password => random_password,
-                         :type_donor => 'unregistered'
-                       )
-
-      if donor.save
-        # create new payment
-        payment = PaymentAccount.new(
-                                     :processor => "stripe",
-                                     :donor_id => donor.id,
-                                     :requires_reauth => 0,
-                                     :stripe_cust_id => customer.id
-                                    )
-        if payment.save
-          cust_charge = Stripe::Charge.create(
-                                :amount => amount * 100,
-                                :currency => "usd",
-                                :description => "giv2giv.org donation to #{CharityGroup.find(charity_group_id).name}",
-                                :customer => payment.stripe_cust_id
-                               )
-          check_share_price = Share.last
-          if check_share_price.blank?
-            per_share = PER_SHARE_DEFAULT
-          else
-            per_share = check_share_price.donation_price
-          end
-
-          buy_shares = (BigDecimal("#{amount}") / BigDecimal("#{per_share}")).round(SHARE_PRECISION)
-          donation = Donation.new(
-                                 :amount => amount,
-                                 :charity_group_id => charity_group_id,
-                                 :transaction_processor => payment.processor,
-                                 :payment_account_id => payment.id,
-                                 :transaction_type => "onetime-payment",
-                                 :shares_added => buy_shares,
-                                 :donor_id => donor.id
-                                 )
-          if donation.save
-            donation
-          else
-            donation.errors
-          end # end donation save
-        else
-          payment.errors
-        end # end payment save
-      else
-        { :message => "Error! Creating payment account" }.to_json    
-      end # end donor save
+    if (charity_group.charity_group_visibility.eql?("private")) and (check_donor.id != charity_group.donor_id)
+      { :message => "Sorry! You cannot make subscription to this charity group" }.to_json
     else
-      { :message => "Email address is already been taken" }.to_json
-    end #end check email
+
+      if num_of_charity > 0
+        if amount < charity_group.minimum_donation_amount.to_i
+          { :message => "Minimum amount for create donation $#{charity_group.minimum_donation_amount}" }.to_json
+        else
+          random_password = SecureRandom.hex(10)
+          random_name = SecureRandom.hex(10)
+            
+          if check_donor.blank?
+            # entry as unregistered donor
+            email = random_name + "@" + random_password + ".com"
+
+            customer = Stripe::Customer.create(description: "Giv2Giv Donation", email: email, card: stripeToken)
+            donor = Donor.new(
+                               :name => random_name,
+                               :email => email,
+                               :password => random_password,
+                               :type_donor => 'unregistered'
+                             )
+
+            if donor.save
+                # create new payment
+                payment = PaymentAccount.new(
+                                             :processor => "stripe",
+                                             :donor_id => donor.id,
+                                             :requires_reauth => 0,
+                                             :stripe_cust_id => customer.id
+                                            )
+                if payment.save
+                  cust_charge = Stripe::Charge.create(
+                                        :amount => amount * 100,
+                                        :currency => "usd",
+                                        :description => "giv2giv.org donation to #{CharityGroup.find(charity_group_id).name}",
+                                        :customer => payment.stripe_cust_id
+                                       )
+                  
+                  subscription = donor.donor_subscriptions.build(:donor_id => donor.id,
+                                         :payment_account_id => payment.id,
+                                         :charity_group_id => charity_group_id,
+                                         :stripe_subscription_id => cust_charge.id,
+                                         :type_donation => "one_time_payment"
+                                         )
+
+                  if subscription.save
+                    { :message => "Success" }.to_json
+                  else
+                    { :message => "Error" }.to_json
+                  end # end subscription.save
+                else
+                  payment.errors
+                end # end payment save
+              else
+                { :message => "Error! Creating payment account" }.to_json    
+              end # end donor save
+
+          else
+            if check_donor.type_donor.eql?("unregistered")
+              cu = Stripe::Customer.retrieve(check_donor.payment_accounts.last.stripe_cust_id)
+              cu.card = stripeToken
+              cu.save
+              cust_charge = Stripe::Charge.create(
+                                          :amount => amount * 100,
+                                          :currency => "usd",
+                                          :description => "giv2giv.org donation to #{CharityGroup.find(charity_group_id).name}",
+                                          :customer => check_donor.payment_accounts.last.stripe_cust_id
+                                         )
+
+              subscription = check_donor.donor_subscriptions.build(:donor_id => check_donor.id,
+                                     :payment_account_id => check_donor.payment_accounts.last.id,
+                                     :charity_group_id => charity_group_id,
+                                     :stripe_subscription_id => cust_charge.id,
+                                     :type_donation => "one_time_payment"
+                                     )
+
+              if subscription.save
+                { :message => "Success" }.to_json
+              else
+                { :message => "Error" }.to_json
+              end # end subscription.save
+            else
+
+              # do what for registered donor ?
+
+            end # end check registered email
+          end #end check email
+        end # end check minimum donation
+      else
+        { :message => "You need add one or more charity to this group" }.to_json
+      end # end check charity
+    end # end check visibility
+
   end
 
     def update_account(stripeToken, donor_id, payment_id, options = {})
@@ -135,6 +176,7 @@ class PaymentAccount < ActiveRecord::Base
   end # end self
 
   def donate_subscription(amount, charity_group_id, payment_id, email)
+
     raise PaymentAccountInvalid unless self.valid?
     raise CharityGroupInvalid unless CharityGroup.find(charity_group_id)
 
@@ -155,34 +197,25 @@ class PaymentAccount < ActiveRecord::Base
           else
             customer = Stripe::Customer.retrieve(check_donor.payment_accounts.find(payment_id).stripe_cust_id)
             if customer.subscription.blank?
-              customer.update_subscription(:plan => PLAN_ID, :quantity => amount)
+              id_subscription = customer.update_subscription(:plan => PLAN_ID, :quantity => amount)
             else
-              customer.update_subscription(:plan => PLAN_ID, :quantity => customer.subscription.quantity + amount)  
-            end
+              id_subscription = customer.update_subscription(:plan => PLAN_ID, :quantity => customer.subscription.quantity + amount)
+            end # end customer subscription
 
-            check_share_price = Share.last
-            if check_share_price.blank?
-              per_share = PER_SHARE_DEFAULT
-            else
-              per_share = check_share_price.share_price
-            end
-
-            # We should only buy shares if there is an immediate charge and we have a transaction_id !
-            buy_shares = (BigDecimal("#{amount}") / BigDecimal("#{per_share}")).round(SHARE_PRECISION)
-            donation = donor.donations.build(:amount => amount,
-                                             :charity_group_id => charity_group_id,
-                                             :transaction_processor => processor,
+            subscription = donor.donor_subscriptions.build(:donor_id => donor.id,
                                              :payment_account_id => payment_id,
-                                             :transaction_type => "subscription",
-                                             :shares_added => buy_shares,
-                                             :donor_id => donor.id
+                                             :charity_group_id => charity_group_id,
+                                             :stripe_subscription_id => id_subscription.id,
+                                             :type_donation => "subscription"
                                              )
-            if donation.save
-              donation
+
+            if subscription.save
+              { :message => "Success" }.to_json
             else
               { :message => "Error" }.to_json
-            end # end donation.save
-          end
+            end # end subscription.save
+
+          end # end check minimum donation
         else
           { :message => "You need add one or more charity to this group" }.to_json
         end
