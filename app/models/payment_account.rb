@@ -76,7 +76,6 @@ class PaymentAccount < ActiveRecord::Base
                                         :currency => "usd",
                                         :description => "giv2giv.org donation to #{CharityGroup.find(charity_group_id).name}",
                                         :customer => payment.stripe_cust_id,
-                                        :metadata => { :charity_group_id => charity_group_id }
                                        )
 
                 # From https://stripe.com/docs/api?lang=ruby#create_charge
@@ -88,7 +87,7 @@ class PaymentAccount < ActiveRecord::Base
                                                                 :payment_account_id => payment.id,
                                                                 :charity_group_id => charity_group_id,
                                                                 :stripe_subscription_id => cust_charge.id,
-                                                                :type_donation => "one_time_payment"
+                                                                :type_subscription => "one_time_payment"
                                                                 )
                   
                   if !Stripe::Error
@@ -124,7 +123,7 @@ class PaymentAccount < ActiveRecord::Base
                                                              :payment_account_id => payment.id,
                                                              :charity_group_id => charity_group_id,
                                                              :stripe_subscription_id => cust_charge.id,
-                                                             :type_donation => "one_time_payment")
+                                                             :type_subscription => "one_time_payment")
 
               if !Stripe::Error
                 { :message => "Success" }.to_json
@@ -228,7 +227,7 @@ class PaymentAccount < ActiveRecord::Base
                                              :charity_group_id => charity_group_id,
                                              :stripe_subscription_id => id_subscription.id, # why do we need this? There is only one stripe.subscription for each donor
                                              :amount => amount, # amount donated each month to charity_group_id
-                                             :type_donation => "subscription"
+                                             :type_subscription => "per-month"
                                              )
 
             if subscription.save
