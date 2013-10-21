@@ -82,6 +82,7 @@ module Giv2givRails
         	resource '/api/sessions/*', :headers => :any, :methods => [:post]
         	resource '/api/donors/payment_accounts/*', :headers => :any, :methods => [:get, :post, :put, :delete]
         	resource '/api/charity_group/*', :headers => :any, :methods => [:post, :get, :put]
+        	resource '/api/charity/*', :headers => :any, :methods => [:get]
         else
         	resource '*', :headers => :any, :methods => [:get, :post, :put, :delete, :options, :head, :trace, :connect]
         end
