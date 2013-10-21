@@ -18,7 +18,7 @@ StripeEvent.setup do
 
       total_amount = donor.subscriptions.sum(:amount)
 
-      donor.subscriptions.where(subscription_type='per-month').each do |subscription|
+      donor.subscriptions.each do |subscription|
 
         charity_group_percentage = subscription.amount / donor.subscriptions.sum(:amount)
         charity_group_donation_amount = (charity_group_percentage * stripe_amount * 10).ceil / 10
@@ -34,7 +34,7 @@ StripeEvent.setup do
 
         total_amount = donor.subscriptions.sum(:amount)
 
-        donor.subscriptions.where(subscription_type='per-month').each do |subscription|
+        donor.subscriptions.each do |subscription|
 
           charity_group_percentage = subscription.amount / donor.subscriptions.sum(:amount)
           charity_group_donation_amount = (charity_group_percentage * stripe_amount * 10).ceil / 10
