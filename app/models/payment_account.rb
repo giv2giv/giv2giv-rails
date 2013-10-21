@@ -195,8 +195,10 @@ class PaymentAccount < ActiveRecord::Base
       end
 
       payment_account = PaymentAccount.find_by_stripe_cust_id(cust_id)
-      
+
+      #ELGA does this below work? We want to destroy single charity_group subscription for the session donor
       donor.subscription.find(charity_group_id).destroy
+
       { :message => "Your subscription has been canceled" }.to_json
     end
 
@@ -215,6 +217,7 @@ class PaymentAccount < ActiveRecord::Base
           return false
         end
 
+      #ELGA does this below work? We want to destroy single charity_group subscription for the session donor
         payment_account.donor_subscriptions.destroy_all
 
         end # end each
