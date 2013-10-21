@@ -389,10 +389,15 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     amount             : required
     charity_group_id   : required
-    stripeToken        : optional or ( required if donor is unregistered )
-    email              : optional or ( required if donor is unregistered )
-    payment_account_id : optional or ( required if donor is registered )
-    password           : optional or ( required if donor is registered )
+
+For registered user:
+    email              : required
+    payment_account_id : required
+    password           : required
+
+For unregistered user:
+    email              : optional
+    stripeToken        : required if donor is unregistered 
 
     curl -X POST -H "Content-Type: application/json" -d '{"amount":"5", "charity_group_id":"1", "email":"email@email.com","stripeToken":"tok_102drE2mGsIlOBKnv6SfzVlO"}' http://localhost:3000/api/donors/payment_accounts/one_time_payment.json
 
