@@ -31,20 +31,20 @@ class Donation < ActiveRecord::Base
       transaction_fee = gross_amount - net_amount
       # maybe not do above
 
-      donor_subs_id = DonorSubscription.find_by_stripe_subscription_id(subs_id)
+      donor_subscription_id = DonorSubscription.find_by_stripe_subscription_id(subscription_id)
 
       buy_shares = (BigDecimal("#{net_amount}") / BigDecimal("#{per_share}"))
       donation = Donation.new(
                              :gross_amount => gross_amount,
-                             :charity_group_id => donor_subs_id.charity_group_id,
-                             :payment_account_id => donor_subs_id.payment_account_id,
+                             :charity_group_id => donor_subscription_id.charity_group_id,
+                             :payment_account_id => donor_subscription_id.payment_account_id,
                              :shares_added => buy_shares,
-                             :donor_id => donor_subs_id.donor_id,
+                             :donor_id => donor_subscription_id.donor_id,
                              :transaction_fees => transaction_fee,
                              :net_amount => net_amount
                              )
       if donation.save
-        donor = Donor.find(donor_subs_id.donor_id)
+        donor = Donor.find(donor_subscription_id.donor_id)
         DonorMailer.charge_success(donor.email).deliver
       else
         puts "ERROR!"
