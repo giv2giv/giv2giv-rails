@@ -7,7 +7,7 @@ class Donation < ActiveRecord::Base
     donation.validates :gross_amount
   end
 
-  PER_SHARE_DEFAULT = 100000
+  PER_SHARE_DEFAULT = 100000.0
   STRIPE_FEES = App.stripe["fees"]
   STRIPE_FEES_CENTS = App.stripe["fees_cents"]
 
@@ -22,14 +22,8 @@ class Donation < ActiveRecord::Base
         per_share = check_share_price.donation_price
       end
 
-      # add_donation is called from stripe charge.succeeded webhook
-
-
-      # amount already has fees subtracted?
-      # maybe not do below
       net_amount = (gross_amount - (gross_amount * STRIPE_FEES)) - STRIPE_FEES_CENTS
       transaction_fee = gross_amount - net_amount
-      # maybe not do above
 
       donor_subscription_id = DonorSubscription.find_by_stripe_subscription_id(subscription_id)
 
@@ -45,7 +39,7 @@ class Donation < ActiveRecord::Base
                              )
       if donation.save
         donor = Donor.find(donor_subscription_id.donor_id)
-        DonorMailer.charge_success(donor.email).deliver
+        DonorMailer.charge_success(donor.email, donation.to_json).deliver
       else
         puts "ERROR!"
       end

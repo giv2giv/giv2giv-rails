@@ -81,8 +81,14 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def one_time_payment
+    if params.has_key?(params[:password])
+      password = secure_password(params[:password])
+    else
+      password = params[:password]
+    end
+
     respond_to do |format|
-      donation = PaymentAccount.one_time_payment(params[:amount].to_i, params[:charity_group_id], params[:email], params[:stripeToken])
+      donation = PaymentAccount.one_time_payment(params[:amount].to_i, params[:charity_group_id], params[:email], params[:stripeToken], params[:payment_account_id], password)
       format.json { render json: donation }
     end
   end
@@ -121,6 +127,7 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def cancel_subscription
+    # FIX ME
     find_donation = Donation.find(params[:id])
     get_donor_id = PaymentAccount.find(find_donation.payment_account_id)
     

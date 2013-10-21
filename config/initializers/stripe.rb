@@ -10,41 +10,17 @@ StripeEvent.setup do
       ret_invoice = Stripe::Invoice.retrieve(invoice)
     end
 
-
-# Buy shares here, split between charity_groups
-
-    if ret_invoice.blank? || ret_invoice.empty?
+    if ret_invoice.blank?
+      # one-time-payment
       stripe_amount = event.data.object.amount / 100
-
-      total_amount = donor.subscriptions.sum(:amount)
-
-      donor.subscriptions.each do |subscription|
-
-        charity_group_percentage = subscription.amount / donor.subscriptions.sum(:amount)
-        charity_group_donation_amount = (charity_group_percentage * stripe_amount * 10).ceil / 10
-
-        Donation.add_donation(charity_group_donation_amount, event.data.object.id)  # should this be event.data.id ?
-
-      end
-
-
+      Donation.add_donation(stripe_amount, event.data.object.id)
     else
+      # donor subscriptions
       ret_invoice.lines.data.each do |line_data|
         stripe_amount = line_data.amount / 100
-
-        total_amount = donor.subscriptions.sum(:amount)
-
-        donor.subscriptions.each do |subscription|
-
-          charity_group_percentage = subscription.amount / donor.subscriptions.sum(:amount)
-          charity_group_donation_amount = (charity_group_percentage * stripe_amount * 10).ceil / 10
-
-          Donation.add_donation(charity_group_donation_amount, line_data.id)
-
-        end
-
-      end # end each subscription  
+        Donation.add_donation(stripe_amount, line_data.id)
+      end # invoice lines data
     end
     
-  end
+  end # end charge.successed
 end

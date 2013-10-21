@@ -363,11 +363,11 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     Arguments :
 
-    { DONATION_ID } : required
+    { CHARITY_GROUP_ID } : required
 
-    http://localhost:3000/api/donors/payment_accounts/{ DONATION_ID }/cancel_subscription.json
+    http://localhost:3000/api/donors/payment_accounts/{ CHARITY_GROUP_ID }/cancel_subscription.json
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg'  http://localhost:3000/api/donors/payment_accounts/3/cancel_subscription.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg'  http://localhost:3000/api/donors/payment_accounts/1/cancel_subscription.json
 
     Examples Response:
 
@@ -387,10 +387,12 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     Arguments :
 
-    amount           : required
-    charity_group_id : required
-    email            : optional or ( required if donor has unregistered user )
-    stripeToken      : optional or ( required if donor has unregistered user )
+    amount             : required
+    charity_group_id   : required
+    stripeToken        : optional or ( required if donor is unregistered )
+    email              : optional or ( required if donor is unregistered )
+    payment_account_id : optional or ( required if donor is registered )
+    password           : optional or ( required if donor is registered )
 
     curl -X POST -H "Content-Type: application/json" -d '{"amount":"5", "charity_group_id":"1", "email":"email@email.com","stripeToken":"tok_102drE2mGsIlOBKnv6SfzVlO"}' http://localhost:3000/api/donors/payment_accounts/one_time_payment.json
 

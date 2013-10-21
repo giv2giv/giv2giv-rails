@@ -2,7 +2,7 @@ class PaymentAccount < ActiveRecord::Base
   require "stripe"
   
   VALID_PROCESSORS = %w(stripe)
-  PLAN_ID = 1 
+  PLAN_ID = 1
   PER_SHARE_DEFAULT = 100000
   SHARE_TOTAL_DEFAULT = 0
   SHARE_PRECISION = App.giv["share_precision"]
@@ -11,6 +11,7 @@ class PaymentAccount < ActiveRecord::Base
 
   belongs_to :donor
   has_many :donations
+  has_many :donor_subscriptions
 
   validates :requires_reauth, :inclusion => { :in => [false] }
   validates :processor, :presence => true, :inclusion => { :in => VALID_PROCESSORS }
@@ -31,7 +32,7 @@ class PaymentAccount < ActiveRecord::Base
       end
     end
 
-  def one_time_payment(amount, charity_group_id, email = nil, stripeToken = nil)
+  def one_time_payment(amount, charity_group_id, email = nil, stripeToken = nil, payment_account_id = nil, password = nil)
     raise CharityGroupInvalid unless CharityGroup.find(charity_group_id)
 
     charity_group = CharityGroup.find(charity_group_id)
@@ -54,7 +55,15 @@ class PaymentAccount < ActiveRecord::Base
             # entry as unregistered donor
             email = random_name + "@" + random_password + ".com"
 
-            customer = Stripe::Customer.create(description: "Giv2Giv Donation", email: email, card: stripeToken)
+            begin
+              customer = Stripe::Customer.create(description: "Giv2Giv Donation", email: email, card: stripeToken)
+            rescue Stripe::CardError => e
+              body = e.json_body
+              err  = body[:error]
+              { :message => "#{err[:message]}" }.to_json
+              return false
+            end
+
             donor = Donor.new(
                                :name => random_name,
                                :email => email,
@@ -71,17 +80,20 @@ class PaymentAccount < ActiveRecord::Base
                                              :stripe_cust_id => customer.id
                                             )
                 if payment.save
-                  cust_charge = Stripe::Charge.create(
-                                        :amount => amount * 100,
-                                        :currency => "usd",
-                                        :description => "giv2giv.org donation to #{CharityGroup.find(charity_group_id).name}",
-                                        :customer => payment.stripe_cust_id,
-                                       )
-
-                # From https://stripe.com/docs/api?lang=ruby#create_charge
-                # stripe returns a charge object if the charge succeeded                 
-
-                # stripe charge.succeeded webhook will do Donation.new(:shares_added => #{math})
+                  
+                  begin
+                    cust_charge = Stripe::Charge.create(
+                                                        :amount => amount * 100,
+                                                        :currency => "usd",
+                                                        :description => "giv2giv.org donation to #{CharityGroup.find(charity_group_id).name}",
+                                                        :customer => payment.stripe_cust_id,
+                                                       )
+                  rescue Stripe::CardError => e
+                    body = e.json_body
+                    err  = body[:error]
+                    { :message => "#{err[:message]}" }.to_json
+                    return false
+                  end
 
                   subscription = donor.donor_subscriptions.build(:donor_id => donor.id,
                                                                 :payment_account_id => payment.id,
@@ -89,12 +101,11 @@ class PaymentAccount < ActiveRecord::Base
                                                                 :stripe_subscription_id => cust_charge.id,
                                                                 :type_subscription => "one_time_payment"
                                                                 )
-                  
-                  if !Stripe::Error
+                  if subscription.save
                     { :message => "Success" }.to_json
                   else
                     { :message => "Error" }.to_json
-                  end # end cust_charge
+                  end
                 else
                   payment.errors
                 end # end payment save
@@ -114,26 +125,46 @@ class PaymentAccount < ActiveRecord::Base
                                           :customer => check_donor.payment_accounts.last.stripe_cust_id
                                          )
 
-              # From https://stripe.com/docs/api?lang=ruby#create_charge
-              # stripe returns a charge object if the charge succeeded                 
-
-              # stripe charge.succeeded webhook will do Donation.new(:shares_added => #{math})
-
               subscription = donor.donor_subscriptions.build(:donor_id => donor.id,
-                                                             :payment_account_id => payment.id,
+                                                             :payment_account_id => check_donor.payment_accounts.last.id,
                                                              :charity_group_id => charity_group_id,
                                                              :stripe_subscription_id => cust_charge.id,
                                                              :type_subscription => "one_time_payment")
-
-              if !Stripe::Error
+              if subscription.save
                 { :message => "Success" }.to_json
               else
                 { :message => "Error" }.to_json
-              end # end cust_charge
+              end  
             else
+              check_donor = Donor.where("email = ? AND password = ? AND type_donor = 'registered'", email, password).first
+              cust_id = check_donor.payment_accounts.find(payment_account_id)
 
-              # do what for registered donor ?
-              # stripe.update_subscription()
+              begin
+                cu = Stripe::Customer.retrieve(cust_id.stripe_cust_id)
+                cust_charge = Stripe::Charge.create(
+                                                  :amount => amount * 100,
+                                                  :currency => "usd",
+                                                  :description => "giv2giv.org donation to #{CharityGroup.find(charity_group_id).name}",
+                                                  :customer => cust_id.stripe_cust_id
+                                                 )
+              rescue Stripe::CardError => e
+                body = e.json_body
+                err  = body[:error]
+                { :message => "#{err[:message]}" }.to_json
+                return false
+              end
+
+              subscription = check_donor.donor_subscriptions.build(:donor_id => check_donor.id,
+                                                             :payment_account_id => cust_id.id,
+                                                             :charity_group_id => charity_group_id,
+                                                             :stripe_subscription_id => cust_charge.id,
+                                                             :type_subscription => "one_time_payment"
+                                                             )
+              if subscription.save
+                { :message => "Success" }.to_json
+              else
+                { :message => "Error" }.to_json
+              end 
 
             end # end check registered email
           end #end check email
@@ -163,30 +194,30 @@ class PaymentAccount < ActiveRecord::Base
         cu.cancel_subscription
       end
 
-      #cancel giv2giv subscription to charity_group
+      payment_account = PaymentAccount.find_by_stripe_cust_id(cust_id)
+      
       donor.subscription.find(charity_group_id).destroy
-
-      #NO we NEVER destroy Donation after we receive money! If donation.destroy then we lose :shares_added
-
-      #donation = Donation.find(donate_id)
-        #donation
-      #if donation.destroy
-      if !Stripe::Error
-        { :message => "Your subscription has been canceled" }.to_json
-      #end
+      { :message => "Your subscription has been canceled" }.to_json
     end
 
     def cancel_all_subscription(current_donor)
       begin
         payment_accounts = current_donor.payment_accounts
         payment_accounts.each do |payment_account|
+
+        begin
           cu = Stripe::Customer.retrieve(payment_account.stripe_cust_id)
           cu.cancel_subscription
-
-        #cancel giv2giv subscription to all charity_groups
-        donor.subscription.all.destroy
-
+        rescue Stripe::CardError => e
+          body = e.json_body
+          err  = body[:error]
+          { :message => "#{err[:message]}" }.to_json
+          return false
         end
+
+        payment_account.donor_subscriptions.destroy_all
+
+        end # end each
         { :message => "Your subscriptions has been canceled" }.to_json
       rescue
         { :message => "Failed! No active subscription" }.to_json
@@ -215,18 +246,25 @@ class PaymentAccount < ActiveRecord::Base
           if amount < charity_group.minimum_donation_amount.to_i
             { :message => "Minimum amount for create donation $#{charity_group.minimum_donation_amount}" }.to_json
           else
-            customer = Stripe::Customer.retrieve(check_donor.payment_accounts.find(payment_id).stripe_cust_id)
-            if customer.subscription.blank?
-              id_subscription = customer.update_subscription(:plan => PLAN_ID, :quantity => amount, :prorate => false)
-            else
-              id_subscription = customer.update_subscription(:plan => PLAN_ID, :quantity => customer.subscription.quantity + amount, :prorate => false)
-            end # end customer subscription
+
+            begin
+              customer = Stripe::Customer.retrieve(check_donor.payment_accounts.find(payment_id).stripe_cust_id)
+              if customer.subscription.blank?
+                id_subscription = customer.update_subscription(:plan => PLAN_ID, :quantity => amount, :prorate => false)
+              else
+                id_subscription = customer.update_subscription(:plan => PLAN_ID, :quantity => customer.subscription.quantity + amount, :prorate => false)
+              end # end customer subscription
+            rescue Stripe::CardError => e
+              body = e.json_body
+              err  = body[:error]
+              { :message => "#{err[:message]}" }.to_json
+              return false
+            end
 
             subscription = donor.donor_subscriptions.build(:donor_id => donor.id,
                                              :payment_account_id => payment_id,
                                              :charity_group_id => charity_group_id,
-                                             :stripe_subscription_id => id_subscription.id, # why do we need this? There is only one stripe.subscription for each donor
-                                             :amount => amount, # amount donated each month to charity_group_id
+                                             :stripe_subscription_id => id_subscription.id,
                                              :type_subscription => "per-month"
                                              )
 
@@ -244,7 +282,6 @@ class PaymentAccount < ActiveRecord::Base
         { :message => "Wrong donor id" }.to_json
       end
     end #end check type donation
-
   end
 
 private
