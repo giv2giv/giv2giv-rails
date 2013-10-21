@@ -83,6 +83,13 @@ class PaymentAccount < ActiveRecord::Base
                 # stripe returns a charge object if the charge succeeded                 
 
                 # stripe charge.succeeded webhook will do Donation.new(:shares_added => #{math})
+
+                  subscription = donor.donor_subscriptions.build(:donor_id => donor.id,
+                                                                :payment_account_id => payment.id,
+                                                                :charity_group_id => charity_group_id,
+                                                                :stripe_subscription_id => cust_charge.id,
+                                                                :type_donation => "one_time_payment"
+                                                                )
                   
                   if !Stripe::Error
                     { :message => "Success" }.to_json
@@ -112,6 +119,12 @@ class PaymentAccount < ActiveRecord::Base
               # stripe returns a charge object if the charge succeeded                 
 
               # stripe charge.succeeded webhook will do Donation.new(:shares_added => #{math})
+
+              subscription = donor.donor_subscriptions.build(:donor_id => donor.id,
+                                                             :payment_account_id => payment.id,
+                                                             :charity_group_id => charity_group_id,
+                                                             :stripe_subscription_id => cust_charge.id,
+                                                             :type_donation => "one_time_payment")
 
               if !Stripe::Error
                 { :message => "Success" }.to_json
