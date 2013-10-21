@@ -13,7 +13,7 @@ class Donation < ActiveRecord::Base
 
   class << self
     
-    def add_donation(amount, subs_id)
+    def add_donation(gross_amount, subscription_id)
       
       check_share_price = Share.last
       if check_share_price.blank?
@@ -22,14 +22,20 @@ class Donation < ActiveRecord::Base
         per_share = check_share_price.donation_price
       end
 
-      net_amount = (amount - (amount * STRIPE_FEES)) - STRIPE_FEES_CENTS
-      transaction_fee = amount - net_amount
+      # add_donation is called from stripe charge.succeeded webhook
+
+
+      # amount already has fees subtracted?
+      # maybe not do below
+      net_amount = (gross_amount - (gross_amount * STRIPE_FEES)) - STRIPE_FEES_CENTS
+      transaction_fee = gross_amount - net_amount
+      # maybe not do above
 
       donor_subs_id = DonorSubscription.find_by_stripe_subscription_id(subs_id)
 
-      buy_shares = (BigDecimal("#{amount}") / BigDecimal("#{per_share}"))
+      buy_shares = (BigDecimal("#{net_amount}") / BigDecimal("#{per_share}"))
       donation = Donation.new(
-                             :gross_amount => amount,
+                             :gross_amount => gross_amount,
                              :charity_group_id => donor_subs_id.charity_group_id,
                              :payment_account_id => donor_subs_id.payment_account_id,
                              :shares_added => buy_shares,
