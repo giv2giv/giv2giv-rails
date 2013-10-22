@@ -189,21 +189,33 @@ class PaymentAccount < ActiveRecord::Base
     end
     
     def cancel_subscription(subscription_id)
-      subscription = DonorSubcription.find(subscription_id)
-      cust_id = PaymentAccount.find(subscription.payment_account_id).stripe_cust_id
-      cu = Stripe::Customer.retrieve(cust_id)
-      total_quantity = cu.subscription.quantity.to_i
-      amount = subscription.gross_amount
-      if total_quantity > amount
-        update_qty = total_quantity - amount 
-        cu.update_subscription(:plan => PLAN_ID, :quantity => update_qty)
-      else
-        cu.cancel_subscription
+      begin
+        subscription = DonorSubcription.find(subscription_id)
+        cust_id = PaymentAccount.find(subscription.payment_account_id).stripe_cust_id
+
+        begin
+          cu = Stripe::Customer.retrieve(cust_id)
+          total_quantity = cu.subscription.quantity.to_i
+          amount = subscription.gross_amount
+          if total_quantity > amount
+            update_qty = total_quantity - amount 
+            cu.update_subscription(:plan => PLAN_ID, :quantity => update_qty)
+          else
+            cu.cancel_subscription
+          end
+        rescue Stripe::Error => e
+            body = e.json_body
+            err = body[:error]
+            { :message => "#{erro[:message]}" }.to_json
+            return false
+        end
+
+        subscription.destroy
+
+        { :message => "Your subscription has been canceled" }.to_json
+      rescue
+        { :message => "Failed! Subscription or payment account not found" }.to_json
       end
-
-      subscription.destroy
-
-      { :message => "Your subscription has been canceled" }.to_json
     end
 
     def cancel_all_subscription(current_donor)
