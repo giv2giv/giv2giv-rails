@@ -119,10 +119,12 @@ class Api::BalancesController < Api::BaseController
       DonorMailer.grant_fee_transfer(App.giv["email_support"], from_etrade_to_dwolla_transaction_id, total_giv2giv_fee).deliver
     end
 
-    charity_groups_grant.group(:charity_group_id).each do |charity_group_grant|
-      share_pending = DonorGrant.where("status = ? AND charity_group_id = ?", "sent", charity_group_grant.charity_group_id).sum(:shares_pending)
-      grant_amount = ((BigDecimal("#{share_pending}") * BigDecimal("#{Share.last.grant_price}")).to_f * 10).ceil / 10.0
-      DonorMailer.charity_group_grant_money(charity_group_grant.donor.email, charity_group_grant.charity_group.name, charity_group_grant.donor.name, grant_amount).deliver
+
+    total_grant_shares = charity_groups_grant.sum(:shares_pending)
+
+    charity_groups_grant.group(:donor_id).each do |charity_group_grant|
+      grant_amount = ((BigDecimal("#{total_grant_shares}") * BigDecimal("#{Share.last.grant_price}")).to_f * 10).ceil / 10.0
+      DonorMailer.charity_group_grant_money(charity_group_grant.donor.email, charity_group_grant.donor.name, grant_amount).deliver
     end
 
     respond_to do |format|
