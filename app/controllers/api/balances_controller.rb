@@ -61,7 +61,11 @@ class Api::BalancesController < Api::BaseController
       end
 
       detail_transaction = get_detail_transaction(transaction_id)
-      dwolla_fee = detail_transaction["fees"]["amount"]
+      if gross_amount > 10
+        dwolla_fee = detail_transaction["fees"]["amount"]
+      else
+        dwolla_fee = 0
+      end
 
       pending_grant.update_attributes(:status => "sent", :transaction_id => transaction_id)
       sent_grant = CharityGrant.new(
@@ -97,19 +101,23 @@ class Api::BalancesController < Api::BaseController
 
     end
 
-    # FIX ME
+    begin
+      from_etrade_to_dwolla_transaction_id = Dwolla::FundingSources.deposit(DWOLLA_GRANT_SOURCE_ACCOUNT, {:pin => PIN_DWOLLA, :amount => total_giv2giv_fee})
+    rescue Dwolla::APIError => error
+      render json: { :message => error.message }.to_json
+      return false
+    end
 
-    # begin
-    #   dwolla_id = Dwolla::FundingSources.withdraw(DWOLLA_GRANT_SOURCE_ACCOUNT, {:pin => PIN_DWOLLA, :amount => total_giv2giv_fee})
-    # rescue Dwolla::APIError => error
-    #   render json: { :message => error.message }.to_json
-    # end
+    save_withdraw = GivPayment.new(
+                                  :from_etrade_to_dwolla_transaction_id => from_etrade_to_dwolla_transaction_id,
+                                  :from_dwolla_to_giv2giv_transaction_id => nil,
+                                  :amount => total_giv2giv_fee,
+                                  :status => 'from_etrade_to_dwolla'
+                                  )
 
-    # save_withdraw = GivPayment.new(
-    #                               :dwolla_transaction_id => dwolla_id,
-    #                               :amount => total_giv2giv_fee
-    #                               )
-    # save_withdraw.save
+    if save_withdraw.save
+      DonorMailer.grant_fee_transfer(App.giv["email_support"], from_etrade_to_dwolla_transaction_id, total_giv2giv_fee).deliver
+    end
 
     charity_groups_grant.group(:charity_group_id).each do |charity_group_grant|
       share_pending = DonorGrant.where("status = ? AND charity_group_id = ?", "sent", charity_group_grant.charity_group_id).sum(:shares_pending)

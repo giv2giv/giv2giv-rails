@@ -221,7 +221,7 @@ class PaymentAccount < ActiveRecord::Base
           return false
         end
 
-      #ELGA does this below work? We want to destroy single charity_group subscription for the session donor
+        #ELGA does this below work? We want to destroy single charity_group subscription for the session donor
         payment_account.donor_subscriptions.destroy_all
 
         end # end each
