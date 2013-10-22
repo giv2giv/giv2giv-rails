@@ -127,13 +127,9 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def cancel_subscription
-    # FIX ME
-    find_donation = Donation.find(params[:id])
-    get_donor_id = PaymentAccount.find(find_donation.payment_account_id)
-    
-    if current_donor.id.to_s.eql?(get_donor_id.donor_id.to_s)
+    if current_donor
       respond_to do |format|
-        cancel_subscription = PaymentAccount.cancel_subscription(get_donor_id.stripe_cust_id, find_donation.gross_amount, params[:id])
+        cancel_subscription = PaymentAccount.cancel_subscription(params[:id])
         format.json { render json: cancel_subscription }
       end
     else

@@ -115,6 +115,7 @@ class PaymentAccount < ActiveRecord::Base
               end # end donor save
 
           else
+
             if check_donor.type_donor.eql?("unregistered")
               cu = Stripe::Customer.retrieve(check_donor.payment_accounts.last.stripe_cust_id)
               cu.card = stripeToken
@@ -187,10 +188,12 @@ class PaymentAccount < ActiveRecord::Base
       customer.save
     end
     
-    def cancel_subscription(cust_id, amount, donate_id)
+    def cancel_subscription(subscription_id)
+      subscription = DonorSubcription.find(subscription_id)
+      cust_id = PaymentAccount.find(subscription.payment_account_id).stripe_cust_id
       cu = Stripe::Customer.retrieve(cust_id)
       total_quantity = cu.subscription.quantity.to_i
-      amount = amount.to_i
+      amount = subscription.gross_amount
       if total_quantity > amount
         update_qty = total_quantity - amount 
         cu.update_subscription(:plan => PLAN_ID, :quantity => update_qty)
@@ -198,10 +201,7 @@ class PaymentAccount < ActiveRecord::Base
         cu.cancel_subscription
       end
 
-      payment_account = PaymentAccount.find_by_stripe_cust_id(cust_id)
-
-      #ELGA does this below work? We want to destroy single charity_group subscription for the session donor
-      donor.subscription.find(charity_group_id).destroy
+      subscription.destroy
 
       { :message => "Your subscription has been canceled" }.to_json
     end
@@ -212,6 +212,7 @@ class PaymentAccount < ActiveRecord::Base
         payment_accounts.each do |payment_account|
 
         begin
+          payment_account.donor_subscriptions.destroy_all
           cu = Stripe::Customer.retrieve(payment_account.stripe_cust_id)
           cu.cancel_subscription
         rescue Stripe::CardError => e
@@ -220,9 +221,6 @@ class PaymentAccount < ActiveRecord::Base
           { :message => "#{err[:message]}" }.to_json
           return false
         end
-
-        #ELGA does this below work? We want to destroy single charity_group subscription for the session donor
-        payment_account.donor_subscriptions.destroy_all
 
         end # end each
         { :message => "Your subscriptions has been canceled" }.to_json

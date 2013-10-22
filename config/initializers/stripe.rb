@@ -22,7 +22,7 @@ StripeEvent.setup do
         stripe_amount = line_data.amount / 100
         # parsing data subscriptions from stripe , for make the subscription is active
         # donor.subscriptions.each do |subscription|  # donor is the donor who created this charge
-           Donation.add_donation(subscription.amount, line_data.id)  # each charity_id gets its correct donation
+           Donation.add_donation(stripe_amount, line_data.id)  # each charity_id gets its correct donation
         # end
       end # invoice lines data
     end

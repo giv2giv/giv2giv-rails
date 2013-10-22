@@ -363,9 +363,9 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     Arguments :
 
-    { CHARITY_GROUP_ID } : required
+    { DONOR_SUBSCRIPTION_ID } : required
 
-    http://localhost:3000/api/donors/payment_accounts/{ CHARITY_GROUP_ID }/cancel_subscription.json
+    http://localhost:3000/api/donors/payment_accounts/{ DONOR_SUBSCRIPTION_ID }/cancel_subscription.json
 
     curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg'  http://localhost:3000/api/donors/payment_accounts/1/cancel_subscription.json
 
