@@ -37,9 +37,11 @@ class Donation < ActiveRecord::Base
                              :transaction_fees => transaction_fee,
                              :net_amount => net_amount
                              )
+
+# ELGA  if in config/initializers/stripe.rb we foreach (donor.giv2giv_subscriptions)    then only send ONE email for stripe.charge_success
       if donation.save
         donor = Donor.find(donor_subscription_id.donor_id)
-        DonorMailer.charge_success(donor.email, donation.to_json).deliver
+        DonorMailer.charge_success(donor.email, CharityGroup.find(charity_group_id).name, gross_amount).deliver
       else
         puts "ERROR!"
       end
