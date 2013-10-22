@@ -390,12 +390,14 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
     amount             : required
     charity_group_id   : required
 
-For registered user:
+    For registered user    :
+    
     email              : required
     payment_account_id : required
     password           : required
 
-For unregistered user:
+    For unregistered user  :
+    
     email              : optional
     stripeToken        : required if donor is unregistered 
 
