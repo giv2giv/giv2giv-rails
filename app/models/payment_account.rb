@@ -99,7 +99,8 @@ class PaymentAccount < ActiveRecord::Base
                                                                 :payment_account_id => payment.id,
                                                                 :charity_group_id => charity_group_id,
                                                                 :stripe_subscription_id => cust_charge.id,
-                                                                :type_subscription => "one_time_payment"
+                                                                :type_subscription => "one_time_payment",
+                                                                :gross_amount => amount
                                                                 )
                   if subscription.save
                     { :message => "Success" }.to_json
@@ -129,7 +130,9 @@ class PaymentAccount < ActiveRecord::Base
                                                              :payment_account_id => check_donor.payment_accounts.last.id,
                                                              :charity_group_id => charity_group_id,
                                                              :stripe_subscription_id => cust_charge.id,
-                                                             :type_subscription => "one_time_payment")
+                                                             :type_subscription => "one_time_payment",
+                                                             :gross_amount => amount
+                                                             )
               if subscription.save
                 { :message => "Success" }.to_json
               else
@@ -158,7 +161,8 @@ class PaymentAccount < ActiveRecord::Base
                                                              :payment_account_id => cust_id.id,
                                                              :charity_group_id => charity_group_id,
                                                              :stripe_subscription_id => cust_charge.id,
-                                                             :type_subscription => "one_time_payment"
+                                                             :type_subscription => "one_time_payment",
+                                                             :gross_amount => amount
                                                              )
               if subscription.save
                 { :message => "Success" }.to_json
@@ -265,7 +269,8 @@ class PaymentAccount < ActiveRecord::Base
                                              :payment_account_id => payment_id,
                                              :charity_group_id => charity_group_id,
                                              :stripe_subscription_id => id_subscription.id,
-                                             :type_subscription => "per-month"
+                                             :type_subscription => "per-month",
+                                             :gross_amount => amount
                                              )
 
             if subscription.save

@@ -57,7 +57,6 @@ module CalculationShare
       end
 
       def grantshare
-
         stripe_balance = get_stripe_balance
         etrade_balance = get_etrade_balance
         givbalance = stripe_balance + etrade_balance
@@ -70,7 +69,6 @@ module CalculationShare
           charity_group_grant_shares = (BigDecimal("#{charity_group_share_balance}") * BigDecimal("#{GIV_GRANT_AMOUNT}")).round(SHARE_PRECISION)
           charity_grant_shares = (BigDecimal("#{charity_group_grant_shares}") / BigDecimal("#{charity_group.charities.count}")).round(SHARE_PRECISION)
 
-          # charity_group_donors = charity_group.donors.all
           charity_group_donors = charity_group.donations
           charities = charity_group.charities
 

@@ -39,8 +39,9 @@ class Api::BalancesController < Api::BaseController
 
   def approve_donor_grants
 
-    pending_grants = DonorGrant.where("status = ?", "pending")
+    pending_grants = charity_groups_grant = DonorGrant.where("status = ?", "pending")
     total_giv2giv_fee = 0.0
+    
     pending_grants.group(:charity_id).each do |pending_grant| 
 
       grant_shares = DonorGrant.where("charity_id = ?", pending_grant.charity_id).sum(:shares_pending)
@@ -50,10 +51,10 @@ class Api::BalancesController < Api::BaseController
       net_amount = gross_amount - giv2giv_fee
       total_giv2giv_fee += giv2giv_fee
       # set text message to charity email
-      text_note = "$#{amount} is being sent to you via Dwolla. Please accept this anonymous, unrestricted grant from donors at www.giv2giv.org. Contact info@giv2giv.org with any questions. Enjoy!"
+      text_note = "$#{gross_amount} is being sent to you via Dwolla. Please accept this anonymous, unrestricted grant from donors at www.giv2giv.org. Contact info@giv2giv.org with any questions. Enjoy!"
 
       begin
-        transaction_id = Dwolla::Transactions.send({:destinationId => pending_grant.charity.email, :pin => PIN_DWOLLA, :destinationType => 'email', :amount => amount, :notes => text_note, :fundsSource => DWOLLA_GRANT_SOURCE_ACCOUNT})
+        transaction_id = Dwolla::Transactions.send({:destinationId => pending_grant.charity.email, :pin => PIN_DWOLLA, :destinationType => 'email', :amount => gross_amount, :notes => text_note, :fundsSource => DWOLLA_GRANT_SOURCE_ACCOUNT})
       rescue Dwolla::APIError => error
         render json: { :message => error.message }.to_json
         return
@@ -97,17 +98,24 @@ class Api::BalancesController < Api::BaseController
     end
 
     # FIX ME
-    begin
-      dwolla_id = Dwolla::FundingSources.withdraw(DWOLLA_GRANT_SOURCE_ACCOUNT, {:pin => PIN_DWOLLA, :amount => total_giv2giv_fee})
-    rescue Dwolla::APIError => error
-      render json: { :message => error.message }.to_json
-    end
 
-    save_withdraw = GivPayment.new(
-                                  :dwolla_transaction_id => dwolla_id,
-                                  :amount => total_giv2giv_fee
-                                  )
-    save_withdraw.save
+    # begin
+    #   dwolla_id = Dwolla::FundingSources.withdraw(DWOLLA_GRANT_SOURCE_ACCOUNT, {:pin => PIN_DWOLLA, :amount => total_giv2giv_fee})
+    # rescue Dwolla::APIError => error
+    #   render json: { :message => error.message }.to_json
+    # end
+
+    # save_withdraw = GivPayment.new(
+    #                               :dwolla_transaction_id => dwolla_id,
+    #                               :amount => total_giv2giv_fee
+    #                               )
+    # save_withdraw.save
+
+    charity_groups_grant.group(:charity_group_id).each do |charity_group_grant|
+      share_pending = DonorGrant.where("status = ? AND charity_group_id = ?", "sent", charity_group_grant.charity_group_id).sum(:shares_pending)
+      grant_amount = ((BigDecimal("#{share_pending}") * BigDecimal("#{Share.last.grant_price}")).to_f * 10).ceil / 10.0
+      DonorMailer.charity_group_grant_money(charity_group_grant.donor.email, charity_group_grant.charity_group.name, charity_group_grant.donor.name, grant_amount).deliver
+    end
 
     respond_to do |format|
       format.json { render json: {:message => "Successfully approve charity"}.to_json }
