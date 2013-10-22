@@ -25,15 +25,15 @@ class Donation < ActiveRecord::Base
       net_amount = (gross_amount - (gross_amount * STRIPE_FEES)) - STRIPE_FEES_CENTS
       transaction_fee = gross_amount - net_amount
 
-      donor_subscription_id = DonorSubscription.find_by_stripe_subscription_id(subscription_id)
+      donor_subscription = DonorSubscription.find_by_stripe_subscription_id(subscription_id)
 
       buy_shares = (BigDecimal("#{net_amount}") / BigDecimal("#{per_share}"))
       donation = Donation.new(
                              :gross_amount => gross_amount,
-                             :charity_group_id => donor_subscription_id.charity_group_id,
-                             :payment_account_id => donor_subscription_id.payment_account_id,
+                             :charity_group_id => donor_subscription.charity_group_id,
+                             :payment_account_id => donor_subscription.payment_account_id,
                              :shares_added => buy_shares,
-                             :donor_id => donor_subscription_id.donor_id,
+                             :donor_id => donor_subscription.donor_id,
                              :transaction_fees => transaction_fee,
                              :net_amount => net_amount
                              )
@@ -41,7 +41,7 @@ class Donation < ActiveRecord::Base
 # ELGA  if in config/initializers/stripe.rb we foreach (donor.giv2giv_subscriptions)    then only send ONE email for stripe.charge_success
       if donation.save
         donor = Donor.find(donor_subscription_id.donor_id)
-        DonorMailer.charge_success(donor.email, CharityGroup.find(donor_subscription_id.charity_group_id).name, gross_amount).deliver
+        DonorMailer.charge_success(donor.email, CharityGroup.find(donor_subscription.charity_group_id).name, gross_amount).deliver
       else
         puts "ERROR!"
       end
