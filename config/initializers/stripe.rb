@@ -17,14 +17,19 @@ StripeEvent.setup do
     else
       # donor subscriptions
       # ret_invoice.lines.data = donor.subscriptions.each 
+      total_gross_amount = 0
+      email = ""
       ret_invoice.lines.data.each do |line_data|
         # stripe_amount = subscription.amount 
         stripe_amount = line_data.amount / 100
         # parsing data subscriptions from stripe , for make the subscription is active
         # donor.subscriptions.each do |subscription|  # donor is the donor who created this charge
-           Donation.add_donation(stripe_amount, line_data.id)  # each charity_id gets its correct donation
+          donation = Donation.add_donation(stripe_amount, line_data.id)  # each charity_id gets its correct donation
+          total_gross_amount += donation["gross_amount"]
+          email = donation["email"]
         # end
       end # invoice lines data
+      DonorMailer.charge_success(email, total_gross_amount).deliver
     end
     
   end # end charge.successed

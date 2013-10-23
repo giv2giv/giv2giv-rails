@@ -1,7 +1,7 @@
 class DonorMailer < ActionMailer::Base
   default :from => "no-reply@giv2giv.org"
   
-  def charge_success(email, charity_group_name, donation_amount)
+  def charge_success(email, donation_amount)
     mail(:to => email, :subject => "[ giv2giv.org ] Thank you for your donation", content_type: "text/html", :body => "<h3>Charge Successful</h3><br /><hr />Thank you for your donation of #{donation_amount} to giv2giv.org. Want to see the breakdown by charity_group or charity? Visit giv2giv.org<br><br>")
   end
 
