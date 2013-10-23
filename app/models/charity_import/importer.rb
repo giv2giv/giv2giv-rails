@@ -78,7 +78,7 @@ module CharityImport
       def update_charities(collect_charities_ein)
         collect_charities_ein.each do |a|
           charity = Charity.find_by_ein(a)
-          charity.update_attribute :status, "inactive"
+          charity.update_attribute :active, "false"
           puts "EIN:#{charity.ein} Has been inactive"
         end
       end
@@ -232,7 +232,7 @@ module CharityImport
 			                :subsection_code => row[8].to_s.strip,
 			                :classification_code => row[10].to_s.strip,
 			                :activity_code => row[14].to_s.strip,
-                      :status => 'active'
+                      :active => 'true'
                     }
 
 			    puts "---Creating Charity with #{options.inspect}" if @@verbose

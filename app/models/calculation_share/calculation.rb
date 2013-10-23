@@ -73,7 +73,7 @@ module CalculationShare
           charities = charity_group.charities
 
           charities.each do |charity|
-            if charity.status.eql?("active")
+            if charity.active.eql?("true")
               charity_group_donors.each do |charity_group_donor|
                 grant_record = DonorGrant.new(
                                         :donor_id => charity_group_donor.donor.id,
