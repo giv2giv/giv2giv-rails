@@ -24,21 +24,18 @@ class Api::DonorsController < Api::BaseController
   end
 
   def subscriptions
-    # FIX ME
-    total_grants = ((Share.last.grant_price * current_donor.donations.sum(:shares_added)) * App.giv["giv_grant_amount"]).round(2)
- 
     subscriptions = current_donor.donor_subscriptions
     subscriptions_list = []
     subscriptions.each do |subscription|
-      subscriptions_hash = [ subscription.stripe_subscription_id => {
+        subscriptions_hash = [ subscription.stripe_subscription_id => {
         "charity_group_name" => subscription.charity_group.name,
         "donation_amount" => subscription.gross_amount,
         "total_amount" => current_donor.donations.where("charity_group_id = ?", subscription.charity_group_id).sum(:gross_amount),
         "total_donation" => Donation.where("charity_group_id = ?", subscription.charity_group_id).sum(:gross_amount),
-        "current_balance" => (subscription.gross_amount - total_grants) * Share.last.donation_price,
-        "charity_group_balance" => 0,
-        "total_granted_by_donor" => current_donor.charity_grants.where("charity_group_id = ?", subscription.charity_group_id).sum(:gross_amount),
-        "total_granted_from_charity_group" => CharityGrant.where("charity_group_id = ?", subscription.charity_group_id).sum(:gross_amount)
+        "current_balance" => (current_donor.donations.where("charity_group_id = ?", subscription.charity_group_id).sum(:shares_added) - current_donor.charity_grants.sum(:shares_subtracted)) * Share.last.grant_price,
+        "charity_group_balance" => (Donation.where("charity_group_id = ?", subscription.charity_group_id).sum(:shares_added) - CharityGrant.sum(:shares_subtracted)) * Share.last.grant_price,
+        "total_granted_by_donor" => current_donor.charity_grants.where("status = ?", 'sent').sum(:grant_amount),
+        "total_granted_from_charity_group" => CharityGrant.where("status = ?", 'sent').sum(:grant_amount)
       }
       ]
       subscriptions_list << subscriptions_hash
