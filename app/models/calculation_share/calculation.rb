@@ -57,8 +57,10 @@ module CalculationShare
       end
 
       def grantshare
-        stripe_balance = get_stripe_balance
-        etrade_balance = get_etrade_balance
+        # stripe_balance = get_stripe_balance
+        # etrade_balance = get_etrade_balance
+        stripe_balance = 60
+        etrade_balance = 0
         givbalance = stripe_balance + etrade_balance
         
         charity_groups = CharityGroup.all
@@ -88,6 +90,7 @@ module CalculationShare
             end # charity.status = active
           end # end charities.each do |charity|
         end # end charity_groups.each do |charity_group|
+        puts "Grant share has been updated"
       end
 
       def cumulative_etrade_balance(account_id)

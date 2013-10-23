@@ -206,7 +206,7 @@ class PaymentAccount < ActiveRecord::Base
         rescue Stripe::Error => e
             body = e.json_body
             err = body[:error]
-            { :message => "#{erro[:message]}" }.to_json
+            { :message => "#{err[:message]}" }.to_json
             return false
         end
 

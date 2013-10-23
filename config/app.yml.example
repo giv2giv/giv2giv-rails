@@ -23,6 +23,6 @@ stripe:
   
 giv:
   giv_fee_percentage : 0.04
-  giv_grant_amount   : .0125
+  giv_grant_amount   : 0.0125
   share_precision    : 20
   email_support      : info@giv2giv.org
