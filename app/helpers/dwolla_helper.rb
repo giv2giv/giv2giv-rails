@@ -49,4 +49,8 @@ module DwollaHelper
     end
   end
 
+  def hook
+    
+  end
+
 end

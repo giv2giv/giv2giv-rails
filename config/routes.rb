@@ -1,7 +1,8 @@
 Giv2givRails::Application.routes.draw do
 
   mount StripeEvent::Engine => '/stripe'
-   
+  match '/dwolla' => 'dwolla#receive_hook', :via => :post
+
   scope :format => true, :constraints => { :format => /json/ } do
     namespace :api do
 
