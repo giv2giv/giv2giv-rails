@@ -39,9 +39,16 @@ class Api::BalancesController < Api::BaseController
 
   def approve_donor_grants
 
-    pending_grants = charity_groups_grant = DonorGrant.where("status = ?", "pending")
+    pending_grants = DonorGrant.where("status = ?", "pending")
     total_giv2giv_fee = 0.0
-    
+
+    total_grant_shares = charity_groups_grant.sum(:shares_pending)
+
+    pending_grants.group(:donor_id).each do |charity_group_grant|
+      grant_amount = ((BigDecimal("#{total_grant_shares}") * BigDecimal("#{Share.last.grant_price}")).to_f * 10).ceil / 10.0
+      DonorMailer.charity_group_grant_money(charity_group_grant.donor.email, charity_group_grant.donor.name, grant_amount).deliver
+    end
+
     pending_grants.group(:charity_id).each do |pending_grant| 
 
       grant_shares = DonorGrant.where("charity_id = ?", pending_grant.charity_id).sum(:shares_pending)
@@ -57,11 +64,11 @@ class Api::BalancesController < Api::BaseController
         transaction_id = Dwolla::Transactions.send({:destinationId => pending_grant.charity.email, :pin => PIN_DWOLLA, :destinationType => 'email', :amount => gross_amount, :notes => text_note, :fundsSource => DWOLLA_GRANT_SOURCE_ACCOUNT})
       rescue Dwolla::APIError => error
         render json: { :message => error.message }.to_json
-        return
+        return false
       end
 
-      detail_transaction = get_detail_transaction(transaction_id)
       if gross_amount > 10
+        detail_transaction = get_detail_transaction(transaction_id)
         dwolla_fee = detail_transaction["fees"]["amount"]
       else
         dwolla_fee = 0
@@ -117,14 +124,6 @@ class Api::BalancesController < Api::BaseController
 
     if save_withdraw.save
       DonorMailer.grant_fee_transfer(App.giv["email_support"], from_etrade_to_dwolla_transaction_id, total_giv2giv_fee).deliver
-    end
-
-
-    total_grant_shares = charity_groups_grant.sum(:shares_pending)
-
-    charity_groups_grant.group(:donor_id).each do |charity_group_grant|
-      grant_amount = ((BigDecimal("#{total_grant_shares}") * BigDecimal("#{Share.last.grant_price}")).to_f * 10).ceil / 10.0
-      DonorMailer.charity_group_grant_money(charity_group_grant.donor.email, charity_group_grant.donor.name, grant_amount).deliver
     end
 
     respond_to do |format|

@@ -49,8 +49,14 @@ module DwollaHelper
     end
   end
 
-  def hook
-    
+  def hook(body)
+    data = body
+    verify = Dwolla::OffsiteGateway.verify_webhook_signature(data['Signature'], body)
+    return data
+  end
+
+  def request_cancel(request_id)
+    Dwolla::Request.cancel(request_id)
   end
 
 end

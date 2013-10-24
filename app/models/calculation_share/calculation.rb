@@ -3,10 +3,12 @@ require 'stripe'
 require 'oauth'
 include OAuth::Helper
 include EtradeHelper
+include DwollaHelper
 
 GIV_FEE_AMOUNT = App.giv["giv_fee_percentage"].to_f
 GIV_GRANT_AMOUNT = App.giv["giv_grant_amount"]
 SHARE_PRECISION = App.giv["share_precision"]
+PIN_DWOLLA = App.dwolla["pin_account"]
 
 module CalculationShare
   class Calculation
@@ -89,6 +91,18 @@ module CalculationShare
           end # end charities.each do |charity|
         end # end charity_groups.each do |charity_group|
         puts "Grant share has been updated"
+      end
+
+      def charity_ignores_grant
+        
+        request_pending = Dwolla::Requests.get
+        request_pending.each do |request|
+          charity_status_update = CharityGrant.find(request["Id"])
+          charity_status_update.update_attributes(:status => 'uncollected')
+          request_cancel(request["Id"])
+          puts "request canceled #{request["Id"]}"
+        end
+
       end
 
       def cumulative_etrade_balance(account_id)
