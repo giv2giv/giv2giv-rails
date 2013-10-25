@@ -15,9 +15,8 @@ class Api::DonorsController < Api::BaseController
   end
 
   def balance_information
-    # FIX ME
     share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.charity_grants.sum(:shares_subtracted)}")
-    donor_balance = ((BigDecimal("#{share_balance}") * BigDecimal("#{Share.last.donation_price}")) * 10).ceil / 10.0
+    donor_current_balance = ((BigDecimal("#{share_balance}") * BigDecimal("#{Share.last.donation_price}")) * 10).ceil / 10.0
     donor_total_donations = current_donor.donations.sum(:gross_amount)
     donor_total_grants = current_donor.charity_grants.where("status = ?", 'sent').sum(:gross_amount)
     render json: {:donor_current_balance => donor_current_balance, :donor_total_donations => donor_total_donations, :donor_total_grants => donor_total_grants}.to_json  
@@ -32,16 +31,8 @@ class Api::DonorsController < Api::BaseController
         "charity_group_donation_amount" => subscription.gross_amount,
         "charity_group_donor_total_donations" => current_donor.donations.where("charity_group_id = ?", subscription.charity_group_id).sum(:gross_amount),
         "charity_group_total_donations" => Donation.where("charity_group_id = ?", subscription.charity_group_id).sum(:gross_amount),
-        "charity_group_donor_current_balance" => ((
-            BigDecimal(current_donor.donations.where("charity_group_id = ?", subscription.charity_group_id).sum(:shares_added))
-            -
-            BigDecimal(current_donor.charity_grants.sum(:shares_subtracted))
-            ) * BigDecimal(Share.last.grant_price) * 10).ceil / 10.0,
-        "charity_group_total_balance" => ((
-            BigDecimal(Donation.where("charity_group_id = ?", subscription.charity_group_id).sum(:shares_added)) 
-            -
-            BigDecimal(CharityGrant.sum(:shares_subtracted))
-            ) * BigDecimal(Share.last.grant_price) * 10).ceil / 10.0,
+        "charity_group_donor_current_balance" => ((BigDecimal(current_donor.donations.where("charity_group_id = ?", subscription.charity_group_id).sum(:shares_added)) - BigDecimal(current_donor.charity_grants.sum(:shares_subtracted))) * Share.last.grant_price * 10).ceil / 10.0,
+        "charity_group_total_balance" => ((BigDecimal(Donation.where("charity_group_id = ?", subscription.charity_group_id).sum(:shares_added)) - BigDecimal(CharityGrant.sum(:shares_subtracted))) * Share.last.grant_price * 10).ceil / 10.0,
         "total_granted_by_donor" => current_donor.charity_grants.where("status = ?", 'sent').where("charity_group_id = ?", subscription.charity_group_id).sum(:grant_amount),
         "total_granted_from_charity_group" => CharityGrant.where("status = ?", 'sent').where("charity_group_id = ?", subscription.charity_group_id).sum(:grant_amount)
       }
