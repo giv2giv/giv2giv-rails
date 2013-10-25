@@ -16,10 +16,10 @@ class Api::DonorsController < Api::BaseController
 
   def balance_information
     # FIX ME
-    share_added = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.charity_grants.sum(:shares_subtracted)}")
-    donor_balance = ((BigDecimal("#{share_added}") * BigDecimal("#{Share.last.donation_price}")) * 10).ceil / 10.0
+    share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.charity_grants.sum(:shares_subtracted)}")
+    donor_balance = ((BigDecimal("#{share_balance}") * BigDecimal("#{Share.last.donation_price}")) * 10).ceil / 10.0
     total_donations = current_donor.donations.sum(:gross_amount)
-    total_grants = ((Share.last.grant_price * current_donor.donations.sum(:shares_added)) * App.giv["giv_grant_amount"]).round(2)
+    total_grants = current_donor.charity_grants.sum(:gross_amount)
     render json: {:balance => donor_balance, :total_donations => total_donations, :total_grants => total_grants}.to_json  
   end
 
