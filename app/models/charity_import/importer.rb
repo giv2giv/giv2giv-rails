@@ -26,8 +26,6 @@ module CharityImport
         @@verbose_with_misses = with_misses
         files = nil
 
-        collect_charities_ein = collect_charities
-
         if skip_downloading
           files = files_from_dir
         else
@@ -36,51 +34,15 @@ module CharityImport
           files.each { |file| download_eo_file(file) }
         end
 
-        files.each do |file|
-          total_left_charities = read_excel(file, collect_charities_ein)
-          collect_charities_ein = total_left_charities
-        end
-
-        if collect_charities_ein.size > 0
-          update_charities(collect_charities_ein)
-        end
-
+        files.each { |file| read_excel(file) }
       end
 
       def import_single_file(file_name, skip_downloading = true)
-        collect_charities_ein = collect_charities
-
         if !skip_downloading
           create_excel_dir_if_needed
           download_eo_file(file_name)
         end
-
-        total_left_charities = read_excel(file_name, collect_charities_ein)
-
-        if total_left_charities.size > 0
-          update_charities(total_left_charities)
-        end
-
-      end
-
-      def collect_charities
-        # why are we loading all charities here?
-        # we shouldn't keep all of the charities in memory
-        # we should not be excluding charities regardlesscd
-        charities_date = Charity.all
-        collect_charities_ein = []
-        charities_date.each do |charity|
-          collect_charities_ein << charity.ein
-        end
-        return collect_charities_ein
-      end
-
-      def update_charities(collect_charities_ein)
-        collect_charities_ein.each do |a|
-          charity = Charity.find_by_ein(a)
-          charity.update_attribute :active, "false"
-          puts "EIN:#{charity.ein} Has been inactive"
-        end
+        read_excel(file_name)
       end
 
       def add_email_charity(charity_id, charity_email)
@@ -195,10 +157,12 @@ module CharityImport
         ntee_core_codes[ntee_code] if ntee_code.present?
       end
 
-      def read_excel(file, collect_charities_ein)
+      def read_excel(file)
         file_with_dir = charity_excel_dir + file
         raise ArgumentError, "File not found: #{file_with_dir}" if !File.exists?(file_with_dir)
+
         puts "Reading spreadsheet: #{file}" if @@verbose
+
         book = Spreadsheet.open(file_with_dir)
 #        book = POI::Workbook.open(file_with_dir)
         sheet = book.worksheet(0)
@@ -209,38 +173,33 @@ module CharityImport
 
           ein = row[0].to_s.strip
           name = row[1].to_s.strip
-			    deduction_code = row[12].to_s.strip
-			    foundation_code = row[13].to_s.strip
-          exemption_code = row[16].to_s.strip
+          deduction_code = row[12].to_s.strip
+          foundation_code = row[13].to_s.strip
 
-			    puts "EIN:#{ein} Name:#{name} Deduction Code:#{deduction_code} Foundation Code:#{foundation_code}" if @@verbose_with_misses
-          # we should not be deleting this charity. it might need to be updated
-
-          collect_charities_ein.delete_if {|x| x == ein.to_i }
-
+          puts "EIN:#{ein} Name:#{name} Deduction Code:#{deduction_code} Foundation Code:#{foundation_code}" if @@verbose_with_misses
           next if deduction_code != DESIRED_DEDUCTION_CODE
           next if foundation_code != DESIRED_FOUNDATION_CODE
           next if exemption_code != DESIRED_EXEMPT_CODE
 
           options = { :ein => ein,
-			                :name => name,
-			                :address => row[3].to_s.strip,
-			                :city => row[4].to_s.strip,
-			                :state => row[5].to_s.strip,
-			                :zip => row[6].to_s.strip,
-			                :ntee_code => row[30].to_s.strip,
-			                :subsection_code => row[8].to_s.strip,
-			                :classification_code => row[10].to_s.strip,
-			                :activity_code => row[14].to_s.strip,
+                      :name => name,
+                      :address => row[3].to_s.strip,
+                      :city => row[4].to_s.strip,
+                      :state => row[5].to_s.strip,
+                      :zip => row[6].to_s.strip,
+                      :ntee_code => row[30].to_s.strip,
+                      :subsection_code => row[8].to_s.strip,
+                      :classification_code => row[10].to_s.strip,
+                      :activity_code => row[14].to_s.strip,
                       :active => 'true'
                     }
 
-			    puts "---Creating Charity with #{options.inspect}" if @@verbose
+          puts "---Creating Charity with #{options.inspect}" if @@verbose
           charity = Charity.create_or_update(options)
           tag_charity(charity)
         end
-        return collect_charities_ein
       end # end read_excel
+
     end # end self
   end
 end

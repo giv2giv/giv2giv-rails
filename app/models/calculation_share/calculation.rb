@@ -94,7 +94,7 @@ module CalculationShare
       end
 
       def charity_ignores_grant
-        
+       
         request_pending = Dwolla::Requests.get
         request_pending.each do |request|
           charity_status_update = CharityGrant.find(request["Id"])

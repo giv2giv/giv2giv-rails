@@ -13,4 +13,8 @@ class DonorMailer < ActionMailer::Base
     mail(:to => email, :subject => "[ giv2giv.org ] #{Date.today} Grant Fee Transfer", content_type: "text/html", :body => "  Transfer of $#{total_giv2giv_fee} from eTrade to Dwolla requested. From etrade to Dwolla ID: #{from_etrade_to_dwolla_transaction_id}")    
   end
 
+  def grant_transfer_requested(email, from_dwolla_to_giv2giv_transaction_id, from_etrade_to_dwolla_transaction_id, total_giv2giv_fee)
+    mail(:to => email, :subject => "[ giv2giv.org ] #{Date.today} Grant Fee Transfer", content_type: "text/html", :body => "  Transfer of $#{total_giv2giv_fee} from Dwolla to giv2giv requested. From etrade to Dwolla ID: #{from_etrade_to_dwolla_transaction_id}<br>From Dwolla to giv2giv ID: #{from_dwolla_to_giv2giv_transaction_id} ")    
+  end
+
 end
