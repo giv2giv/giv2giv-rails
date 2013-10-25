@@ -18,6 +18,8 @@ class SchedulerPrice
           puts "Task failed, try again in 5 minutes"
           job.scheduler.in '5m', self
         else
+          # if success do charity ignore grants
+          system 'bundle exec rake calcshare:charity_ignores_grant'
           puts "Finished running task at #{DateTime.now}"
         end
       rescue Exception => e
@@ -25,6 +27,9 @@ class SchedulerPrice
         job.scheduler.in '5m'
       end
     else
+      # do charity ignore grants before send email error calculation shareprice
+      system 'bundle exec rake calcshare:charity_ignores_grant'
+      
       ErrorJobMailer.error_priceshare(App.giv["email_support"]).deliver
       puts "Email notification has been sent"
     end # end count
@@ -61,37 +66,6 @@ class GrantPrice
   end
 end # end class
 
-class GrantIgnore
-  attr_reader :count_ignore
-
-  def initialize
-    @count_ignore = 0
-  end
-
-  def call(job)
-    @count_ignore += 1
-    if @count_ignore < 10
-      begin
-        puts ". #{self.class} called at #{Time.now} (#{@count_ignore})"
-        ret = system 'bundle exec rake calcshare:charity_ignores_grant'
-        if ret == false
-          puts "Task failed, try again in 5 minutes"
-          job.scheduler.in '5m', self
-        else
-          puts "Finished running task at #{DateTime.now}"
-        end
-      rescue Exception => e
-        puts "Request failed - recheduling: #{e}"
-        job.scheduler.in '5m'
-      end
-    else
-      ErrorJobMailer.error_priceshare(App.giv["email_support"]).deliver
-      puts "Email notification has been sent"
-    end # end count_ignore
-  end
-end # end class
-
 scheduler = Rufus::Scheduler.new
 scheduler.cron '1 0 * * *', SchedulerPrice.new, :blocking => true
 scheduler.every '90d', GrantPrice.new, :blocking => true
-scheduler.every '60d', GrantIgnore.new, :blocking => true

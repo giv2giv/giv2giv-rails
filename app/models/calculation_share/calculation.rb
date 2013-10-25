@@ -94,15 +94,15 @@ module CalculationShare
       end
 
       def charity_ignores_grant
-       
-        request_pending = Dwolla::Requests.get
-        request_pending.each do |request|
-          charity_status_update = CharityGrant.find(request["Id"])
-          charity_status_update.update_attributes(:status => 'uncollected')
-          request_cancel(request["Id"])
-          puts "request canceled #{request["Id"]}"
-        end
+        charity_grants = CharityGrant.where("status = ?", "sent")
 
+        charity_grants.each do |charity_grant|
+          modify_date = (charity_grant.created_at + 60.days).to_date  
+          if Date.today > modify_date
+            charity_grant.update_attributes(:status => 'uncollected')
+            puts "Charity grant : #{charity_grant.transaction_id} status is uncollected"
+          end
+        end # end each charity_grants
       end
 
       def cumulative_etrade_balance(account_id)

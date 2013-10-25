@@ -26,10 +26,17 @@ class DwollaController < Api::ApplicationController
 
             # check dwolla to giv2giv transaction
             check_dwolla_to_giv2giv_transaction = GivPayment.find_by_from_dwolla_to_giv2giv_transaction_id(body["Transaction"]["Id"]) rescue nil
+
             if check_dwolla_to_giv2giv_transaction.blank?
 
+              # set charity grant collected if condition is not check_giv_payment
               charity_grant = CharityGrant.find(body["Transaction"]["Id"])
-              charity_grant.update_attributes(:status => "collected")
+              status_transaction = Dwolla::Transactions.get(body["Transaction"]["Id"])
+              if status_transaction["Status"].eql("processed")
+                charity_grant.update_attributes(:status => "collected")
+              else
+                charity_grant.update_attributes(:status => status_transaction["Status"])
+              end
 
             else
               # if transaction complete
