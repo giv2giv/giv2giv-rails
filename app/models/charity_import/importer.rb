@@ -172,31 +172,50 @@ module CharityImport
           next if i == 0 # first row is headings
 
           ein = row[0].to_s.strip
+          next if !ein.empty?
+
           name = row[1].to_s.strip
           deduction_code = row[12].to_s.strip
           foundation_code = row[13].to_s.strip
+          #TODO: add exemption_code
 
           puts "EIN:#{ein} Name:#{name} Deduction Code:#{deduction_code} Foundation Code:#{foundation_code}" if @@verbose_with_misses
-          next if deduction_code != DESIRED_DEDUCTION_CODE
-          next if foundation_code != DESIRED_FOUNDATION_CODE
-          next if exemption_code != DESIRED_EXEMPT_CODE
 
-          options = { :ein => ein,
-                      :name => name,
-                      :address => row[3].to_s.strip,
-                      :city => row[4].to_s.strip,
-                      :state => row[5].to_s.strip,
-                      :zip => row[6].to_s.strip,
-                      :ntee_code => row[30].to_s.strip,
-                      :subsection_code => row[8].to_s.strip,
-                      :classification_code => row[10].to_s.strip,
-                      :activity_code => row[14].to_s.strip,
-                      :active => 'true'
-                    }
+          if ((deduction_code == DESIRED_DEDUCTION_CODE) && (deduction_code == DESIRED_DEDUCTION_CODE) && (deduction_code == DESIRED_DEDUCTION_CODE))
+            options = { :ein => ein,
+                        :name => name,
+                        :address => row[3].to_s.strip,
+                        :city => row[4].to_s.strip,
+                        :state => row[5].to_s.strip,
+                        :zip => row[6].to_s.strip,
+                        :ntee_code => row[30].to_s.strip,
+                        :subsection_code => row[8].to_s.strip,
+                        :classification_code => row[10].to_s.strip,
+                        :activity_code => row[14].to_s.strip,
+                        :active => 'true'
+                      }
 
-          puts "---Creating Charity with #{options.inspect}" if @@verbose
-          charity = Charity.create_or_update(options)
-          tag_charity(charity)
+            puts "---Creating Charity with #{options.inspect}" if @@verbose
+            charity = Charity.create_or_update(options)
+            tag_charity(charity)
+          elsif ((deduction_code != DESIRED_DEDUCTION_CODE) || (deduction_code != DESIRED_DEDUCTION_CODE) || (deduction_code != DESIRED_DEDUCTION_CODE))
+            options = { :ein => ein,
+                        :name => name,
+                        :address => row[3].to_s.strip,
+                        :city => row[4].to_s.strip,
+                        :state => row[5].to_s.strip,
+                        :zip => row[6].to_s.strip,
+                        :ntee_code => row[30].to_s.strip,
+                        :subsection_code => row[8].to_s.strip,
+                        :classification_code => row[10].to_s.strip,
+                        :activity_code => row[14].to_s.strip,
+                        :active => 'false'
+                      }
+
+            puts "---Creating Charity with #{options.inspect}" if @@verbose
+            charity = Charity.create_or_update(options)
+            tag_charity(charity)
+          end
         end
       end # end read_excel
 
