@@ -129,9 +129,9 @@ class Api::CharityGroupController < Api::BaseController
     last_donation_price = Share.last.donation_price
     share_balance = charity_group.donations.sum(:shares_added) - charity_group.charity_grants.sum(:shares_subtracted) 
     charity_group_balance = ((share_balance * last_donation_price) * 10).ceil / 10.0
-    share_added = current_donor.donations.sum(:shares_added) - current_donor.charity_grants.sum(:shares_subtracted)
-    my_balance = ((share_added * last_donation_price) * 10).ceil / 10.0
-    render json: {:charity_group_id => charity_group.id, :charity_group_balance => charity_group_balance, :my_balance => my_balance}.to_json
+    my_charity_group_share_balance = current_donor.donations.where("charity_group_id = ?", charity_group.id).sum(:shares_added) - current_donor.charity_grants.where("charity_group_id = ?", charity_group.id).sum(:shares_subtracted)
+    my_charity_group_balance = ((my_charity_group_share_balance * last_donation_price) * 10).ceil / 10.0
+    render json: {:charity_group_id => charity_group.id, :charity_group_balance => charity_group_balance, :my_charity_group_balance => my_charity_group_balance}.to_json
   end
 
 end
