@@ -60,6 +60,19 @@
 
     { "donor_current_balance":"134.22","donor_total_donations":"150.00","donor_total_grants":"68.95", "giv2giv_current_balance": "giv2giv_current_balance":"1283.23","giv2giv_total_donations":"1500.00","giv2giv_total_grants":"742.35" }
 
+5. Show Donor Subscription
+
+    Authorization token in Header *required*. See session #authenticate
+
+    http://localhost:3000/api/donors/subscriptions.json
+
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Afp0PwXb4196VuUbw0e5rg' http://localhost:3000/api/donors/subscriptions.json
+
+    Examples Response:
+
+    [[{"su_102qK22mGsIlOBKnh4ayVkME":{"charity_group_name":"Build Houses","charity_group_donation_amount":20.0,"charity_group_donor_total_donations":20.0,"charity_group_total_donations":20.0,"charity_group_donor_current_balance":20.0,"charity_group_total_balance":20.0,"total_granted_by_donor":0.0,"total_granted_from_charity_group":0.0}}]]
+
+
 ** SESSION MANAGEMENT **
 
 1. Create token / Authenticate
