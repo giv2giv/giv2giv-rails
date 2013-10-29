@@ -56,7 +56,9 @@
 
     curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' http://localhost:3000/api/donors/balance_information.json
 
+    Examples Response:
 
+    { "donor_current_balance":"134.22","donor_total_donations":"150.00","donor_total_grants":"68.95", "giv2giv_current_balance": "giv2giv_current_balance":"1283.23","giv2giv_total_donations":"1500.00","giv2giv_total_grants":"742.35" }
 
 ** SESSION MANAGEMENT **
 
