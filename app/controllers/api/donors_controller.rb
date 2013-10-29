@@ -33,6 +33,7 @@ class Api::DonorsController < Api::BaseController
         subscriptions_hash = [ subscription.stripe_subscription_id => {
         "charity_group_name" => subscription.charity_group.name,
         "charity_group_donation_amount" => subscription.gross_amount,
+        "charity_group_donor_count" => Donation.where("charity_group_id = ?", subscription.charity_group_id).count('donor_id', :distinct => true),
         "charity_group_donor_total_donations" => current_donor.donations.where("charity_group_id = ?", subscription.charity_group_id).sum(:gross_amount),
         "charity_group_total_donations" => Donation.where("charity_group_id = ?", subscription.charity_group_id).sum(:gross_amount),
         "charity_group_donor_current_balance" => ((BigDecimal(current_donor.donations.where("charity_group_id = ?", subscription.charity_group_id).sum(:shares_added)) - BigDecimal(current_donor.charity_grants.sum(:shares_subtracted))) * Share.last.grant_price * 10).ceil / 10.0,
