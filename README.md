@@ -75,9 +75,7 @@ Want to help out? Checkout [giv2giv](http://www.giv2giv.org) and see [Contributi
 
 Check out the [Curl Examples](curl_examples.txt) for examples on how to use the API to build new clients.
 
-## Coming Soon
-
-We hope to get a reference client implementation (beyond the curl example above)
+We also have [Live API Docs](http://giv2giv.github.io/api-docs/) for playing with the API.
 
 ## Contributing
 
