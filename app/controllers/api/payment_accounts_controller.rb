@@ -72,7 +72,7 @@ class Api::PaymentAccountsController < Api::BaseController
 
   def donate_subscription
     respond_to do |format|
-      if current_donor_id && donation = current_donor_id.donate_subscription(params[:amount], params[:charity_group_id], params[:id], current_donor.email)
+      if current_donor_id && donation = current_donor_id.donate_subscription(params[:amount], params[:endowment_id], params[:id], current_donor.email)
         format.json { render json: donation }
       else
         format.json { head :not_found }
@@ -88,7 +88,7 @@ class Api::PaymentAccountsController < Api::BaseController
     end
 
     respond_to do |format|
-      donation = PaymentAccount.one_time_payment(params[:amount].to_i, params[:charity_group_id], params[:email], params[:stripeToken], params[:payment_account_id], password)
+      donation = PaymentAccount.one_time_payment(params[:amount].to_i, params[:endowment_id], params[:email], params[:stripeToken], params[:payment_account_id], password)
       format.json { render json: donation }
     end
   end
@@ -106,12 +106,12 @@ class Api::PaymentAccountsController < Api::BaseController
   def all_donation_list
     if current_donor
       respond_to do |format|
-        if params.has_key?(:start_date) and params.has_key?(:end_date) and params.has_key?(:charity_group_id)
-          format.json { render json: Donation.where("charity_group_id = ? AND DATE(created_at) between ? AND ?", params[:charity_group_id], params[:start_date], params[:end_date]) }   
+        if params.has_key?(:start_date) and params.has_key?(:end_date) and params.has_key?(:endowment_id)
+          format.json { render json: Donation.where("endowment_id = ? AND DATE(created_at) between ? AND ?", params[:endowment_id], params[:start_date], params[:end_date]) }   
         elsif params.has_key?(:start_date) and params.has_key?(:end_date)   
           format.json { render json: Donation.where("DATE(created_at) between ? AND ?", params[:start_date], params[:end_date]) }
-        elsif params.has_key?(:charity_group_id)
-          format.json { render json: Donation.where("charity_group_id = ?", params[:charity_group_id]) }
+        elsif params.has_key?(:endowment_id)
+          format.json { render json: Donation.where("endowment_id = ?", params[:endowment_id]) }
         else
           donor_payment_accounts = current_donor.payment_accounts.all
           donation_data = []

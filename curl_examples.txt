@@ -70,7 +70,7 @@
 
     Examples Response:
 
-    [[{"su_102qK22mGsIlOBKnh4ayVkME":{"charity_group_name":"Build Houses","charity_group_donation_amount":20.0,"charity_group_donor_count":15,"charity_group_donor_total_donations":20.0,"charity_group_total_donations":20.0,"charity_group_donor_current_balance":20.0,"charity_group_total_balance":20.0,"total_granted_by_donor":0.0,"total_granted_from_charity_group":0.0}}]]
+    [[{"su_102qK22mGsIlOBKnh4ayVkME":{"endowment_name":"Build Houses","endowment_donation_amount":20.0,"endowment_donor_count":15,"endowment_donor_total_donations":20.0,"endowment_total_donations":20.0,"endowment_donor_current_balance":20.0,"endowment_total_balance":20.0,"total_granted_by_donor":0.0,"total_granted_from_endowment":0.0}}]]
 
 
 ** SESSION MANAGEMENT **
@@ -144,15 +144,15 @@
 
     name          : required, uniq
     minimum_donation_amount : required
-    charity_group_visibility : required, { 'public' or 'private' }
+    endowment_visibility : required, { 'public' or 'private' }
 
     description  : optional
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"name":"Build Houses","charity_group_visibility":"public", "description":"Your description","minimum_donation_amount":"1"}' http://localhost:3000/api/charity_group.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"name":"Build Houses","endowment_visibility":"public", "description":"Your description","minimum_donation_amount":"1"}' http://localhost:3000/api/endowment.json
 
     Examples Response:
 
-    {"charity_group":{"created_at":"2013-09-20T17:31:13Z","description":"Your description","donor_id":2,"id":2,"minimum_donation_amount":5.0,"name":"Build Houses","updated_at":"2013-09-20T17:31:13Z","charities":[]}}
+    {"endowment":{"created_at":"2013-09-20T17:31:13Z","description":"Your description","donor_id":2,"id":2,"minimum_donation_amount":5.0,"name":"Build Houses","updated_at":"2013-09-20T17:31:13Z","charities":[]}}
 
 2. Add charity to group
 
@@ -164,9 +164,9 @@
 
     {CHARITY_GROUP_ID} : required
 
-    http://localhost:3000/api/charity_group/{CHARITY_GROUP_ID}/add_charity.json
+    http://localhost:3000/api/endowment/{CHARITY_GROUP_ID}/add_charity.json
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"charity_id":"1,24,6,4,3"}' http://localhost:3000/api/charity_group/1/add_charity.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"charity_id":"1,24,6,4,3"}' http://localhost:3000/api/endowment/1/add_charity.json
 
     Examples Response:
 
@@ -182,9 +182,9 @@
 
     {CHARITY_GROUP_ID} : required
 
-    http://localhost:3000/api/charity_group/{CHARITY_GROUP_ID}/remove_charity.json
+    http://localhost:3000/api/endowment/{CHARITY_GROUP_ID}/remove_charity.json
 
-    curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"charity_id":"1"}' http://localhost:3000/api/charity_group/1/remove_charity.json
+    curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"charity_id":"1"}' http://localhost:3000/api/endowment/1/remove_charity.json
 
     Examples Response:
 
@@ -200,13 +200,13 @@
 
     {CHARITY_GROUP_ID} : required
 
-    http://localhost:3000/api/charity_group/{CHARITY_GROUP_ID}/rename_charity_group.json
+    http://localhost:3000/api/endowment/{CHARITY_GROUP_ID}/rename_endowment.json
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}' http://localhost:3000/api/charity_group/1/rename_charity_group.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}' http://localhost:3000/api/endowment/1/rename_endowment.json
 
     Examples Response:
 
-    {"message":"Charity Group has been updated","charity_group":{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}}
+    {"message":"Charity Group has been updated","endowment":{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}}
 
 5. Get a list of charities group
 
@@ -216,11 +216,11 @@
     per page : optional "default 10" << Limit Per Page
     query    : optional "" << Limit the result set to the best matching charity group name, tag name, or associated charity name
 
-    curl -X GET -H "Content-Type: application/json" -d '{"page":"1", "per_page":"10", "query":"Rescue"}' http://localhost:3000/api/charity_group.json
+    curl -X GET -H "Content-Type: application/json" -d '{"page":"1", "per_page":"10", "query":"Rescue"}' http://localhost:3000/api/endowment.json
 
     Examples Response
 
-    [{"charity_group":{"created_at":"2013-09-19T08:52:46Z","description":"My Description","donor_id":2,"id":4,"minimum_donation_amount":3.0,"name":"Giv2Giv Build House","updated_at":"2013-09-19T09:36:01Z","charities":[{"activity_code":"907908000.0","address":"PO BOX 124","city":"MILFORD","classification_code":"1.0","created_at":"2013-09-19T03:42:52Z","description":null,"ein":516022762,"id":4,"name":"AMERICAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-19T03:42:52Z","website":null,"zip":"19963-0124"}]}}]
+    [{"endowment":{"created_at":"2013-09-19T08:52:46Z","description":"My Description","donor_id":2,"id":4,"minimum_donation_amount":3.0,"name":"Giv2Giv Build House","updated_at":"2013-09-19T09:36:01Z","charities":[{"activity_code":"907908000.0","address":"PO BOX 124","city":"MILFORD","classification_code":"1.0","created_at":"2013-09-19T03:42:52Z","description":null,"ein":516022762,"id":4,"name":"AMERICAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-19T03:42:52Z","website":null,"zip":"19963-0124"}]}}]
 
 6. Show charity group data
 
@@ -228,13 +228,13 @@
 
     { CHARITY_GROUP_ID }
 
-    http://localhost:3000/api/charity_group/{ CHARITY_GROUP_ID }.json
+    http://localhost:3000/api/endowment/{ CHARITY_GROUP_ID }.json
 
-    curl -X GET -H "Content-Type: application/json" -d '' http://localhost:3000/api/charity_group/1.json
+    curl -X GET -H "Content-Type: application/json" -d '' http://localhost:3000/api/endowment/1.json
 
     Examples Response
 
-    {"charity_group":{"created_at":"2013-09-19T08:52:46Z","description":"My Description","donor_id":2,"id":4,"minimum_donation_amount":3.0,"name":"Giv2Giv Build House","updated_at":"2013-09-19T09:36:01Z","charities":[{"activity_code":"907908000.0","address":"PO BOX 124","city":"MILFORD","classification_code":"1.0","created_at":"2013-09-19T03:42:52Z","description":null,"ein":516022762,"id":4,"name":"AMERICAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-19T03:42:52Z","website":null,"zip":"19963-0124"}]}}
+    {"endowment":{"created_at":"2013-09-19T08:52:46Z","description":"My Description","donor_id":2,"id":4,"minimum_donation_amount":3.0,"name":"Giv2Giv Build House","updated_at":"2013-09-19T09:36:01Z","charities":[{"activity_code":"907908000.0","address":"PO BOX 124","city":"MILFORD","classification_code":"1.0","created_at":"2013-09-19T03:42:52Z","description":null,"ein":516022762,"id":4,"name":"AMERICAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-19T03:42:52Z","website":null,"zip":"19963-0124"}]}}
 
 3. Show Charity Group Share Balance Information
 
@@ -244,9 +244,9 @@
 
    { CHARITY_GROUP_ID } : required
 
-   http://localhost:3000/api/charity_group/{ CHARITY_GROUP_ID }/share_balance_information.json
+   http://localhost:3000/api/endowment/{ CHARITY_GROUP_ID }/share_balance_information.json
 
-   curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/charity_group/1/share_balance_information.json
+   curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/endowment/1/share_balance_information.json
 
 
 
@@ -338,39 +338,39 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
 P.S : FOR NOW ONLY SUPPORT STRIPE
 
-1.  Add donor subscription to a charity_group
+1.  Add donor subscription to a endowment
 
     Authorization token in Header *required*. See session #authenticate
 
     Arguments :
 
     amount           : required << donation amount
-    charity_group_id : required
+    endowment_id : required
 
     { PAYMENT_ACCOUNT_ID } 
     http://localhost:3000/api/donors/payment_accounts/{ PAYMENT_ACCOUNT_ID }/donate_subscription.json
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"amount":"5", "charity_group_id":"1"}' http://localhost:3000/api/donors/payment_accounts/1/donate_subscription.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"amount":"5", "endowment_id":"1"}' http://localhost:3000/api/donors/payment_accounts/1/donate_subscription.json
 
     Examples Response:
 
-    {"donation":{"amount":5.0,"charity_group_id":1,"created_at":"2013-09-24T04:56:48Z","id":1,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:56:48Z"}}
+    {"donation":{"amount":5.0,"endowment_id":1,"created_at":"2013-09-24T04:56:48Z","id":1,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:56:48Z"}}
 
-2. Show all donations from this donor to 1 or all charity_groups
+2. Show all donations from this donor to 1 or all endowments
 
     Authorization token in Header *required*. See session #authenticate
 
     Arguments :
 
-    charity_group_id 	 : optional
+    endowment_id 	 : optional
     start_date           : optional ( ex : 2013-10-15 )
     end_date             : optional ( ex : 2013-10-17 )
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"charity_group_id":"1", "start_date":"2013-10-15", "end_date":"2013-10-17"}' http://localhost:3000/api/donors/payment_accounts/all_donation_list.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"endowment_id":"1", "start_date":"2013-10-15", "end_date":"2013-10-17"}' http://localhost:3000/api/donors/payment_accounts/all_donation_list.json
 
     Examples Response:
 
-    [{"donation":{"amount":5.0,"charity_group_id":1,"created_at":"2013-09-24T04:56:48Z","id":1,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:56:48Z"}},{"donation":{"amount":5.0,"charity_group_id":1,"created_at":"2013-09-24T06:11:28Z","id":2,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T06:11:28Z"}}]
+    [{"donation":{"amount":5.0,"endowment_id":1,"created_at":"2013-09-24T04:56:48Z","id":1,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:56:48Z"}},{"donation":{"amount":5.0,"endowment_id":1,"created_at":"2013-09-24T06:11:28Z","id":2,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T06:11:28Z"}}]
     
 3. Stop subscribing to one endowment but keep subscription to all others
 
@@ -403,7 +403,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
     Arguments :
 
     amount             : required
-    charity_group_id   : required
+    endowment_id   : required
 
     For registered user    :
     
@@ -416,11 +416,11 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
     email              : optional
     stripeToken        : required if donor is unregistered 
 
-    curl -X POST -H "Content-Type: application/json" -d '{"amount":"5", "charity_group_id":"1", "email":"email@email.com","stripeToken":"tok_102drE2mGsIlOBKnv6SfzVlO"}' http://localhost:3000/api/donors/payment_accounts/one_time_payment.json
+    curl -X POST -H "Content-Type: application/json" -d '{"amount":"5", "endowment_id":"1", "email":"email@email.com","stripeToken":"tok_102drE2mGsIlOBKnv6SfzVlO"}' http://localhost:3000/api/donors/payment_accounts/one_time_payment.json
 
     Examples Response:
 
-   {"donation":{"amount":5.0,"charity_group_id":1,"created_at":"2013-09-24T04:56:48Z","id":1,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:56:48Z"}}
+   {"donation":{"amount":5.0,"endowment_id":1,"created_at":"2013-09-24T04:56:48Z","id":1,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:56:48Z"}}
 
 
 

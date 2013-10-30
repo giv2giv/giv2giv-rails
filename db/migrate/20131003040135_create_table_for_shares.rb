@@ -13,7 +13,7 @@ class CreateTableForShares < ActiveRecord::Migration
 
     create_table :grants do |t|
       t.integer :donor_id
-      t.integer :charity_group_id
+      t.integer :endowment_id
       t.integer :dwolla_transaction_id
       t.date :date
       t.float :shares_subtracted

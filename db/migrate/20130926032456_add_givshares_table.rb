@@ -1,7 +1,7 @@
 class AddGivsharesTable < ActiveRecord::Migration
     def change
     create_table :givshares do |t|
-      t.integer :charity_group_id, null: false
+      t.integer :endowment_id, null: false
       t.float :stripe_balance
       t.float :etrade_balance
       t.float :shares_outstanding_beginning

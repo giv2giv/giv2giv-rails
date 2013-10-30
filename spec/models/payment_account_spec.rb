@@ -73,8 +73,8 @@ describe PaymentAccount do
   describe "donate" do
     it "should raise an exception if payment account is not valid" do
       PaymentAccount.any_instance.stub(:valid?).and_return(true)
-      CharityGroup.stub(:find).and_return(nil)
-      expect {@pa.donate(1, 1)}.to raise_error(CharityGroupInvalid)
+      Endowment.stub(:find).and_return(nil)
+      expect {@pa.donate(1, 1)}.to raise_error(EndowmentInvalid)
     end
 
     it "should raise an exception if charity group is not valid" do
@@ -94,7 +94,7 @@ describe PaymentAccount do
       pa = d.payment_accounts.build(:processor => processor, :token => token)
       pa.should be_valid
 
-      CharityGroup.stub(:find).and_return(OpenStruct.new(:id => 1))
+      Endowment.stub(:find).and_return(OpenStruct.new(:id => 1))
       App.should_receive(:dwolla).at_least(2).times.and_return({'account_id' => 540})
       expected_call = {:destinationId => App.dwolla['account_id'], :amount => amount.to_f, :pin => pa.pin}
       Dwolla::Transactions.should_receive(:send).with(expected_call).and_return(transaction_id)

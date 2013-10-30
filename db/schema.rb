@@ -36,14 +36,14 @@ ActiveRecord::Schema.define(:version => 20131007093623) do
 
   add_index "charities", ["ein"], :name => "index_charities_on_ein"
 
-  create_table "charities_charity_groups", :id => false, :force => true do |t|
-    t.integer "charity_group_id", :null => false
+  create_table "charities_endowments", :id => false, :force => true do |t|
+    t.integer "endowment_id", :null => false
     t.integer "charity_id",       :null => false
   end
 
-  add_index "charities_charity_groups", ["charity_group_id", "charity_id"], :name => "charity_groups_charities_compound"
-  add_index "charities_charity_groups", ["charity_group_id"], :name => "index_charities_charity_groups_on_charity_group_id"
-  add_index "charities_charity_groups", ["charity_id"], :name => "index_charities_charity_groups_on_charity_id"
+  add_index "charities_endowments", ["endowment_id", "charity_id"], :name => "endowments_charities_compound"
+  add_index "charities_endowments", ["endowment_id"], :name => "index_charities_endowments_on_endowment_id"
+  add_index "charities_endowments", ["charity_id"], :name => "index_charities_endowments_on_charity_id"
 
   create_table "charities_tags", :id => false, :force => true do |t|
     t.integer "charity_id", :null => false
@@ -52,19 +52,19 @@ ActiveRecord::Schema.define(:version => 20131007093623) do
 
   add_index "charities_tags", ["charity_id", "tag_id"], :name => "index_charities_tags_on_charity_id_and_tag_id", :unique => true
 
-  create_table "charity_groups", :force => true do |t|
+  create_table "endowments", :force => true do |t|
     t.string   "name",                     :null => false
     t.string   "description"
     t.float    "minimum_donation_amount"
     t.datetime "created_at",               :null => false
     t.datetime "updated_at",               :null => false
     t.integer  "donor_id"
-    t.string   "charity_group_visibility"
+    t.string   "endowment_visibility"
   end
 
   create_table "donations", :force => true do |t|
     t.float    "amount",                :null => false
-    t.integer  "charity_group_id",      :null => false
+    t.integer  "endowment_id",      :null => false
     t.integer  "payment_account_id",    :null => false
     t.string   "transaction_id"
     t.string   "transaction_processor", :null => false
@@ -75,7 +75,7 @@ ActiveRecord::Schema.define(:version => 20131007093623) do
     t.integer  "donor_id"
   end
 
-  add_index "donations", ["charity_group_id"], :name => "index_donations_on_charity_group_id"
+  add_index "donations", ["endowment_id"], :name => "index_donations_on_endowment_id"
   add_index "donations", ["payment_account_id"], :name => "index_donations_on_payment_account_id"
 
   create_table "donors", :force => true do |t|
@@ -111,7 +111,7 @@ ActiveRecord::Schema.define(:version => 20131007093623) do
 
   create_table "grants", :force => true do |t|
     t.integer  "donor_id"
-    t.integer  "charity_group_id"
+    t.integer  "endowment_id"
     t.date     "date"
     t.float    "shares_subtracted"
     t.datetime "created_at",              :null => false

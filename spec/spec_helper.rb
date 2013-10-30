@@ -66,12 +66,12 @@ def default_payment_account
   pa
 end
 
-def default_charity_group
-  @default_cg ||= CharityGroup.find('name: Kendal', :type => :fulltext) || create_defalt_charity_group
+def default_endowment
+  @default_cg ||= Endowment.find('name: Kendal', :type => :fulltext) || create_defalt_endowment
 end
 
-def create_defalt_charity_group
-  cg = CharityGroup.new(:name => 'Kendal')
+def create_defalt_endowment
+  cg = Endowment.new(:name => 'Kendal')
   cg.charities << default_charity_1
   cg.save
   cg

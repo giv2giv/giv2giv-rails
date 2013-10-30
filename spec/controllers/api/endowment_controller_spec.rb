@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe Api::CharityGroupController do
+describe Api::EndowmentController do
 
   before(:each) do
-   @cg = default_charity_group
+   @cg = default_endowment
   end
 
   describe "index" do
@@ -11,7 +11,7 @@ describe Api::CharityGroupController do
       get :index, :format => :json
       response.status.should == 200
       resp = JSON.parse(response.body)
-      charity = resp.select { |char| char['name'] == default_charity_group.name }
+      charity = resp.select { |char| char['name'] == default_endowment.name }
       charity.should_not be_nil
     end
 
@@ -24,13 +24,13 @@ describe Api::CharityGroupController do
 
   describe "create" do
     it "should require prior authentication" do
-      post :create, :format => :json, :charity_group => {}
+      post :create, :format => :json, :endowment => {}
       response.status.should == 401
     end
 
     it "should include errors on failure" do
       setup_authenticated_session
-      post :create, :format => :json, :charity_group => {}
+      post :create, :format => :json, :endowment => {}
       response.status.should == 422
       resp = JSON.parse(response.body)
       resp['name'].should_not be_blank
@@ -39,7 +39,7 @@ describe Api::CharityGroupController do
 
     it "should work" do
       setup_authenticated_session
-      post :create, :format => :json, :charity_group => { :name => 'Something', :charity_ids => [default_charity_1.id] }
+      post :create, :format => :json, :endowment => { :name => 'Something', :charity_ids => [default_charity_1.id] }
       response.status.should == 201
       resp = JSON.parse(response.body)
       resp['id'].should_not be_blank
@@ -70,14 +70,14 @@ describe Api::CharityGroupController do
     it "should not be found" do
       setup_authenticated_session
       id = 12354
-      CharityGroup.find(id).should be_nil
+      Endowment.find(id).should be_nil
       get :show, :format => :json, :id => id
       response.status.should == 404
     end
   end # end show
 
   describe "add_charity" do
-    it "should create an empty charity_group and add a charity to it" do
+    it "should create an empty endowment and add a charity to it" do
       setup_authenticated_session
 
       c = Charity.first
@@ -86,7 +86,7 @@ describe Api::CharityGroupController do
       new_charity.name.should == c.name
     end
 
-    it "should not add a charity because the charity_group already has donations" do
+    it "should not add a charity because the endowment already has donations" do
       setup_authenticated_session
       c = Charity.new(:name => "test charity", :ein =>"8383838383838")
       c.save
@@ -97,7 +97,7 @@ describe Api::CharityGroupController do
       puts c.attributes
 =end
       donation = @cg.donations.build(:amount => 50,
-                                     :charity_group_id => @cg.id)
+                                     :endowment_id => @cg.id)
       donation.save(false)
 
       post :add_charity, :format => :json, :id => @cg.id, :charity_id => c.id
@@ -115,22 +115,22 @@ describe Api::CharityGroupController do
 
   end #add_charity
 
-  describe "rename_charity_group" do
-    it "should rename a charity_group" do
+  describe "rename_endowment" do
+    it "should rename a endowment" do
       setup_authenticated_session
-      post :rename_charity_group, :format => :json, :id => @cg.id, :new_name => "some new name"
+      post :rename_endowment, :format => :json, :id => @cg.id, :new_name => "some new name"
       @cg.reload
       @cg.name.should == "some new name"
     end
 
-    it "should fail because charity_group already has donations" do
+    it "should fail because endowment already has donations" do
       setup_authenticated_session
 
       donation = @cg.donations.build(:amount => 50,
-                                     :charity_group_id => @cg.id)
+                                     :endowment_id => @cg.id)
       donation.save(false)
 
-      post :rename_charity_group, :format => :json, :id => @cg.id, :new_name => "some new name"
+      post :rename_endowment, :format => :json, :id => @cg.id, :new_name => "some new name"
       @cg.reload
       @cg.name.should == "Kendal"
 

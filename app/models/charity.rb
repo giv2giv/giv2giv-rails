@@ -1,6 +1,6 @@
 class Charity < ActiveRecord::Base
 
-  has_and_belongs_to_many :charity_groups
+  has_and_belongs_to_many :endowments
   has_and_belongs_to_many :tags
   has_many :charity_grants, dependent: :destroy
   

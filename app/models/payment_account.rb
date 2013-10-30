@@ -32,21 +32,21 @@ class PaymentAccount < ActiveRecord::Base
       end
     end
 
-  def one_time_payment(amount, charity_group_id, email = nil, stripeToken = nil, payment_account_id = nil, password = nil)
-    raise CharityGroupInvalid unless CharityGroup.find(charity_group_id)
+  def one_time_payment(amount, endowment_id, email = nil, stripeToken = nil, payment_account_id = nil, password = nil)
+    raise EndowmentInvalid unless Endowment.find(endowment_id)
 
-    charity_group = CharityGroup.find(charity_group_id)
-    num_of_charity = charity_group.charities.count
+    endowment = Endowment.find(endowment_id)
+    num_of_charity = endowment.charities.count
     check_donor = Donor.find_by_email(email)
     amount = amount.to_i
 
-    if (charity_group.charity_group_visibility.eql?("private")) and (check_donor.id != charity_group.donor_id)
+    if (endowment.endowment_visibility.eql?("private")) and (check_donor.id != endowment.donor_id)
       { :message => "Sorry! You cannot make a donation to a private charity group" }.to_json
     else
 
       if num_of_charity > 0
-        if amount < charity_group.minimum_donation_amount.to_i
-          { :message => "Minimum amount for create donation $#{charity_group.minimum_donation_amount}" }.to_json
+        if amount < endowment.minimum_donation_amount.to_i
+          { :message => "Minimum amount for create donation $#{endowment.minimum_donation_amount}" }.to_json
         else
           random_password = SecureRandom.hex(10)
           random_name = SecureRandom.hex(10)
@@ -85,7 +85,7 @@ class PaymentAccount < ActiveRecord::Base
                     cust_charge = Stripe::Charge.create(
                                                         :amount => amount * 100,
                                                         :currency => "usd",
-                                                        :description => "giv2giv.org donation to #{CharityGroup.find(charity_group_id).name}",
+                                                        :description => "giv2giv.org donation to #{Endowment.find(endowment_id).name}",
                                                         :customer => payment.stripe_cust_id,
                                                        )
                   rescue Stripe::CardError => e
@@ -97,7 +97,7 @@ class PaymentAccount < ActiveRecord::Base
 
                   subscription = donor.donor_subscriptions.build(:donor_id => donor.id,
                                                                 :payment_account_id => payment.id,
-                                                                :charity_group_id => charity_group_id,
+                                                                :endowment_id => endowment_id,
                                                                 :stripe_subscription_id => cust_charge.id,
                                                                 :type_subscription => "one_time_payment",
                                                                 :gross_amount => amount
@@ -123,13 +123,13 @@ class PaymentAccount < ActiveRecord::Base
               cust_charge = Stripe::Charge.create(
                                           :amount => amount * 100,
                                           :currency => "usd",
-                                          :description => "giv2giv.org donation to #{CharityGroup.find(charity_group_id).name}",
+                                          :description => "giv2giv.org donation to #{Endowment.find(endowment_id).name}",
                                           :customer => check_donor.payment_accounts.last.stripe_cust_id
                                          )
 
               subscription = donor.donor_subscriptions.build(:donor_id => donor.id,
                                                              :payment_account_id => check_donor.payment_accounts.last.id,
-                                                             :charity_group_id => charity_group_id,
+                                                             :endowment_id => endowment_id,
                                                              :stripe_subscription_id => cust_charge.id,
                                                              :type_subscription => "one_time_payment",
                                                              :gross_amount => amount
@@ -148,7 +148,7 @@ class PaymentAccount < ActiveRecord::Base
                 cust_charge = Stripe::Charge.create(
                                                   :amount => amount * 100,
                                                   :currency => "usd",
-                                                  :description => "giv2giv.org donation to #{CharityGroup.find(charity_group_id).name}",
+                                                  :description => "giv2giv.org donation to #{Endowment.find(endowment_id).name}",
                                                   :customer => cust_id.stripe_cust_id
                                                  )
               rescue Stripe::CardError => e
@@ -160,7 +160,7 @@ class PaymentAccount < ActiveRecord::Base
 
               subscription = check_donor.donor_subscriptions.build(:donor_id => check_donor.id,
                                                              :payment_account_id => cust_id.id,
-                                                             :charity_group_id => charity_group_id,
+                                                             :endowment_id => endowment_id,
                                                              :stripe_subscription_id => cust_charge.id,
                                                              :type_subscription => "one_time_payment",
                                                              :gross_amount => amount
@@ -243,25 +243,25 @@ class PaymentAccount < ActiveRecord::Base
 
   end # end self
 
-  def donate_subscription(amount, charity_group_id, payment_id, email)
+  def donate_subscription(amount, endowment_id, payment_id, email)
 
     raise PaymentAccountInvalid unless self.valid?
-    raise CharityGroupInvalid unless CharityGroup.find(charity_group_id)
+    raise EndowmentInvalid unless Endowment.find(endowment_id)
 
     payment_donor = PaymentAccount.find(payment_id)
-    charity_group = CharityGroup.find(charity_group_id)
-    num_of_charity = charity_group.charities.count
+    endowment = Endowment.find(endowment_id)
+    num_of_charity = endowment.charities.count
     check_donor = Donor.find(payment_donor.donor_id)
     amount = amount.to_i
 
-    if (charity_group.charity_group_visibility.eql?("private")) and (payment_donor.donor_id != charity_group.donor_id)
+    if (endowment.endowment_visibility.eql?("private")) and (payment_donor.donor_id != endowment.donor_id)
       { :message => "Sorry! You cannot make a donation to a private charity group" }.to_json
     else
 
       if check_donor
         if num_of_charity > 0
-          if amount < charity_group.minimum_donation_amount.to_i
-            { :message => "Minimum amount for create donation $#{charity_group.minimum_donation_amount}" }.to_json
+          if amount < endowment.minimum_donation_amount.to_i
+            { :message => "Minimum amount for create donation $#{endowment.minimum_donation_amount}" }.to_json
           else
 
             begin
@@ -280,7 +280,7 @@ class PaymentAccount < ActiveRecord::Base
 
             subscription = donor.donor_subscriptions.build(:donor_id => donor.id,
                                              :payment_account_id => payment_id,
-                                             :charity_group_id => charity_group_id,
+                                             :endowment_id => endowment_id,
                                              :stripe_subscription_id => id_subscription.id,
                                              :type_subscription => "per-month",
                                              :gross_amount => amount

@@ -1,4 +1,4 @@
-class Api::CharityGroupController < Api::BaseController
+class Api::EndowmentController < Api::BaseController
 
   skip_before_filter :require_authentication, :only => [:index, :show]
 
@@ -7,7 +7,7 @@ class Api::CharityGroupController < Api::BaseController
     perpage = params[:per_page] || 10
     query = params[:query] || ""
 
-    charity_groups = []
+    endowments = []
     charities = []
     tags = Tag.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ])
     tags.each do |tag|
@@ -17,14 +17,14 @@ class Api::CharityGroupController < Api::BaseController
     end
 
     charities.each do |c|
-      charity_groups << c.charity_groups
+      endowments << c.endowments
     end
 
-    CharityGroup.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ]).each do |cg|
-      charity_groups << cg
+    Endowment.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ]).each do |cg|
+      endowments << cg
     end
     
-    results = charity_groups.compact.flatten.uniq.paginate(:page => page, :per_page => perpage)
+    results = endowments.compact.flatten.uniq.paginate(:page => page, :per_page => perpage)
     respond_to do |format|
       if !results.empty?
         format.json { render json: results }
@@ -36,7 +36,7 @@ class Api::CharityGroupController < Api::BaseController
   end
 
   def create
-    group = CharityGroup.new_with_charities(params[:charity_group])
+    group = Endowment.new_with_charities(params[:endowment])
     group.donor_id = current_session.session_id
     respond_to do |format|
       if group.save
@@ -48,7 +48,7 @@ class Api::CharityGroupController < Api::BaseController
   end
 
   def show
-    group = CharityGroup.find(params[:id])
+    group = Endowment.find(params[:id])
 
     respond_to do |format|
       if group
@@ -59,15 +59,15 @@ class Api::CharityGroupController < Api::BaseController
     end
   end
 
-  def rename_charity_group
-    group = CharityGroup.find(params[:id])
+  def rename_endowment
+    group = Endowment.find(params[:id])
     if (group.donor_id.to_s.eql?(current_session.session_id))
       respond_to do |format|
         if group.donations.size >= 1
           format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
         else
-          group.update_attributes(params[:charity_group])
-          format.json { render json: { :message => "Charity Group has been updated", :charity_group => params[:charity_group] }.to_json }
+          group.update_attributes(params[:endowment])
+          format.json { render json: { :message => "Charity Group has been updated", :endowment => params[:endowment] }.to_json }
         end
       end
     else
@@ -76,7 +76,7 @@ class Api::CharityGroupController < Api::BaseController
   end
 
   def add_charity
-    group = CharityGroup.find(params[:id])
+    group = Endowment.find(params[:id])
     
     if (group.donor_id.to_s.eql?(current_session.session_id))
       respond_to do |format|
@@ -93,7 +93,7 @@ class Api::CharityGroupController < Api::BaseController
   end
 
   def remove_charity
-    group = CharityGroup.find(params[:id])
+    group = Endowment.find(params[:id])
     if (group.donor_id.to_s.eql?(current_session.session_id))
       respond_to do |format|
         if group.donations.size < 1 
@@ -109,7 +109,7 @@ class Api::CharityGroupController < Api::BaseController
   end
 
   def destroy
-    group = CharityGroup.find(params[:id])
+    group = Endowment.find(params[:id])
     if (group.donor_id.to_s.eql?(current_session.session_id))
       respond_to do |format|
         if group.donations.size < 1
@@ -125,13 +125,13 @@ class Api::CharityGroupController < Api::BaseController
   end 
 
   def share_balance_information
-    charity_group = CharityGroup.find(params[:id])
+    endowment = Endowment.find(params[:id])
     last_donation_price = Share.last.donation_price
-    share_balance = charity_group.donations.sum(:shares_added) - charity_group.charity_grants.sum(:shares_subtracted) 
-    charity_group_balance = ((share_balance * last_donation_price) * 10).ceil / 10.0
-    my_charity_group_share_balance = current_donor.donations.where("charity_group_id = ?", charity_group.id).sum(:shares_added) - current_donor.charity_grants.where("charity_group_id = ?", charity_group.id).sum(:shares_subtracted)
-    my_charity_group_balance = ((my_charity_group_share_balance * last_donation_price) * 10).ceil / 10.0
-    render json: {:charity_group_id => charity_group.id, :charity_group_balance => charity_group_balance, :my_charity_group_balance => my_charity_group_balance}.to_json
+    share_balance = endowment.donations.sum(:shares_added) - endowment.charity_grants.sum(:shares_subtracted) 
+    endowment_balance = ((share_balance * last_donation_price) * 10).ceil / 10.0
+    my_endowment_share_balance = current_donor.donations.where("endowment_id = ?", endowment.id).sum(:shares_added) - current_donor.charity_grants.where("endowment_id = ?", endowment.id).sum(:shares_subtracted)
+    my_endowment_balance = ((my_endowment_share_balance * last_donation_price) * 10).ceil / 10.0
+    render json: {:endowment_id => endowment.id, :endowment_balance => endowment_balance, :my_endowment_balance => my_endowment_balance}.to_json
   end
 
 end

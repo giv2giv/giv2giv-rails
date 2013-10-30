@@ -5,7 +5,7 @@ class AddShareTotalAndGrantToGivshares < ActiveRecord::Migration
     add_column :givshares, :donor_grant, :float
     add_column :givshares, :is_grant, :integer
     add_column :givshares, :etrade_adjustment, :float
-    add_column :givshares, :charity_group_balance, :float
+    add_column :givshares, :endowment_balance, :float
     add_column :givshares, :count, :integer
   end
 end

@@ -42,11 +42,11 @@ class Api::BalancesController < Api::BaseController
     pending_grants = DonorGrant.where("status = ?", "pending")
     total_giv2giv_fee = 0.0
 
-    total_grant_shares = charity_groups_grant.sum(:shares_pending)
+    total_grant_shares = endowments_grant.sum(:shares_pending)
 
-    pending_grants.group(:donor_id).each do |charity_group_grant|
+    pending_grants.group(:donor_id).each do |endowment_grant|
       grant_amount = ((BigDecimal("#{total_grant_shares}") * BigDecimal("#{Share.last.grant_price}")).to_f * 10).ceil / 10.0
-      DonorMailer.charity_group_grant_money(charity_group_grant.donor.email, charity_group_grant.donor.name, grant_amount).deliver
+      DonorMailer.endowment_grant_money(endowment_grant.donor.email, endowment_grant.donor.name, grant_amount).deliver
     end
 
     pending_grants.group(:charity_id).each do |pending_grant| 
@@ -78,7 +78,7 @@ class Api::BalancesController < Api::BaseController
       sent_grant = CharityGrant.new(
                                     :date => Date.today,
                                     :charity_id => pending_grant.charity_id,
-                                    :charity_group_id => pending_grant.charity_group_id,
+                                    :endowment_id => pending_grant.endowment_id,
                                     :donor_id => pending_grant.donor_id,
                                     :transaction_id => transaction_id,
                                     :transaction_fee => dwolla_fee,

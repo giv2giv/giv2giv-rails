@@ -63,23 +63,23 @@ module CalculationShare
         etrade_balance = get_etrade_balance
         givbalance = stripe_balance + etrade_balance
         
-        charity_groups = CharityGroup.all
+        endowments = Endowment.all
 
-        charity_groups.each do |charity_group|
+        endowments.each do |endowment|
 
-          charity_group_share_balance = BigDecimal("#{charity_group.donations.sum(:shares_added)}") - BigDecimal("#{charity_group.charity_grants.sum(:shares_subtracted)}")
-          charity_group_grant_shares = (BigDecimal("#{charity_group_share_balance}") * BigDecimal("#{GIV_GRANT_AMOUNT}")).round(SHARE_PRECISION)
-          charity_grant_shares = (BigDecimal("#{charity_group_grant_shares}") / BigDecimal("#{charity_group.charities.count}")).round(SHARE_PRECISION)
+          endowment_share_balance = BigDecimal("#{endowment.donations.sum(:shares_added)}") - BigDecimal("#{endowment.charity_grants.sum(:shares_subtracted)}")
+          endowment_grant_shares = (BigDecimal("#{endowment_share_balance}") * BigDecimal("#{GIV_GRANT_AMOUNT}")).round(SHARE_PRECISION)
+          charity_grant_shares = (BigDecimal("#{endowment_grant_shares}") / BigDecimal("#{endowment.charities.count}")).round(SHARE_PRECISION)
 
-          charity_group_donors = charity_group.donations
-          charities = charity_group.charities
+          endowment_donors = endowment.donations
+          charities = endowment.charities
 
           charities.each do |charity|
             if charity.active.eql?("true")
-              charity_group_donors.each do |charity_group_donor|
+              endowment_donors.each do |endowment_donor|
                 grant_record = DonorGrant.new(
-                                        :donor_id => charity_group_donor.donor.id,
-                                        :charity_group_id => charity_group.id,
+                                        :donor_id => endowment_donor.donor.id,
+                                        :endowment_id => endowment.id,
                                         :charity_id => charity.id,
                                         :date => Date.today,
                                         :shares_pending => charity_grant_shares,
@@ -89,7 +89,7 @@ module CalculationShare
               end # end .each do |donor|
             end # charity.status = active
           end # end charities.each do |charity|
-        end # end charity_groups.each do |charity_group|
+        end # end endowments.each do |endowment|
         puts "Grant share has been updated"
       end
 

@@ -19,7 +19,7 @@ class InitialMigration < ActiveRecord::Migration
     add_index :charities, :ein
 
 
-    create_table :charity_groups do |t|
+    create_table :endowments do |t|
       t.string :name, null: false
       t.string :description
       t.float :minimum_donation_amount
@@ -29,14 +29,14 @@ class InitialMigration < ActiveRecord::Migration
 
     create_table :donations do |t|
       t.float :amount, null: false
-      t.integer :charity_group_id, null: false
+      t.integer :endowment_id, null: false
       t.integer :payment_account_id, null: false
       t.string :transaction_id, null: false
       t.string :transaction_processor, null: false
       t.timestamps
     end
 
-    add_index :donations, :charity_group_id
+    add_index :donations, :endowment_id
     add_index :donations, :payment_account_id
 
 
@@ -67,14 +67,14 @@ class InitialMigration < ActiveRecord::Migration
     add_index :payment_accounts, :donor_id
 
 
-    create_table :charities_charity_groups, id: false do |t|
-      t.integer :charity_group_id, null: false
+    create_table :charities_endowments, id: false do |t|
+      t.integer :endowment_id, null: false
       t.integer :charity_id, null: false
     end
 
-    add_index :charities_charity_groups, [:charity_group_id, :charity_id], name: :charity_groups_charities_compound
-    add_index :charities_charity_groups, :charity_group_id
-    add_index :charities_charity_groups, :charity_id
+    add_index :charities_endowments, [:endowment_id, :charity_id], name: :endowments_charities_compound
+    add_index :charities_endowments, :endowment_id
+    add_index :charities_endowments, :charity_id
 
   end
 end

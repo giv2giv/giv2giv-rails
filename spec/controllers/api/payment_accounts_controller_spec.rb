@@ -140,7 +140,7 @@ describe Api::PaymentAccountsController do
       cgi = 1
       setup_authenticated_session
       PaymentAccount.any_instance.stub(:donate).with(amount.to_s, cgi.to_s).and_return({})
-      post :donate,:format => :json, :id => @pa.id, :payment_account => {:amount => amount, :charity_group_id => cgi}
+      post :donate,:format => :json, :id => @pa.id, :payment_account => {:amount => amount, :endowment_id => cgi}
       response.status.should == 200
     end
 
@@ -154,11 +154,11 @@ describe Api::PaymentAccountsController do
 
     it "should render exception" do
       setup_authenticated_session
-      PaymentAccount.any_instance.stub(:donate).and_raise(CharityGroupInvalid)
-      post :donate,:format => :json, :id => @pa.id, :payment_account => {:amount => 10, :charity_group_id => 1}
+      PaymentAccount.any_instance.stub(:donate).and_raise(EndowmentInvalid)
+      post :donate,:format => :json, :id => @pa.id, :payment_account => {:amount => 10, :endowment_id => 1}
       response.status.should == 400
       resp = JSON.parse(response.body)
-      resp['message'].should == 'CharityGroupInvalid'
+      resp['message'].should == 'EndowmentInvalid'
     end
   end # end donate
 end

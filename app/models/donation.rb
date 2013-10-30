@@ -1,6 +1,6 @@
 class Donation < ActiveRecord::Base
   belongs_to :payment_account
-  belongs_to :charity_group
+  belongs_to :endowment
   belongs_to :donor
   
   with_options :presence => true do |donation|
@@ -30,7 +30,7 @@ class Donation < ActiveRecord::Base
       buy_shares = (BigDecimal("#{net_amount}") / BigDecimal("#{per_share}"))
       donation = Donation.new(
                              :gross_amount => gross_amount,
-                             :charity_group_id => donor_subscription.charity_group_id,
+                             :endowment_id => donor_subscription.endowment_id,
                              :payment_account_id => donor_subscription.payment_account_id,
                              :shares_added => buy_shares,
                              :donor_id => donor_subscription.donor_id,

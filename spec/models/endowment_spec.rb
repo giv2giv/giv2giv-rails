@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe CharityGroup do
+describe Endowment do
 
   before(:each) do
-    @cg = CharityGroup.new
+    @cg = Endowment.new
   end
 
   describe "validations" do
@@ -17,7 +17,7 @@ describe CharityGroup do
 
     it "should have an unique name" do
       name = 'Greetings'
-      cg = CharityGroup.new(:name => name)
+      cg = Endowment.new(:name => name)
       cg.charities << default_charity_1
       cg.should be_valid
       cg.save
@@ -44,27 +44,27 @@ describe CharityGroup do
 
   describe "create_with_charities" do
     it "should show errors on charity group and charities" do
-      cg = CharityGroup.new_with_charities({})
-      cg.should be_an_instance_of CharityGroup
+      cg = Endowment.new_with_charities({})
+      cg.should be_an_instance_of Endowment
       cg.should_not be_valid
       cg.should have(1).error_on(:charities)
       cg.should have(1).error_on(:name)
     end
 
     it "should show errors on charities" do
-      cg = CharityGroup.new_with_charities({:name => 'Char'})
+      cg = Endowment.new_with_charities({:name => 'Char'})
       cg.should_not be_valid
       cg.should have(1).error_on(:charities)
     end
 
     it "should show errors on name" do
-      cg = CharityGroup.new_with_charities({:charity_ids => [default_charity_1.id]})
+      cg = Endowment.new_with_charities({:charity_ids => [default_charity_1.id]})
       cg.should_not be_valid
       cg.should have(1).error_on(:name)
     end
 
     it "should create associations" do
-      cg = CharityGroup.new_with_charities({:name => 'valid name', :charity_ids => [default_charity_1.id, default_charity_2.id]})
+      cg = Endowment.new_with_charities({:name => 'valid name', :charity_ids => [default_charity_1.id, default_charity_2.id]})
       cg.reload
       cg.should be_valid
       cg.charities.should include(default_charity_1)
@@ -76,7 +76,7 @@ describe CharityGroup do
   describe "add_charity" do
     it "should add a charity" do
       c = default_charity_2
-      cg = CharityGroup.new_with_charities( {:name => 'new charity', :charity_ids => [default_charity_1.id]} )
+      cg = Endowment.new_with_charities( {:name => 'new charity', :charity_ids => [default_charity_1.id]} )
       cg.save
       cg.add_charity( c.id )
       test_charity = cg.charities.find( c.id )
@@ -84,7 +84,7 @@ describe CharityGroup do
     end 
 
     it "should fail because charity does not exist" do
-      cg = CharityGroup.new_with_charities( {:name => 'new charity', :charity_ids => [default_charity_1.id]} )
+      cg = Endowment.new_with_charities( {:name => 'new charity', :charity_ids => [default_charity_1.id]} )
       expect { cg.add_charity("38388834435652626") }.to raise_error
     end
 

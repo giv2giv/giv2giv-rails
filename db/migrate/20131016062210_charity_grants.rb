@@ -2,7 +2,7 @@ class CharityGrants < ActiveRecord::Migration
   def change
     create_table :charity_grants do |t|
       t.integer   :charity_id
-      t.integer   :charity_group_id
+      t.integer   :endowment_id
       t.integer   :donor_id
       t.float   :shares_subtracted
       t.integer   :transaction_id

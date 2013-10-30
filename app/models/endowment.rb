@@ -1,4 +1,4 @@
-class CharityGroup < ActiveRecord::Base
+class Endowment < ActiveRecord::Base
 
   VALID_TYPE = %w(public private)
 
@@ -10,12 +10,12 @@ class CharityGroup < ActiveRecord::Base
 
   validates :name, :presence => true, :uniqueness => { :case_sensitive => false }
   validates :minimum_donation_amount, :presence => true, :format => { :with => /^\d+??(?:\.\d{0,2})?$/ }, :numericality => {:greater_than => 0}
-  validates :charity_group_visibility, :presence => true, :inclusion => { :in => VALID_TYPE }
+  validates :endowment_visibility, :presence => true, :inclusion => { :in => VALID_TYPE }
 
   class << self
     def new_with_charities(options = {})
       charity_ids = options.delete(:charity_ids) || []
-      group = CharityGroup.new(options)
+      group = Endowment.new(options)
 
       group.charities << Charity.find(charity_ids)
 
@@ -35,7 +35,7 @@ class CharityGroup < ActiveRecord::Base
   end
 
   def remove_charity(group_id, charity_id)
-    group = CharityGroup.find(group_id)
+    group = Endowment.find(group_id)
     charity = group.charities.find(charity_id)
     group.charities.delete(charity)
   end
