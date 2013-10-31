@@ -2,7 +2,7 @@ module EtradeHelper
   require 'oauth'
   require 'nokogiri'
   include OAuth::Helper
-  
+
   CUST_KEY = App.etrade["oauth_consumer_key"]
   CUST_SECRET = App.etrade["consumer_secret"]
   SITE = "https://etws.etrade.com"
@@ -81,4 +81,104 @@ module EtradeHelper
     end
   end
 
+  def preview_order(action,symbol,quantity,transaction_id)
+  #action should be BUY or SELL
+  #clientOrderId is internal only it should be transaction_id
+  #priceType can be changed to limit but then would require a limit price
+    account_id = EtradeHelper.get_account_id
+    builder = Nokogiri::XML::Builder.new do |xml|
+      xml.PlaceEquityOrder('xmlns' => 'http://order.etws.etrade.com') {
+        xml.EquityOrderRequest {
+          xml.accountId "#{account_id}"
+          xml.limitPrice
+          xml.previewId
+          xml.stopPrice
+          xml.allOrNone
+          xml.quantity "#{quantity}"
+          xml.reserveOrder
+          xml.reserveQuantity
+          xml.symbol "#{symbol}"
+          xml.orderAction "#{action}"
+          xml.priceType "MARKET"
+          xml.routingDestination
+          xml.marketSession "REGULAR"
+          xml.orderTerm "GOOD_FOR_DAY"
+          xml.clientOrderId "#{transaction_id}"
+        }
+      }
+    end
+    xml = builder.to_xml
+    site = REQUEST_SITE+"/order/sandbox/rest/previewequityorder"
+    return preview_reponse = Net::HTTP.post_form(URI.parse(site), xml)
+  end
+  <PreviewEquityOrderResponse>
+   <equityOrderResponse>
+     <accountId>83405188</accountId>
+     <allOrNone>false</allOrNone>
+     <estimatedCommission>7.99</estimatedCommission>
+     <estimatedTotalAmount>795.99</estimatedTotalAmount>
+     <messageList>
+       <message>
+         <msgDesc>You have an existing open order for this security on the same
+           side of the market. If you did not intend to place a second order
+           for this security, please modify your order now.
+         </msgDesc>
+         <msgCode>1042</msgCode>
+       </message>
+     </messageList>
+     <previewTime>1269428745346</previewTime>
+     <previewId>449548380022</previewId>
+     <quantity>4</quantity>
+     <reserveOrder>false</reserveOrder>
+     <reserveQuantity>0</reserveQuantity>
+     <orderTerm>GOOD_FOR_DAY</orderTerm>
+     <limitPrice>0</limitPrice>
+     <stopPrice>197</stopPrice>
+     <symbolDesc>INTERNATIONAL BUSINESS MACHS COM</symbolDesc>
+     <symbol>IBM</symbol>
+     <orderAction>BUY</orderAction>
+     <priceType>STOP</priceType>
+   </equityOrderResponse>
+ </PreviewEquityOrderResponse>
+
+  def order(action,symbol,quantity,transaction_id)
+  #action should be BUY or SELL
+  #clientOrderId is internal only it should be transaction_id
+  #priceType can be changed to limit but then would require a limit price
+  preview_reponse = EtradeHelper.preview_order(action,symbol,quantity,transaction_id)
+  doc             = Nokogiri.XML(preview_reponse)
+  account_id           = doc.at("accountId").text
+  preview_id           = doc.at("previewId").text
+  estimatedCommission  = doc.at("estimatedCommission").text
+  estimatedTotalAmount = doc.at("estimatedTotalAmount").text
+  quantity             = doc.at("quantity").text
+  symbol               = doc.at("symbol").text
+  action               = doc.at("orderAction").text
+
+
+  builder = Nokogiri::XML::Builder.new do |xml|
+    xml.PlaceEquityOrder('xmlns' => 'http://order.etws.etrade.com') {
+      xml.EquityOrderRequest {
+        xml.accountId "#{account_id}"
+        xml.clientOrderId "#{transaction_id}"
+        xml.limitPrice
+        xml.previewId "#{preview_id}"
+        xml.stopPrice
+        xml.allOrNone
+        xml.quantity "#{quantity}"
+        xml.reserveOrder
+        xml.reserveQuantity
+        xml.symbol "#{symbol}"
+        xml.orderAction "#{action}"
+        xml.priceType "MARKET"
+        xml.routingDestination
+        xml.marketSession "REGULAR"
+        xml.orderTerm "GOOD_FOR_DAY"
+      }
+    }
+    end
+    xml = builder.to_xml
+    site = REQUEST_SITE+"/order/sandbox/rest/previewequityorder"
+    order_reponse = Net::HTTP.post_form(URI.parse(site), xml)
+  end
 end
