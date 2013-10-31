@@ -53,6 +53,7 @@ module CalculationShare
                                     )
         if new_record_share.save
           puts "Share Price has been updated"
+          JobMailer.success_compute_share_price(App.giv["email_support"], "compute_share_price").deliver
         else
           puts "ERROR"
         end
@@ -86,6 +87,7 @@ module CalculationShare
                                         :status => 'pending'
                                         )
                 grant_record.save
+                JobMailer.success_compute(App.giv["email_support"], "grantcalculation_step1").deliver
               end # end .each do |donor|
             end # charity.status = active
           end # end charities.each do |charity|

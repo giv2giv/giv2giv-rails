@@ -20,6 +20,7 @@ class SchedulerPrice
         else
           # if success do charity ignore grants
           system 'bundle exec rake calcshare:charity_ignores_grant'
+          JobMailer.success_job_scheduler(App.giv["email_support"], "compute_share_price").deliver
           puts "Finished running task at #{DateTime.now}"
         end
       rescue Exception => e
@@ -53,6 +54,7 @@ class GrantPrice
           puts "Task failed, try again in 5 minutes"
           job.scheduler.in '5m', self
         else
+          JobMailer.success_job_scheduler(App.giv["email_support"], "startgrantcalculation_step1").deliver
           puts "Finished running task at #{DateTime.now}"
         end
       rescue Exception => e
