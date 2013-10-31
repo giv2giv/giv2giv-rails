@@ -15,7 +15,7 @@ module CalculationShare
 
     class << self
 
-      def priceshare
+      def compute_share_price
         stripe_balance = get_stripe_balance
         etrade_balance = get_etrade_balance
         givbalance = stripe_balance + etrade_balance
@@ -58,7 +58,7 @@ module CalculationShare
         end
       end
 
-      def grantshare
+      def grant_step_1
         stripe_balance = get_stripe_balance
         etrade_balance = get_etrade_balance
         givbalance = stripe_balance + etrade_balance

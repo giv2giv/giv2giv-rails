@@ -1,14 +1,14 @@
 namespace :calcshare do
-  # bundle exec rake calcshare:startcalculation
+  # bundle exec rake calcshare:compute_share_price
   desc 'Calculate Share Price'
-  task :startcalculation => :environment do
-    CalculationShare::Calculation.priceshare
+  task :compute_share_price => :environment do
+    CalculationShare::Calculation.compute_share_price
   end
 
   # bundle exec rake calcshare:startgrantcalculation
   desc 'Calculate Grants'
   task :startgrantcalculation => :environment do
-    CalculationShare::Calculation.grantshare
+    CalculationShare::Calculation.grant_step_1
   end
 
 end

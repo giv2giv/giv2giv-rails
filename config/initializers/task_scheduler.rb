@@ -13,7 +13,7 @@ class SchedulerPrice
     if @count < 10
       begin
         puts ". #{self.class} called at #{Time.now} (#{@count})"
-        ret = system 'bundle exec rake calcshare:startcalculation'
+        ret = system 'bundle exec rake calcshare:compute_share_price'
         if ret == false
           puts "Task failed, try again in 5 minutes"
           job.scheduler.in '5m', self
@@ -30,7 +30,7 @@ class SchedulerPrice
       # do charity ignore grants before send email error calculation shareprice
       system 'bundle exec rake calcshare:charity_ignores_grant'
       
-      ErrorJobMailer.error_priceshare(App.giv["email_support"]).deliver
+      ErrorJobMailer.error_compute_share_price(App.giv["email_support"]).deliver
       puts "Email notification has been sent"
     end # end count
   end
@@ -60,7 +60,7 @@ class GrantPrice
         job.scheduler.in '5m'
       end
     else
-      ErrorJobMailer.error_priceshare(App.giv["email_support"]).deliver
+      ErrorJobMailer.error_compute_share_price(App.giv["email_support"]).deliver
       puts "Email notification has been sent"
     end # end count_grant
   end
