@@ -1,4 +1,4 @@
-class DwollaController < Api::ApplicationController
+class DwollaController < ApplicationController
   require 'json'
   include DwollaHelper
   
