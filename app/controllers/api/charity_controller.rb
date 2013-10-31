@@ -34,7 +34,7 @@ class Api::CharityController < Api::BaseController
 
   def show
     charity = Charity.find(params[:id])
-
+    charity.activity_code = activity_tag_names(charity.activity_code)
     respond_to do |format|
       if charity
         format.json { render json: charity }
@@ -42,6 +42,19 @@ class Api::CharityController < Api::BaseController
         format.json { head :not_found }
       end
     end
+  end
+
+  def activity_tag_names(code)
+    return nil if code.blank? || code == '0.0'
+
+    code = code.to_i.to_s
+    while code.length < 9 do
+      code = code.prepend('0')
+    end
+
+    [activity_tag_name(code[0..2]),
+     activity_tag_name(code[3..5]),
+     activity_tag_name(code[6..8])]
   end
 
 end
