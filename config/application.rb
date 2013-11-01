@@ -78,7 +78,7 @@ module Giv2givRails
       allow do
         origins '*'
       	if Rails.env.eql?("production")
-          resource '/api/*', :headers => :any, :methods => [:post, :get, :put]
+            resource '/api/*', :headers => :any, :methods => [:post, :get, :put]
         	resource '/api/sessions/*', :headers => :any, :methods => [:post]
         	resource '/api/donors/payment_accounts/*', :headers => :any, :methods => [:get, :post, :put, :delete]
         	resource '/api/endowment/*', :headers => :any, :methods => [:post, :get, :put]
