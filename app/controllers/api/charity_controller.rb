@@ -44,6 +44,14 @@ class Api::CharityController < Api::BaseController
     end
   end
 
+  def activities
+    CharityImport::Classification::ACTIVITY
+  end
+
+  def activity_tag_name(code)
+    activities[code]
+  end
+
   def activity_tag_names(code)
     return nil if code.blank? || code == '0.0'
 
