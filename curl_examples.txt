@@ -28,7 +28,7 @@
 
     Arguments : none
 
-    curl -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' http://localhost:3000/api/donors.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' http://localhost:3000/api/donors.json
 
     Examples Response:
 
