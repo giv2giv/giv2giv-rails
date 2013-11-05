@@ -135,6 +135,7 @@ module CalculationShare
       def get_etrade_balance
         # just let return error message default from api
         etrade_balance = Etrade.get_net_account_value
+        puts "Etrade Balance : #{etrade_balance}"
         return etrade_balance.to_f
       end
 
