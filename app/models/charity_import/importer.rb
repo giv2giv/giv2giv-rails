@@ -165,7 +165,7 @@ module CharityImport
           next if i == 0 # first row is headings
 
           ein = row[0].to_s.strip
-          next if !ein.empty?
+          next if ein.empty?
 
           name = row[1].to_s.strip
           deduction_code = row[12].to_s.strip
