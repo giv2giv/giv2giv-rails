@@ -8,8 +8,8 @@ module CharityImport
     IRS_URL = 'http://www.irs.gov/pub/irs-soi/'
     LINK_REGEX = /eo_[^.]{2,4}.xls/
 
-    DESIRED_DEDUCTION_CODES = ['1.0','1']
-    DESIRED_FOUNDATION_CODES = ['0','2','3','9', '00', '02', '03', '09', '10', '11', '13', '14', '15', '16']
+    DESIRED_DEDUCTION_CODES = ['1']
+    DESIRED_FOUNDATION_CODES = ['0','2','3','9', '10', '11', '13', '14', '15', '16']
 
     @@verbose = true
     @@verbose_with_misses = false
@@ -168,8 +168,8 @@ module CharityImport
           next if ein.empty?
 
           name = row[1].to_s.strip
-          deduction_code = row[12].to_s.strip
-          foundation_code = row[13].to_s.strip
+          deduction_code = row[12].to_int.to_s.strip
+          foundation_code = row[13].to_int.to_s.strip
 
           puts "EIN:#{ein} Name:#{name} Deduction Code:#{deduction_code} Foundation Code:#{foundation_code}" if @@verbose_with_misses
 
@@ -192,7 +192,7 @@ module CharityImport
                         :active => 'true'
                       }
 
-            puts "---Creating Charity with #{options.inspect}" if @@verbose
+            puts "---Creating Charity with #{options.inspect}" if @@verbose_with_misses
             charity = Charity.create_or_update(options)
             tag_charity(charity)
         end
