@@ -9,7 +9,7 @@ module CharityImport
     LINK_REGEX = /eo_[^.]{2,4}.xls/
 
     DESIRED_DEDUCTION_CODES = ['1']
-    DESIRED_FOUNDATION_CODES = ['0','2','3','9', '10', '11', '13', '14', '15', '16']
+    DESIRED_FOUNDATION_CODES = ['0','2','3','9','10','11','12','13','14','15','16']
 
     @@verbose = true
     @@verbose_with_misses = false
