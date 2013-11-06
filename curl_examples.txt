@@ -136,7 +136,7 @@
 
 ** CHARITY GROUP MANAGEMENT **
 
-1. Create charity group
+1. Create endowment
 
     Authorization token in Header *required*. See session #authenticate
 
@@ -162,9 +162,9 @@
 
     charity_id   : required ( separated by comma )
 
-    {CHARITY_GROUP_ID} : required
+    {ENDOWMENT_ID} : required
 
-    http://localhost:3000/api/endowment/{CHARITY_GROUP_ID}/add_charity.json
+    http://localhost:3000/api/endowment/{ENDOWMENT_ID}/add_charity.json
 
     curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"charity_id":"1,24,6,4,3"}' http://localhost:3000/api/endowment/1/add_charity.json
 
@@ -180,9 +180,9 @@
 
     charity_id         : required
 
-    {CHARITY_GROUP_ID} : required
+    {ENDOWMENT_ID} : required
 
-    http://localhost:3000/api/endowment/{CHARITY_GROUP_ID}/remove_charity.json
+    http://localhost:3000/api/endowment/{ENDOWMENT_ID}/remove_charity.json
 
     curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"charity_id":"1"}' http://localhost:3000/api/endowment/1/remove_charity.json
 
@@ -190,7 +190,7 @@
 
     {"message":"Charity has been removed"}
 
-4. Rename charity group
+4. Rename endowment
 
     Authorization token in Header *required*. See session #authenticate
 
@@ -198,9 +198,9 @@
 
     name, description, minimum_donation_amount : optional
 
-    {CHARITY_GROUP_ID} : required
+    {ENDOWMENT_ID} : required
 
-    http://localhost:3000/api/endowment/{CHARITY_GROUP_ID}/rename_endowment.json
+    http://localhost:3000/api/endowment/{ENDOWMENT_ID}/rename_endowment.json
 
     curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}' http://localhost:3000/api/endowment/1/rename_endowment.json
 
@@ -214,7 +214,7 @@
 
     page     : optional "default 1" << Page number
     per page : optional "default 10" << Limit Per Page
-    query    : optional "" << Limit the result set to the best matching charity group name, tag name, or associated charity name
+    query    : optional "" << Limit the result set to the best matching endowment name, tag name, or associated charity name
 
     curl -X GET -H "Content-Type: application/json" -d '{"page":"1", "per_page":"10", "query":"Rescue"}' http://localhost:3000/api/endowment.json
 
@@ -222,13 +222,13 @@
 
     [{"endowment":{"created_at":"2013-09-19T08:52:46Z","description":"My Description","donor_id":2,"id":4,"minimum_donation_amount":3.0,"name":"Giv2Giv Build House","updated_at":"2013-09-19T09:36:01Z","charities":[{"activity_code":"907908000.0","address":"PO BOX 124","city":"MILFORD","classification_code":"1.0","created_at":"2013-09-19T03:42:52Z","description":null,"ein":516022762,"id":4,"name":"AMERICAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-19T03:42:52Z","website":null,"zip":"19963-0124"}]}}]
 
-6. Show charity group data
+6. Show endowment data
 
     Arguments :
 
-    { CHARITY_GROUP_ID }
+    { ENDOWMENT_ID }
 
-    http://localhost:3000/api/endowment/{ CHARITY_GROUP_ID }.json
+    http://localhost:3000/api/endowment/{ ENDOWMENT_ID }.json
 
     curl -X GET -H "Content-Type: application/json" -d '' http://localhost:3000/api/endowment/1.json
 
@@ -242,9 +242,9 @@
 
    Arguments :   
 
-   { CHARITY_GROUP_ID } : required
+   { ENDOWMENT_ID } : required
 
-   http://localhost:3000/api/endowment/{ CHARITY_GROUP_ID }/share_balance_information.json
+   http://localhost:3000/api/endowment/{ ENDOWMENT_ID }/share_balance_information.json
 
    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/endowment/1/share_balance_information.json
 
