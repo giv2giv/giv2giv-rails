@@ -21,7 +21,7 @@ class Endowment < ActiveRecord::Base
 
       group
     end
-  end # end selfx
+  end # end self
 
   def as_json(options = {})
     super(:include =>[:charities])

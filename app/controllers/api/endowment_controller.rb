@@ -23,7 +23,7 @@ class Api::EndowmentController < Api::BaseController
     Endowment.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ]).each do |cg|
       endowments << cg
     end
-    
+
     results = endowments.compact.flatten.uniq.paginate(:page => page, :per_page => perpage)
     respond_to do |format|
       if !results.empty?
@@ -36,6 +36,7 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def create
+    params[:endowment] = { name: params[:name], minimum_donation_amount: params[:minimum_donation_amount], endowment_visibility: params[:endowment_visibility], description: params[:description] }
     group = Endowment.new_with_charities(params[:endowment])
     group.donor_id = current_session.session_id
     respond_to do |format|
@@ -84,10 +85,10 @@ class Api::EndowmentController < Api::BaseController
 
   def add_charity
     group = Endowment.find(params[:id])
-    
+
     if (group.donor_id.to_s.eql?(current_session.session_id))
       respond_to do |format|
-        if group.donations.size < 1 
+        if group.donations.size < 1
           group.add_charity(params[:charity_id])
           format.json { render json: { :message => "Charity has been added"}.to_json }
         else
@@ -103,7 +104,7 @@ class Api::EndowmentController < Api::BaseController
     group = Endowment.find(params[:id])
     if (group.donor_id.to_s.eql?(current_session.session_id))
       respond_to do |format|
-        if group.donations.size < 1 
+        if group.donations.size < 1
           group.remove_charity(params[:id], params[:charity_id])
           format.json { render json: { :message => "Charity has been removed" }.to_json }
         else
@@ -129,6 +130,6 @@ class Api::EndowmentController < Api::BaseController
     else
       render json: { :message => "You can edit this endowment" }.to_json
     end
-  end 
+  end
 
 end

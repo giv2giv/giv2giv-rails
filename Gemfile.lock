@@ -186,7 +186,6 @@ DEPENDENCIES
   nokogiri
   oauth (~> 0.4.7)
   rack-cors
-  rails (= 3.2.13)
   rspec-rails
   rufus-scheduler
   sass-rails (~> 3.2.3)
