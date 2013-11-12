@@ -12,6 +12,7 @@ Giv2givRails::Application.routes.draw do
       resource :donors, :except => [:new, :edit, :destroy] do
         get 'balance_information', :on => :member
         get 'subscriptions', :on => :member
+        get 'endowments', :on => :member
         resources :payment_accounts, :except => [:new, :edit] do
           post 'donate_subscription', :on => :member
           get 'donation_list', :on => :member

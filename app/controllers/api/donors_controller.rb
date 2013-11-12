@@ -66,4 +66,8 @@ class Api::DonorsController < Api::BaseController
     end
   end
 
+  def endowments
+    endowments = current_donor.endowments
+    render json: endowments
+  end
 end
