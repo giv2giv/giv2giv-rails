@@ -85,7 +85,7 @@ module CharityImport
 
       def tag_charity(charity)
         tags = get_all_tags(charity)
-        puts "Got all the tags: #{tags}"
+        puts "Got all the tags: #{tags}" if @@verbose
         tags.each do |name|
           tag = Tag.find_or_create_by_name(name)
           begin
