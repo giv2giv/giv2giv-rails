@@ -1,8 +1,8 @@
 class AddTags < ActiveRecord::Migration
   def change
-    create_table(:tags, options: 'ENGINE = MyISAM') do |t|
+    create_table :tags do |t|
       t.integer :id, :null => false
-      t.text :name
+      t.string  :name, :limit => 1024
       t.timestamps
     end
 
