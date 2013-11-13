@@ -43,5 +43,5 @@ class Api::CharityController < Api::BaseController
       end
     end
   end
-
 end
+
