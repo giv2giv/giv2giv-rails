@@ -18,9 +18,10 @@ class Api::CharityController < Api::BaseController
       charities += tag.charities
     end
 
-    charities += Charity.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ])
-
-    charities << Charity.find_by_ein(query)
+    #let's not sqli ourselves in the API
+    q = "%#{query}%"
+    charity_ids_with_tags = Tags.where("name LIKE ?", q)
+    charities = Charity.where("name LIKE ? OR tags.name LIKE ?", q, charity_ids_with_tags)
     results = charities.compact.uniq.paginate(:page => page, :per_page => perpage)
 
     respond_to do |format|
