@@ -1,4 +1,3 @@
-#require 'poi' # http://poi.apache.org/
 require 'nokogiri'
 require 'typhoeus'
 require 'spreadsheet'
@@ -9,13 +8,8 @@ module CharityImport
     IRS_URL = 'http://www.irs.gov/pub/irs-soi/'
     LINK_REGEX = /eo_[^.]{2,4}.xls/
 
-    # The charities we pull from irs.gov are *all* charities. Not all of these are eligible. As a rule of thumb,
-    # we want to only include 501(c)(3)s -- these are designated by a 'deductibility' code of 1 in the IRS excel
-    # files. I think we want to exclude those with a 'Foundation Code' -- these are foundations and trusts run by
-    # schools, some  churches and some governmental entities.
-    DESIRED_DEDUCTION_CODE = '1.0'
-    DESIRED_FOUNDATION_CODE = '0.0'
-    DESIRED_EXEMPT_CODE = '1.0'
+    DESIRED_DEDUCTION_CODES = ['1']
+    DESIRED_FOUNDATION_CODES = ['0','2','3','9','10','11','12','13','14','15','16']
 
     @@verbose = true
     @@verbose_with_misses = false
@@ -124,6 +118,10 @@ module CharityImport
         CharityImport::Classification::ACTIVITY
       end
 
+      def activity_tag_name(code)
+        activities[code]
+      end
+
       def activity_tag_names(code)
         return nil if code.blank? || code == '0.0'
 
@@ -135,10 +133,6 @@ module CharityImport
         [activity_tag_name(code[0..2]),
          activity_tag_name(code[3..5]),
          activity_tag_name(code[6..8])]
-      end
-
-      def activity_tag_name(code)
-        activities[code]
       end
 
       def ntee_common_codes
@@ -164,25 +158,28 @@ module CharityImport
         puts "Reading spreadsheet: #{file}" if @@verbose
 
         book = Spreadsheet.open(file_with_dir)
-#        book = POI::Workbook.open(file_with_dir)
         sheet = book.worksheet(0)
-#        sheet = book.worksheets[0] # use the first sheet
         rows = sheet.rows
+
         rows.each_with_index do |row, i|
           next if i == 0 # first row is headings
 
           ein = row[0].to_s.strip
-          next if !ein.empty?
+          next if ein.empty?
 
           name = row[1].to_s.strip
-          deduction_code = row[12].to_s.strip
-          foundation_code = row[13].to_s.strip
-          #TODO: add exemption_code
+          deduction_code = row[12].to_int.to_s.strip
+          foundation_code = row[13].to_int.to_s.strip
 
           puts "EIN:#{ein} Name:#{name} Deduction Code:#{deduction_code} Foundation Code:#{foundation_code}" if @@verbose_with_misses
 
-          if ((deduction_code == DESIRED_DEDUCTION_CODE) && (deduction_code == DESIRED_DEDUCTION_CODE) && (deduction_code == DESIRED_DEDUCTION_CODE))
-            options = { :ein => ein,
+          if ((DESIRED_DEDUCTION_CODES.include?(deduction_code)) && (DESIRED_FOUNDATION_CODES.include?(foundation_code)))
+              active = 'true'
+          else
+              active = 'false'
+          end
+
+          options = { :ein => ein,
                         :name => name,
                         :address => row[3].to_s.strip,
                         :city => row[4].to_s.strip,
@@ -195,27 +192,9 @@ module CharityImport
                         :active => 'true'
                       }
 
-            puts "---Creating Charity with #{options.inspect}" if @@verbose
+            puts "---Creating Charity with #{options.inspect}" if @@verbose_with_misses
             charity = Charity.create_or_update(options)
             tag_charity(charity)
-          elsif ((deduction_code != DESIRED_DEDUCTION_CODE) || (deduction_code != DESIRED_DEDUCTION_CODE) || (deduction_code != DESIRED_DEDUCTION_CODE))
-            options = { :ein => ein,
-                        :name => name,
-                        :address => row[3].to_s.strip,
-                        :city => row[4].to_s.strip,
-                        :state => row[5].to_s.strip,
-                        :zip => row[6].to_s.strip,
-                        :ntee_code => row[30].to_s.strip,
-                        :subsection_code => row[8].to_s.strip,
-                        :classification_code => row[10].to_s.strip,
-                        :activity_code => row[14].to_s.strip,
-                        :active => 'false'
-                      }
-
-            puts "---Creating Charity with #{options.inspect}" if @@verbose
-            charity = Charity.create_or_update(options)
-            tag_charity(charity)
-          end
         end
       end # end read_excel
 

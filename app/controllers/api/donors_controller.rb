@@ -4,7 +4,8 @@ class Api::DonorsController < Api::BaseController
   def create
     donor = Donor.new(params[:donor])
     donor.type_donor = "registered"
-    donor.password = secure_password(params[:password])
+    donor.password = secure_password(params[:donor][:password])
+
     respond_to do |format|
       if donor.save
         format.json { render json: donor, status: :created }
@@ -23,7 +24,7 @@ class Api::DonorsController < Api::BaseController
     giv2giv_current_balance = ((BigDecimal("#{giv2giv_share_balance}") * BigDecimal("#{Share.last.donation_price}")) * 10).ceil / 10.0
     giv2giv_total_donations = donations.sum(:gross_amount)
     giv2giv_total_grants = charity_grants.where("status = ?", 'sent').sum(:gross_amount)
-    render json: { :donor_current_balance => donor_current_balance, :donor_total_donations => donor_total_donations, :donor_total_grants => donor_total_grants, :giv2giv_current_balance => giv2giv_current_balance, :giv2giv_total_donations => giv2giv_total_donations, :giv2giv_total_grants => giv2giv_total_grants }.to_json  
+    render json: { :donor_current_balance => donor_current_balance, :donor_total_donations => donor_total_donations, :donor_total_grants => donor_total_grants, :giv2giv_current_balance => giv2giv_current_balance, :giv2giv_total_donations => giv2giv_total_donations, :giv2giv_total_grants => giv2giv_total_grants }.to_json
   end
 
   def subscriptions
@@ -65,4 +66,8 @@ class Api::DonorsController < Api::BaseController
     end
   end
 
+  def endowments
+    endowments = current_donor.endowments
+    render json: endowments
+  end
 end

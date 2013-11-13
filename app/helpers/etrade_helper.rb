@@ -111,35 +111,6 @@ module EtradeHelper
     site = REQUEST_SITE+"/order/sandbox/rest/previewequityorder"
     return preview_reponse = Net::HTTP.post_form(URI.parse(site), xml)
   end
-  <PreviewEquityOrderResponse>
-   <equityOrderResponse>
-     <accountId>83405188</accountId>
-     <allOrNone>false</allOrNone>
-     <estimatedCommission>7.99</estimatedCommission>
-     <estimatedTotalAmount>795.99</estimatedTotalAmount>
-     <messageList>
-       <message>
-         <msgDesc>You have an existing open order for this security on the same
-           side of the market. If you did not intend to place a second order
-           for this security, please modify your order now.
-         </msgDesc>
-         <msgCode>1042</msgCode>
-       </message>
-     </messageList>
-     <previewTime>1269428745346</previewTime>
-     <previewId>449548380022</previewId>
-     <quantity>4</quantity>
-     <reserveOrder>false</reserveOrder>
-     <reserveQuantity>0</reserveQuantity>
-     <orderTerm>GOOD_FOR_DAY</orderTerm>
-     <limitPrice>0</limitPrice>
-     <stopPrice>197</stopPrice>
-     <symbolDesc>INTERNATIONAL BUSINESS MACHS COM</symbolDesc>
-     <symbol>IBM</symbol>
-     <orderAction>BUY</orderAction>
-     <priceType>STOP</priceType>
-   </equityOrderResponse>
- </PreviewEquityOrderResponse>
 
   def order(action,symbol,quantity,transaction_id)
   #action should be BUY or SELL

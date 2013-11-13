@@ -4,19 +4,20 @@ class Donor < ActiveRecord::Base
   has_many :charity_grants, dependent: :destroy
   has_many :donor_grants, dependent: :destroy
   has_many :donor_subscriptions, dependent: :destroy
-    
+  has_many :endowments, dependent: :destroy
+
   EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
 
   validates :email, :presence => true,
-                    :format => { :with => EMAIL_REGEX },
-                    :uniqueness => { :case_sensitive => false }
-  
+  :format => { :with => EMAIL_REGEX },
+  :uniqueness => { :case_sensitive => false }
+
   with_options :presence => true do |donor|
     donor.validates :password
     donor.validates :name
     donor.validates :type_donor
   end
-  
+
   class << self
     # needed because of the fulltext index
     def find_by_email(email)

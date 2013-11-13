@@ -23,7 +23,7 @@ class Api::EndowmentController < Api::BaseController
     Endowment.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ]).each do |cg|
       endowments << cg
     end
-    
+
     results = endowments.compact.flatten.uniq.paginate(:page => page, :per_page => perpage)
     respond_to do |format|
       if !results.empty?
@@ -36,6 +36,7 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def create
+    params[:endowment] = { name: params[:name], minimum_donation_amount: params[:minimum_donation_amount], endowment_visibility: params[:endowment_visibility], description: params[:description] }
     group = Endowment.new_with_charities(params[:endowment])
     group.donor_id = current_session.session_id
     respond_to do |format|
@@ -48,11 +49,18 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def show
-    group = Endowment.find(params[:id])
+    endowment = Endowment.find(params[:id])
+
+    last_donation_price = Share.last.donation_price
+    share_balance = endowment.donations.sum(:shares_added) - endowment.charity_grants.sum(:shares_subtracted)
+    my_endowment_share_balance = current_donor.donations.where("endowment_id = ?", endowment.id).sum(:shares_added) - current_donor.charity_grants.where("endowment_id = ?", endowment.id).sum(:shares_subtracted)
+
+    endowment_balance = ((share_balance * last_donation_price) * 10).ceil / 10.0
+    my_endowment_balance = ((my_endowment_share_balance * last_donation_price) * 10).ceil / 10.0
 
     respond_to do |format|
-      if group
-        format.json { render json: group }
+      if endowment
+        format.json { render json: endowment.to_json(:include => {:endowment_balance => endowment_balance, :my_endowment_balance => my_endowment_balance} ) }
       else
         format.json { head :not_found }
       end
@@ -60,27 +68,27 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def rename_endowment
-    group = Endowment.find(params[:id])
-    if (group.donor_id.to_s.eql?(current_session.session_id))
+    endowment = Endowment.find(params[:id])
+    if (endowment.donor_id.to_s.eql?(current_session.session_id))
       respond_to do |format|
-        if group.donations.size >= 1
+        if endowment.donations.size >= 1
           format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
         else
-          group.update_attributes(params[:endowment])
+          endowment.update_attributes(params[:endowment])
           format.json { render json: { :message => "Charity Group has been updated", :endowment => params[:endowment] }.to_json }
         end
       end
     else
-      render json: { :message => "You cannot edit this charity group" }.to_json
+      render json: { :message => "You cannot edit this endowment" }.to_json
     end
   end
 
   def add_charity
     group = Endowment.find(params[:id])
-    
+
     if (group.donor_id.to_s.eql?(current_session.session_id))
       respond_to do |format|
-        if group.donations.size < 1 
+        if group.donations.size < 1
           group.add_charity(params[:charity_id])
           format.json { render json: { :message => "Charity has been added"}.to_json }
         else
@@ -88,7 +96,7 @@ class Api::EndowmentController < Api::BaseController
         end
       end #respond_to
     else
-      render json: { :message => "You cannot edit this charity group" }.to_json
+      render json: { :message => "You cannot edit this endowment" }.to_json
     end
   end
 
@@ -96,7 +104,7 @@ class Api::EndowmentController < Api::BaseController
     group = Endowment.find(params[:id])
     if (group.donor_id.to_s.eql?(current_session.session_id))
       respond_to do |format|
-        if group.donations.size < 1 
+        if group.donations.size < 1
           group.remove_charity(params[:id], params[:charity_id])
           format.json { render json: { :message => "Charity has been removed" }.to_json }
         else
@@ -104,7 +112,7 @@ class Api::EndowmentController < Api::BaseController
         end
       end #respond_to
     else
-      render json: { :message => "You can edit this charity group" }.to_json
+      render json: { :message => "You can edit this endowment" }.to_json
     end
   end
 
@@ -120,18 +128,8 @@ class Api::EndowmentController < Api::BaseController
         end
       end
     else
-      render json: { :message => "You can edit this charity group" }.to_json
+      render json: { :message => "You can edit this endowment" }.to_json
     end
-  end 
-
-  def share_balance_information
-    endowment = Endowment.find(params[:id])
-    last_donation_price = Share.last.donation_price
-    share_balance = endowment.donations.sum(:shares_added) - endowment.charity_grants.sum(:shares_subtracted) 
-    endowment_balance = ((share_balance * last_donation_price) * 10).ceil / 10.0
-    my_endowment_share_balance = current_donor.donations.where("endowment_id = ?", endowment.id).sum(:shares_added) - current_donor.charity_grants.where("endowment_id = ?", endowment.id).sum(:shares_subtracted)
-    my_endowment_balance = ((my_endowment_share_balance * last_donation_price) * 10).ceil / 10.0
-    render json: {:endowment_id => endowment.id, :endowment_balance => endowment_balance, :my_endowment_balance => my_endowment_balance}.to_json
   end
 
 end

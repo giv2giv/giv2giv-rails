@@ -43,7 +43,7 @@ describe Endowment do
   end # end validations
 
   describe "create_with_charities" do
-    it "should show errors on charity group and charities" do
+    it "should show errors on endowments and charities" do
       cg = Endowment.new_with_charities({})
       cg.should be_an_instance_of Endowment
       cg.should_not be_valid
