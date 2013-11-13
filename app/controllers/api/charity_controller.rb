@@ -303,7 +303,7 @@ class Api::CharityController < Api::BaseController
 
   def show
     charity = Charity.find(params[:id])
-    charity.activity_code = activity_tag_names(charity.activity_code)
+    # Return charity.tags in response body
     respond_to do |format|
       if charity
         format.json { render json: charity }
@@ -325,5 +325,5 @@ class Api::CharityController < Api::BaseController
      ACTIVITY[code[3..5]],
      ACTIVITY[code[6..8]]]
   end
-
 end
+
