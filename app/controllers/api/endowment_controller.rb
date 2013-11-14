@@ -7,11 +7,12 @@ class Api::EndowmentController < Api::BaseController
     perpage = params[:per_page] || 10
     query = params[:query] || ""
 
+    if perpage > 50
+       perpage=50
+    end
+
     endowments = []
     charities = []
-
-    #q = "%#{query}%"
-    #return format.json { render json: {:message => "Please enter seachstring"} } if q == "%%"
 
     #tags = Tag.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ])
     #tags.each do |tag|
@@ -24,8 +25,15 @@ class Api::EndowmentController < Api::BaseController
       #endowments << c.endowments
     #end
 
-    Endowment.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ]).each do |cg|
-      endowments << cg
+    q = "%#{query}%"
+    if q=="%%"
+        Endowment.where(["created_at > ?", 2.days.ago]).limit(perpage).each do |row|
+          endowments << cg
+        end
+    else
+        Endowment.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ]).each do |row|
+          endowments << cg
+        end
     end
 
     results = endowments.compact.flatten.uniq.paginate(:page => page, :per_page => perpage)
