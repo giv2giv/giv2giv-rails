@@ -8,6 +8,7 @@ class Api::CharityController < Api::BaseController
   def index
     page = params[:page] || 1
     perpage = params[:per_page] || 10
+    perpage = 50 if perpage > 50
     query = params[:query] || ""
 
     charities_with_matching_tags = []
