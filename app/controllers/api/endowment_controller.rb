@@ -2,6 +2,14 @@ class Api::EndowmentController < Api::BaseController
 
   skip_before_filter :require_authentication, :only => [:index, :show]
 
+  def as_json(options = { })
+    # just in case someone says as_json(nil) and bypasses
+    # our default...
+    super((options || { }).merge({
+        :methods => [:finished_items, :unfinished_items]
+    }))
+  end
+
   def index
     page = params[:page] || 1
     perpage = params[:per_page] || 10
