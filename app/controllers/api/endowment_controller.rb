@@ -7,9 +7,7 @@ class Api::EndowmentController < Api::BaseController
     perpage = params[:per_page] || 10
     query = params[:query] || ""
 
-    if perpage > 50
-       perpage=50
-    end
+    perpage=50 if perpage.to_i > 50
 
     endowments = []
     charities = []
