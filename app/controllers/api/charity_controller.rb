@@ -18,9 +18,9 @@ class Api::CharityController < Api::BaseController
 
     charities_with_matching_name = Charity.where("name LIKE ?", q)
 
-    Tag.where("name LIKE ?", q).each do |t|
-        charities_with_matching_tags << t.charities
-    end
+    #Tag.where("name LIKE ?", q).each do |t|
+    #    charities_with_matching_tags << t.charities
+    #end
 
     charities = charities_with_matching_name + charities_with_matching_tags
     results = charities.compact.uniq.paginate(:page => page, :per_page => perpage, :total_entries => charities.count)
