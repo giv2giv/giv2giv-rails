@@ -9,16 +9,20 @@ class Api::EndowmentController < Api::BaseController
 
     endowments = []
     charities = []
-    tags = Tag.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ])
-    tags.each do |tag|
-      tag.charities.each do |c|
-        charities << c
-      end
-    end
 
-    charities.each do |c|
-      endowments << c.endowments
-    end
+    #q = "%#{query}%"
+    #return format.json { render json: {:message => "Please enter seachstring"} } if q == "%%"
+
+    #tags = Tag.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ])
+    #tags.each do |tag|
+      #tag.charities.each do |c|
+        #charities << c
+      #end
+    #end
+
+    #charities.each do |c|
+      #endowments << c.endowments
+    #end
 
     Endowment.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ]).each do |cg|
       endowments << cg
