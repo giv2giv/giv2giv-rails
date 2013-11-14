@@ -8,7 +8,7 @@ class Api::CharityController < Api::BaseController
   def index
     page = params[:page] || 1
     perpage = params[:per_page] || 10
-    perpage = 50 if perpage > 50
+    perpage = 50 if perpage.to_i > 50
     query = params[:query] || ""
 
     charities_with_matching_tags = []
@@ -17,7 +17,7 @@ class Api::CharityController < Api::BaseController
     q = "%#{query}%"
     return format.json { render json: {:message => "Please enter seachstring"} } if q == "%%"
 
-    offset_count = (page-1)*perpage
+    offset_count = (page.to_i-1)*perpage.to_i
     charities_with_matching_name = Charity.where("name LIKE ?", q).limit(perpage).offset(offset_count)
 
     #tag_limit = perpage - charities_with_matching_name.size
