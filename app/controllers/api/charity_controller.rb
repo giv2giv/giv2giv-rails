@@ -14,6 +14,7 @@ class Api::CharityController < Api::BaseController
     charities_with_matching_name = []
     #let's not sqli ourselves in the API
     q = "%#{query}%"
+    return format.json { render json: {:message => "Please enter seachstring"} } if q == "%%"
     Tag.where("name LIKE ?", q).each do |t|
         charities_with_matching_tags << t.charities
     end
