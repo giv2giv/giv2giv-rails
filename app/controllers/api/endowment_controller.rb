@@ -28,11 +28,11 @@ class Api::EndowmentController < Api::BaseController
     q = "%#{query}%"
     if q=="%%"
         Endowment.where(["created_at > ?", 2.days.ago]).limit(perpage).each do |row|
-          endowments << cg
+          endowments << row
         end
     else
         Endowment.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ]).each do |row|
-          endowments << cg
+          endowments << row
         end
     end
 
