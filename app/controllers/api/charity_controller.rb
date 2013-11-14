@@ -15,14 +15,15 @@ class Api::CharityController < Api::BaseController
     #let's not sqli ourselves in the API
     q = "%#{query}%"
     return format.json { render json: {:message => "Please enter seachstring"} } if q == "%%"
+
+    charities_with_matching_name = Charity.where("name LIKE ?", q)
+
     Tag.where("name LIKE ?", q).each do |t|
         charities_with_matching_tags << t.charities
     end
 
-    charities_with_matching_name = Charity.where("name LIKE ?", q)
-
     charities = charities_with_matching_name + charities_with_matching_tags
-    results = charities.compact.uniq.paginate(:page => page, :per_page => perpage)
+    results = charities.compact.uniq.paginate(:page => page, :per_page => perpage, :total_entries => charities.count)
 
     respond_to do |format|
       if !results.empty?
