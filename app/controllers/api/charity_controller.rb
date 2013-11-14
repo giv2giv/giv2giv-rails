@@ -20,7 +20,9 @@ class Api::CharityController < Api::BaseController
     offset_count = (page-1)*perpage
     charities_with_matching_name = Charity.where("name LIKE ?", q).limit(perpage).offset(offset_count)
 
+    #tag_limit = perpage - charities_with_matching_name.size
     #Tag.where("name LIKE ?", q).each do |t|
+    #    next if charities_with_matching_tags.size > tag_limit
     #    charities_with_matching_tags << t.charities
     #end
 
