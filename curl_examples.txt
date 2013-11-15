@@ -236,18 +236,6 @@
 
     {"endowment":{"created_at":"2013-09-19T08:52:46Z","description":"My Description","donor_id":2,"id":4,"minimum_donation_amount":3.0,"name":"Giv2Giv Build House","endowment_balance":"0.0","my_endowment_balance":"0.0","updated_at":"2013-09-19T09:36:01Z","charities":[{"activity_code":"907908000.0","address":"PO BOX 124","city":"MILFORD","classification_code":"1.0","created_at":"2013-09-19T03:42:52Z","description":null,"ein":516022762,"id":4,"name":"AMERICAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-19T03:42:52Z","website":null,"zip":"19963-0124"}]}}
 
-3. Show Charity Group Share Balance Information
-
-   Authorization token in Header *required*. See session #authenticate
-
-   Arguments :   
-
-   { ENDOWMENT_ID } : required
-
-   http://localhost:3000/api/endowment/{ ENDOWMENT_ID }/share_balance_information.json
-
-   curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' http://localhost:3000/api/endowment/1/share_balance_information.json
-
 
 
 ** PAYMENT ACCOUNT MANAGEMENT **
