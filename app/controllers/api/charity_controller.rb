@@ -15,7 +15,7 @@ class Api::CharityController < Api::BaseController
     charities_with_matching_name = []
     #let's not sqli ourselves in the API
     q = "%#{query}%"
-    return format.json { render json: {:message => "Please enter seachstring"} } if q == "%%"
+    #return format.json { render json: {:message => "Please enter seachstring"} } if q == "%%"
 
     offset_count = (page.to_i-1)*perpage.to_i
     charities_with_matching_name = Charity.where("name LIKE ?", q).limit(perpage).offset(offset_count)
