@@ -31,7 +31,7 @@ class Api::CharityController < Api::BaseController
 
     respond_to do |format|
       if !results.empty?
-        format.json { render json: results.to_json(:include => { :tags => { :include => :name}}) }
+        format.json { render json: results}#.to_json(:include => { :tags => { :include => :name}}) }
       else
         format.json { render json: {:message => "Not found"}.to_json }
       end
