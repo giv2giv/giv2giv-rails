@@ -31,6 +31,7 @@ class Api::DonorsController < Api::BaseController
     subscriptions = current_donor.donor_subscriptions
     subscriptions_list = []
     subscriptions.each do |subscription|
+    #Better to include Endowment.where("endowment_id = ?", subscription.endowment_id).my_balances and endowment.global_balances
         subscriptions_hash = [ subscription.stripe_subscription_id => {
         "endowment_name" => subscription.endowment.name,
         "endowment_donation_amount" => subscription.gross_amount,
