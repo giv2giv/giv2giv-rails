@@ -1,3 +1,5 @@
+require 'will_paginate/array'
+
 class Api::EndowmentController < Api::BaseController
 
   skip_before_filter :require_authentication, :only => [:index, :show]

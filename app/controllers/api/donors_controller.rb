@@ -16,23 +16,27 @@ class Api::DonorsController < Api::BaseController
   end
 
   def balance_information
-    share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.charity_grants.sum(:shares_subtracted)}")
-    donor_current_balance = ((BigDecimal("#{share_balance}") * BigDecimal("#{Share.last.donation_price}")) * 10).ceil / 10.0
-    donor_total_donations = current_donor.donations.sum(:gross_amount)
-    donor_total_grants = current_donor.charity_grants.where("status = ?", 'sent').sum(:gross_amount)
-    giv2giv_share_balance = BigDecimal("#{donations.sum(:shares_added)}") - BigDecimal("#{charity_grants.sum(:shares_subtracted)}")
-    giv2giv_current_balance = ((BigDecimal("#{giv2giv_share_balance}") * BigDecimal("#{Share.last.donation_price}")) * 10).ceil / 10.0
-    giv2giv_total_donations = donations.sum(:gross_amount)
-    giv2giv_total_grants = charity_grants.where("status = ?", 'sent').sum(:gross_amount)
-    render json: { :donor_current_balance => donor_current_balance, :donor_total_donations => donor_total_donations, :donor_total_grants => donor_total_grants, :giv2giv_current_balance => giv2giv_current_balance, :giv2giv_total_donations => giv2giv_total_donations, :giv2giv_total_grants => giv2giv_total_grants }.to_json
+    if current_donor.donations.empty?
+      render json: { :donor_current_balance => "0.0" }.to_json
+    else
+      share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.charity_grants.sum(:shares_subtracted)}")
+      donor_current_balance = ((BigDecimal("#{share_balance}") * BigDecimal("#{Share.last.donation_price}")) * 10).ceil / 10.0
+      donor_total_donations = current_donor.donations.sum(:gross_amount)
+      donor_total_grants = current_donor.charity_grants.where("status = ?", 'sent').sum(:gross_amount)
+      giv2giv_share_balance = BigDecimal("#{donations.sum(:shares_added)}") - BigDecimal("#{charity_grants.sum(:shares_subtracted)}")
+      giv2giv_current_balance = ((BigDecimal("#{giv2giv_share_balance}") * BigDecimal("#{Share.last.donation_price}")) * 10).ceil / 10.0
+      giv2giv_total_donations = donations.sum(:gross_amount)
+      giv2giv_total_grants = charity_grants.where("status = ?", 'sent').sum(:gross_amount)
+      render json: { :donor_current_balance => donor_current_balance, :donor_total_donations => donor_total_donations, :donor_total_grants => donor_total_grants, :giv2giv_current_balance => giv2giv_current_balance, :giv2giv_total_donations => giv2giv_total_donations, :giv2giv_total_grants => giv2giv_total_grants }.to_json
+    end
   end
 
   def subscriptions
     subscriptions = current_donor.donor_subscriptions
     subscriptions_list = []
     subscriptions.each do |subscription|
-    #Better to include Endowment.where("endowment_id = ?", subscription.endowment_id).my_balances and endowment.global_balances
-        subscriptions_hash = [ subscription.stripe_subscription_id => {
+      #Better to include Endowment.where("endowment_id = ?", subscription.endowment_id).my_balances and endowment.global_balances
+      subscriptions_hash = [ subscription.stripe_subscription_id => {
         "endowment_name" => subscription.endowment.name,
         "endowment_donation_amount" => subscription.gross_amount,
         "endowment_donor_count" => Donation.where("endowment_id = ?", subscription.endowment_id).count('donor_id', :distinct => true),
@@ -67,8 +71,8 @@ class Api::DonorsController < Api::BaseController
     end
   end
 
-  def endowments
-    endowments = current_donor.endowments
-    render json: endowments
-  end
+  # def endowments
+  #   endowments = current_donor.endowments
+  #   render json: endowments
+  # end
 end
