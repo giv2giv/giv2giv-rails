@@ -73,7 +73,7 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def my_balances
-    if current_donor.exists?
+    if defined? current_donor
       {
       "my_donations_count" => current_donor.donations("endowment_id = ?", endowment_id).count('id', :distinct => true),
       "my_donations_shares" => current_donor.donations.where("endowment_id = ?", endowment.id).sum(:shares_added),

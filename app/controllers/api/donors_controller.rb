@@ -18,14 +18,14 @@ class Api::DonorsController < Api::BaseController
   def balance_information
 
     if defined? current_donor
-      donor_current_balance = "0.0"
-      donor_total_donations = "0.0"
-      donor_total_grants = "0.0"
-    else
       share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.charity_grants.sum(:shares_subtracted)}")
       donor_current_balance = ((BigDecimal("#{share_balance}") * BigDecimal("#{Share.last.donation_price}")) * 10).ceil / 10.0
       donor_total_donations = current_donor.donations.sum(:gross_amount)
       donor_total_grants = current_donor.charity_grants.where("status = ?", 'sent').sum(:gross_amount)
+    else
+      donor_current_balance = "0.0"
+      donor_total_donations = "0.0"
+      donor_total_grants = "0.0"
     end
 
     giv2giv_share_balance = BigDecimal("#{Donation.sum(:shares_added)}") - BigDecimal("#{CharityGrant.sum(:shares_subtracted)}")
