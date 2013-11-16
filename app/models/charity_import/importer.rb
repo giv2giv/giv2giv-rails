@@ -189,7 +189,7 @@ module CharityImport
                         :subsection_code => row[8].to_s.strip,
                         :classification_code => row[10].to_s.strip,
                         :activity_code => row[14].to_s.strip,
-                        :active => 'true'
+                        :active => active
                       }
 
             puts "---Creating Charity with #{options.inspect}" if @@verbose_with_misses
