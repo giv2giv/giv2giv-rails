@@ -16,19 +16,24 @@ class Api::DonorsController < Api::BaseController
   end
 
   def balance_information
+
     if current_donor.donations.empty?
-      render json: { :donor_current_balance => "0.0" }.to_json
+      donor_current_balance = "0.0"
+      donor_total_donations = "0.0"
+      donor_total_grants = "0.0"
     else
       share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.charity_grants.sum(:shares_subtracted)}")
       donor_current_balance = ((BigDecimal("#{share_balance}") * BigDecimal("#{Share.last.donation_price}")) * 10).ceil / 10.0
       donor_total_donations = current_donor.donations.sum(:gross_amount)
       donor_total_grants = current_donor.charity_grants.where("status = ?", 'sent').sum(:gross_amount)
-      giv2giv_share_balance = BigDecimal("#{donations.sum(:shares_added)}") - BigDecimal("#{charity_grants.sum(:shares_subtracted)}")
-      giv2giv_current_balance = ((BigDecimal("#{giv2giv_share_balance}") * BigDecimal("#{Share.last.donation_price}")) * 10).ceil / 10.0
-      giv2giv_total_donations = donations.sum(:gross_amount)
-      giv2giv_total_grants = charity_grants.where("status = ?", 'sent').sum(:gross_amount)
-      render json: { :donor_current_balance => donor_current_balance, :donor_total_donations => donor_total_donations, :donor_total_grants => donor_total_grants, :giv2giv_current_balance => giv2giv_current_balance, :giv2giv_total_donations => giv2giv_total_donations, :giv2giv_total_grants => giv2giv_total_grants }.to_json
     end
+
+    giv2giv_share_balance = BigDecimal("#{donations.sum(:shares_added)}") - BigDecimal("#{charity_grants.sum(:shares_subtracted)}")
+    giv2giv_current_balance = ((BigDecimal("#{giv2giv_share_balance}") * BigDecimal("#{Share.last.donation_price}")) * 10).ceil / 10.0
+    giv2giv_total_donations = donations.sum(:gross_amount)
+    giv2giv_total_grants = charity_grants.where("status = ?", 'sent').sum(:gross_amount)
+
+    render json: { :donor_current_balance => donor_current_balance, :donor_total_donations => donor_total_donations, :donor_total_grants => donor_total_grants, :giv2giv_current_balance => giv2giv_current_balance, :giv2giv_total_donations => giv2giv_total_donations, :giv2giv_total_grants => giv2giv_total_grants }.to_json
   end
 
   def subscriptions
