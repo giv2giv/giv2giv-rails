@@ -35,7 +35,7 @@ class Api::EndowmentController < Api::BaseController
 
     q = "%#{query}%"
     if q=="%%"
-	Endowment.order("RAND()").limit(perpage).each do |row|
+	Endowment.where("visibility = ?", "public").order("RAND()").limit(perpage).each do |row|
           endowments << row
         end
     else
@@ -124,10 +124,10 @@ class Api::EndowmentController < Api::BaseController
     if (endowment.donor_id.to_s.eql?(current_session.session_id))
       respond_to do |format|
         if endowment.donations.size >= 1
-          format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
+          format.json { render json: "Cannot edit endowment when it already has donations to it" }
         else
           endowment.update_attributes(params[:endowment])
-          format.json { render json: { :message => "Charity Group has been updated", :endowment => params[:endowment] }.to_json }
+          format.json { render json: { :message => "endowment has been updated", :endowment => params[:endowment] }.to_json }
         end
       end
     else
@@ -144,7 +144,7 @@ class Api::EndowmentController < Api::BaseController
           group.add_charity(params[:charity_id])
           format.json { render json: { :message => "Charity has been added"}.to_json }
         else
-          format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
+          format.json { render json: "Cannot edit endowment when it already has donations to it" }
         end
       end #respond_to
     else
@@ -160,7 +160,7 @@ class Api::EndowmentController < Api::BaseController
           group.remove_charity(params[:id], params[:charity_id])
           format.json { render json: { :message => "Charity has been removed" }.to_json }
         else
-          format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
+          format.json { render json: "Cannot edit endowment when it already has donations to it" }
         end
       end #respond_to
     else
@@ -176,7 +176,7 @@ class Api::EndowmentController < Api::BaseController
           group.delete(params[:charity])
           format.json { render json: "Destroyed #{params[:charity]} record." }
         else
-          format.json { render json: "Cannot edit Charity Group when it already has donations to it" }
+          format.json { render json: "Cannot edit endowment when it already has donations to it" }
         end
       end
     else
