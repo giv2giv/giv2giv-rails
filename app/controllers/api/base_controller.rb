@@ -1,6 +1,4 @@
 class Api::BaseController < ApplicationController
-  require 'bcrypt'
-  include BCrypt
 
   rescue_from Exception, :with => :render_exception
   force_ssl if App.force_ssl && Rails.env.production?
