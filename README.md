@@ -8,31 +8,35 @@ Want to help out? Checkout [giv2giv](http://www.giv2giv.org) and see [Contributi
 
 ## Getting Started
 
-1. Install Ruby
+1. Install pre-requisites
+
+	apt-get install nodejs
+
+2. Install Ruby
 
         # We are using rvm (https://rvm.io/) so this is how we installed ruby
         rvm install ruby-1.9.3
 
-2. Clone giv2giv-rails
+3. Clone giv2giv-rails
 
         git clone https://github.com/giv2giv/giv2giv-rails.git
 
-3. Install gems
+4. Install gems
 
         bundle install
 
-4. Setup your database
+5. Setup your database
 (If this doesn't work, then you may need to install mysql, and change the
  information in config/database.yml.)
 
 		rake db:setup
 		
 
-4. Start the server!
+6. Start the server!
 
         rails s
 
-5. Start your console!
+7. Start your console!
 
         rails c
 

@@ -35,7 +35,7 @@ class Api::EndowmentController < Api::BaseController
 
     q = "%#{query}%"
     if q=="%%"
-        Endowment.where(["created_at > ?", 2.days.ago]).limit(perpage).each do |row|
+	Endowment.order("RAND()").limit(perpage).each do |row|
           endowments << row
         end
     else
