@@ -14,7 +14,9 @@ dwolla:
 etrade:
   oauth_consumer_key : oauth_consumer_key
   consumer_secret    : consumer_secret
-
+  request_site       : https://etwssandbox.etrade.com
+  etrade_site        : https://etws.etrade.com
+  
 stripe:
   api_key            : api_key
   publishable_key    : publishable_key

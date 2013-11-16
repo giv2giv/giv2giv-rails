@@ -5,8 +5,8 @@ module EtradeHelper
 
   CUST_KEY = App.etrade["oauth_consumer_key"]
   CUST_SECRET = App.etrade["consumer_secret"]
-  SITE = "https://etws.etrade.com"
-  REQUEST_SITE = "https://etwssandbox.etrade.com"
+  SITE = App.etrade["etrade_site"]
+  REQUEST_SITE = App.etrade["request_site"]
   TOKEN = EtradeToken.last.token rescue ""
   SECRET = EtradeToken.last.secret rescue ""
 
