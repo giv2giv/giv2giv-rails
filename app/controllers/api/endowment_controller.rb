@@ -35,7 +35,7 @@ class Api::EndowmentController < Api::BaseController
 
     q = "%#{query}%"
     if q=="%%"
-	Endowment.where("visibility = ?", "public").order("RAND()").limit(perpage).each do |row|
+	Endowment.where("endowment_visibility = ?", "public").order("RAND()").limit(perpage).each do |row|
           endowments << row
         end
     else
