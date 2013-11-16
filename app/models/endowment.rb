@@ -12,19 +12,8 @@ class Endowment < ActiveRecord::Base
   validates :minimum_donation_amount, :presence => true, :format => { :with => /^\d+??(?:\.\d{0,2})?$/ }, :numericality => {:greater_than => 0}
   validates :endowment_visibility, :presence => true, :inclusion => { :in => VALID_TYPE }
 
-  class << self
-    def new_with_charities(options = {})
-      charity_ids = options.delete(:charity_ids) || []
-      group = Endowment.new(options)
-
-      group.charities << Charity.find(charity_ids)
-
-      group
-    end
-  end # end self
-
   def as_json(options = {})
-    super(:include =>[:charities])
+    super( :include => [:charities => { :only => [:id, :name, :active] }] )
   end
 
   def add_charity(charity_ids)

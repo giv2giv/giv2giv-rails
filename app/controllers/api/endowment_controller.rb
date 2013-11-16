@@ -57,11 +57,15 @@ class Api::EndowmentController < Api::BaseController
 
   def create
     params[:endowment] = { name: params[:name], minimum_donation_amount: params[:minimum_donation_amount], endowment_visibility: params[:endowment_visibility], description: params[:description] }
-    group = Endowment.new_with_charities(params[:endowment])
+    group = Endowment.new(params[:endowment])
+
     group.donor_id = current_session.session_id
     respond_to do |format|
       if group.save
-        format.json { render json: group, status: :created }
+        if params.has_key?(:charity_id)
+          charities = group.add_charity(params[:charity_id])
+        end
+        format.json { render json: group.to_json(:include => charities)}
       else
         format.json { render json: group.errors , status: :unprocessable_entity }
       end
