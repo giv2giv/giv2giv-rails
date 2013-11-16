@@ -73,6 +73,7 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def my_balances
+    if current_donor.exists?
       {
       "my_donations_count" => current_donor.donations("endowment_id = ?", endowment_id).count('id', :distinct => true),
       "my_donations_shares" => current_donor.donations.where("endowment_id = ?", endowment.id).sum(:shares_added),
@@ -85,8 +86,11 @@ class Api::EndowmentController < Api::BaseController
       "my_endowment_balance" => ((my_endowment_share_balance * last_donation_price) * 10).ceil / 10.0,
 
       "my_investment_gainloss" => my_endowment_balance - my_balance_pre_investment,
-      "my_investment_gailoss_percentage" => (my_investment_gainloss / my_donations_amount * 100).round(3)
+      "my_investment_gainloss_percentage" => (my_investment_gainloss / my_donations_amount * 100).round(3)
       }.to_json
+    else
+      { "my_donations_count" => "0.0", "my_donations_shares" => "0.0", "my_donations_amount" => "0.0", "my_grants_shares" => "0.0", "my_grants_amount" => "0.0", "my_balance_pre_investment" => "0.0", "my_endowment_share_balance" => "0.0", "my_endowment_balance" => "0.0", "my_investment_gainloss" => "0.0", "my_investment_gainloss_percentage" => "0.0" }.to_json
+    end
   end
 
   def global_balances
