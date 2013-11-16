@@ -17,4 +17,12 @@ class DonorMailer < ActionMailer::Base
     mail(:to => email, :subject => "[ giv2giv.org ] #{Date.today} Grant Fee Transfer", content_type: "text/html", :body => "  Transfer of $#{total_giv2giv_fee} from Dwolla to giv2giv requested. From etrade to Dwolla ID: #{from_etrade_to_dwolla_transaction_id}<br>From Dwolla to giv2giv ID: #{from_dwolla_to_giv2giv_transaction_id} ")    
   end
 
+  def forgot_password(donor)
+    mail(:to => donor.email, :subject => "[ giv2giv.org ] New Password", content_type: "text/html", :body => "Url reset password : http://api.giv2giv.org/?reset_token=#{donor.password_reset_token}")    
+  end
+
+  def reset_password(email, new_password)
+    mail(:to => email, :subject => "[ giv2giv.org ] New Password", content_type: "text/html", :body => "Your new password is : #{new_password}")    
+  end
+
 end

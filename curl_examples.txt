@@ -72,6 +72,31 @@
 
     [[{"su_102qK22mGsIlOBKnh4ayVkME":{"endowment_name":"Build Houses","endowment_donation_amount":20.0,"endowment_donor_count":15,"endowment_donor_total_donations":20.0,"endowment_total_donations":20.0,"endowment_donor_current_balance":20.0,"endowment_total_balance":20.0,"total_granted_by_donor":0.0,"total_granted_from_endowment":0.0}}]]
 
+6. Forgot Password
+
+    Arguments : 
+
+    email : required
+
+    curl -X POST -H "Content-Type: application/json" -d '{"email":"email@domain.com"}' http://localhost:3000/api/donors/forgot_password.json
+
+    Examples Response:
+
+    { "message":"Email sent with password reset instructions" }
+
+7. Reset Password
+
+    Arguments : 
+
+    reset_token : required
+
+    curl -X GET -H "Content-Type: application/json" -d '{"reset_token":"9YRr01DshTS9E_wenaqg0w"}' http://localhost:3000/api/donors/reset_password.json
+
+    Examples Response:
+
+    { "message":"Your new password has been sent to your email" }
+    
+
 
 ** SESSION MANAGEMENT **
 

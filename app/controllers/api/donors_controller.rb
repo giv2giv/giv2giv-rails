@@ -1,5 +1,5 @@
 class Api::DonorsController < Api::BaseController
-  skip_before_filter :require_authentication, :only => :create
+  skip_before_filter :require_authentication, :only => [:create, :forgot_password, :reset_password]
 
   def create
     donor = Donor.new(params[:donor])
@@ -69,6 +69,34 @@ class Api::DonorsController < Api::BaseController
     respond_to do |format|
       format.json { render json: current_donor }
     end
+  end
+
+  def forgot_password
+    donor = Donor.find_by_email(params[:email])
+    donor.send_password_reset if donor
+    render json: { :message => "Email sent with password reset instructions" }.to_json
+  end
+
+  def reset_password
+    donor = Donor.find_by_password_reset_token!(params[:reset_token])
+
+    if donor
+      unless donor.expire_password_reset < 2.hours.ago
+        new_password = SecureRandom.base64(6)
+        if donor.update_attributes(password: secure_password(new_password))
+          DonorMailer.reset_password(donor.email, new_password).deliver
+          message = "Your new password has been sent to your email"
+        else
+          message = "Failed to reset password"
+        end
+      else
+        message = "Password reset has expired"
+      end
+      render json: { :message => message }.to_json
+    else
+      render json: { :message => "Password reset has expired or not exist." }.to_json
+    end
+
   end
 
   # def endowments

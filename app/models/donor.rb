@@ -18,6 +18,8 @@ class Donor < ActiveRecord::Base
     donor.validates :type_donor
   end
 
+  before_create { generate_token(:auth_token) }
+
   class << self
     # needed because of the fulltext index
     def find_by_email(email)
@@ -34,6 +36,19 @@ class Donor < ActiveRecord::Base
       end
     end
   end # end self
+
+  def send_password_reset
+    token = generate_token(:password_reset_token)
+    self.expire_password_reset = Time.zone.now
+    save!
+    DonorMailer.forgot_password(self).deliver
+  end
+
+  def generate_token(column)
+    begin
+      self[column] = SecureRandom.urlsafe_base64
+    end while Donor.exists?(column => self[column])
+  end
 
   def as_json(options = {})
     # don't show password in response
