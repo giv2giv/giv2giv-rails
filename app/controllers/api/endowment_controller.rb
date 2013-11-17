@@ -121,11 +121,7 @@ class Api::EndowmentController < Api::BaseController
 
     respond_to do |format|
       if endowment
-        if current_donor.blank?
-          format.json { render json: { endowment: endowment, global_balances: global_balances(endowment) } } 
-        else
-          format.json { render json: { endowment: endowment, my_balances: my_balances(endowment), global_balances: global_balances(endowment) } } 
-        end
+        format.json { render json: { endowment: endowment, my_balances: my_balances(endowment), global_balances: global_balances(endowment) } }
       else
         format.json { head :not_found }
       end
