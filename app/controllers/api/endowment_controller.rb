@@ -4,13 +4,8 @@ class Api::EndowmentController < Api::BaseController
 
   skip_before_filter :require_authentication, :only => [:index, :show]
 
-  #def as_json(options = { })
-    # just in case someone says as_json(nil) and bypasses
-    # our default...
-    #super((options || { }).merge({
-        #:methods => [:finished_items, :unfinished_items]
-    #}))
-  #end
+  GIV_GRANT_AMOUNT = App.giv["giv_grant_amount"]
+  SHARE_PRECISION = App.giv["share_precision"]
 
   def index
     page = params[:page] || 1
@@ -72,38 +67,52 @@ class Api::EndowmentController < Api::BaseController
     end
   end
 
-  def my_balances
-    if defined? current_donor
+  def my_balances(endowment)
+    unless current_donor.blank?
+      last_donation_price = Share.last.donation_price rescue 0.0
+      my_donations_amount = current_donor.donations.where("endowment_id = ?", endowment.id).sum(:gross_amount)
+      my_grants_shares = ((current_donor.charity_grants.where("endowment_id = ?", endowment.id).sum(:shares_subtracted)) * 10).ceil / 10.0
+      my_grants_amount = ((current_donor.donor_grants.where("endowment_id = ?", endowment.id).sum(:shares_pending)) * 10).ceil / 10.0
+      my_donations_shares = ((current_donor.donations.where("endowment_id = ?", endowment.id).sum(:shares_added)) * 10).ceil / 10.0
+      my_balance_pre_investment = my_donations_amount - my_grants_amount
+      my_endowment_share_balance = my_donations_shares - my_grants_shares
+      my_endowment_balance = ((my_endowment_share_balance * last_donation_price) * 10).ceil / 10.0
+      my_investment_gainloss = my_endowment_balance - my_balance_pre_investment
+
       {
-      "my_donations_count" => current_donor.donations("endowment_id = ?", endowment.id).count('id', :distinct => true),
-      "my_donations_shares" => current_donor.donations.where("endowment_id = ?", endowment.id).sum(:shares_added),
-      "my_donations_amount" => current_donor.donations.where("endowment_id = ?", endowment.id).sum(:amount),
-      "my_grants_shares" => current_donor.charity_grants.where("endowment_id = ?", endowment.id).sum(:shares_subtracted),
-      "my_grants_amount" => current_donor.grants.where("endowment_id = ?", endowment.id).sum(:amount),
+        "my_donations_count" => current_donor.donations.where("endowment_id = ?", endowment.id).count('id', :distinct => true),
+        "my_donations_shares" => my_donations_shares,
+        "my_donations_amount" => my_donations_amount,
+        "my_grants_shares" => my_grants_shares,
+        "my_grants_amount" => my_grants_amount,
 
-      "my_balance_pre_investment" => my_donations_amount - my_grants_amount,
-      "my_endowment_share_balance" => my_donations_shares - my_grants_shares,
-      "my_endowment_balance" => ((my_endowment_share_balance * last_donation_price) * 10).ceil / 10.0,
+        "my_balance_pre_investment" => my_balance_pre_investment,
+        "my_endowment_share_balance" => my_endowment_share_balance,
+        "my_endowment_balance" => my_endowment_balance,
 
-      "my_investment_gainloss" => my_endowment_balance - my_balance_pre_investment,
-      "my_investment_gainloss_percentage" => (my_investment_gainloss / my_donations_amount * 100).round(3)
-      }.to_json
+        "my_investment_gainloss" => my_investment_gainloss,
+        "my_investment_gailoss_percentage" => (my_investment_gainloss / my_donations_amount * 100).round(3)
+      }
     else
-      { "my_donations_count" => "0.0", "my_donations_shares" => "0.0", "my_donations_amount" => "0.0", "my_grants_shares" => "0.0", "my_grants_amount" => "0.0", "my_balance_pre_investment" => "0.0", "my_endowment_share_balance" => "0.0", "my_endowment_balance" => "0.0", "my_investment_gainloss" => "0.0", "my_investment_gainloss_percentage" => "0.0" }.to_json
+      { "my_donations_count" => "0.0", "my_donations_shares" => "0.0", "my_donations_amount" => "0.0", "my_grants_shares" => "0.0", "my_grants_amount" => "0.0", "my_balance_pre_investment" => "0.0", "my_endowment_share_balance" => "0.0", "my_endowment_balance" => "0.0", "my_investment_gainloss" => "0.0", "my_investment_gainloss_percentage" => "0.0" }
     end
   end
 
-  def global_balances
-      {
+  def global_balances(endowment)
+    last_donation_price = Share.last.donation_price rescue 0.0
+    endowment_share_balance = BigDecimal("#{endowment.donations.sum(:shares_added)}") - BigDecimal("#{endowment.charity_grants.sum(:shares_subtracted)}")
+    endowment_grants = (BigDecimal("#{endowment_share_balance}") * BigDecimal("#{GIV_GRANT_AMOUNT}")).round(SHARE_PRECISION)
+          
+    global_balances = {
       "endowment_donor_count" => endowment.donations.count('donor_id', :distinct => true),
       "endowment_donations_count" => endowment.donations.count('id', :distinct => true),
       "endowment_donations" => endowment.donations.sum(:gross_amount),
       "endowment_transaction_fees" => endowment.donations.sum(:transaction_fees),
       "endowment_fees" => endowment.donations.sum(:gross_amount),
-      "endowment_grants" => endowment.donations.sum(:grants),
-      "endowment_share_balance" => endowment.donations.sum(:shares_added) - endowment.charity_grants.sum(:shares_subtracted),
-      "endowment_balance" => ((share_balance * last_donation_price) * 10).ceil / 10.0
-      }.to_json
+      "endowment_grants" => endowment_grants,
+      "endowment_share_balance" => ((endowment.donations.sum(:shares_added) - endowment.charity_grants.sum(:shares_subtracted)) * 10).ceil / 10.0,
+      "endowment_balance" => ((endowment_share_balance * last_donation_price) * 10).ceil / 10.0
+    }
   end
 
 
@@ -112,7 +121,11 @@ class Api::EndowmentController < Api::BaseController
 
     respond_to do |format|
       if endowment
-        format.json { render json: endowment } #include my_balances, global_balances in return JSON
+        if current_donor.blank?
+          format.json { render json: { endowment: endowment, global_balances: global_balances(endowment) } } 
+        else
+          format.json { render json: { endowment: endowment, my_balances: my_balances(endowment), global_balances: global_balances(endowment) } } 
+        end
       else
         format.json { head :not_found }
       end

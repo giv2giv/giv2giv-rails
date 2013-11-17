@@ -252,7 +252,11 @@
 
     Arguments :
 
-    { ENDOWMENT_ID }
+    { ENDOWMENT_ID }  : required
+
+    Header Authorization Token : optional
+    e.g : 
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=seQQzOwBCkfAA4TtuE7DvA' -d '' http://localhost:3000/api/endowment/20.json
 
     http://localhost:3000/api/endowment/{ ENDOWMENT_ID }.json
 
