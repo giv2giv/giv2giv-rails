@@ -16,10 +16,10 @@ class Api::DonorsController < Api::BaseController
   end
 
   def balance_information
-
     if defined? current_donor
+      last_donation_price = Share.last.donation_price rescue 0.0
       share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.charity_grants.sum(:shares_subtracted)}")
-      donor_current_balance = ((BigDecimal("#{share_balance}") * BigDecimal("#{Share.last.donation_price}")) * 10).ceil / 10.0
+      donor_current_balance = ((BigDecimal("#{share_balance}") * BigDecimal("#{last_donation_price}")) * 10).ceil / 10.0
       donor_total_donations = current_donor.donations.sum(:gross_amount)
       donor_total_grants = current_donor.charity_grants.where("status = ?", 'sent').sum(:gross_amount)
     else
@@ -29,7 +29,7 @@ class Api::DonorsController < Api::BaseController
     end
 
     giv2giv_share_balance = BigDecimal("#{Donation.sum(:shares_added)}") - BigDecimal("#{CharityGrant.sum(:shares_subtracted)}")
-    giv2giv_current_balance = ((BigDecimal("#{giv2giv_share_balance}") * BigDecimal("#{Share.last.donation_price}")) * 10).ceil / 10.0
+    giv2giv_current_balance = ((BigDecimal("#{giv2giv_share_balance}") * BigDecimal("#{last_donation_price}")) * 10).ceil / 10.0
     giv2giv_total_donations = Donation.sum(:gross_amount)
     giv2giv_total_grants = CharityGrant.where("status = ?", 'sent').sum(:gross_amount)
 
@@ -52,57 +52,57 @@ class Api::DonorsController < Api::BaseController
         "total_granted_by_donor" => current_donor.charity_grants.where("status = ?", 'sent').where("endowment_id = ?", subscription.endowment_id).sum(:grant_amount),
         "total_granted_from_endowment" => CharityGrant.where("status = ?", 'sent').where("endowment_id = ?", subscription.endowment_id).sum(:grant_amount)
       }
-      ]
-      subscriptions_list << subscriptions_hash
-    end
-    render json: subscriptions_list
+    ]
+    subscriptions_list << subscriptions_hash
   end
+  render json: subscriptions_list
+end
 
-  def update
-    donor = current_donor
+def update
+  donor = current_donor
 
-    respond_to do |format|
-      if donor && donor.update_attributes(params[:donor])
-        format.json { render json: donor }
-      else
-        format.json { render json: donor.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  def show
-    respond_to do |format|
-      format.json { render json: current_donor }
-    end
-  end
-
-  def forgot_password
-    donor = Donor.find_by_email(params[:email])
-    donor.send_password_reset if donor
-    render json: { :message => "Email sent with password reset instructions" }.to_json
-  end
-
-  def reset_password
-    donor = Donor.find_by_password_reset_token!(params[:reset_token])
-
-    if donor
-      unless donor.expire_password_reset < 2.hours.ago
-        new_password = SecureRandom.base64(6)
-        if donor.update_attributes(password: secure_password(new_password))
-          DonorMailer.reset_password(donor.email, new_password).deliver
-          message = "Your new password has been sent to your email"
-        else
-          message = "Failed to reset password"
-        end
-      else
-        message = "Password reset has expired"
-      end
-      render json: { :message => message }.to_json
+  respond_to do |format|
+    if donor && donor.update_attributes(params[:donor])
+      format.json { render json: donor }
     else
-      render json: { :message => "Password reset has expired or not exist." }.to_json
+      format.json { render json: donor.errors, status: :unprocessable_entity }
     end
-
   end
+end
+
+def show
+  respond_to do |format|
+    format.json { render json: current_donor }
+  end
+end
+
+def forgot_password
+  donor = Donor.find_by_email(params[:email])
+  donor.send_password_reset if donor
+  render json: { :message => "Email sent with password reset instructions" }.to_json
+end
+
+def reset_password
+  donor = Donor.find_by_password_reset_token!(params[:reset_token])
+
+  if donor
+    unless donor.expire_password_reset < 2.hours.ago
+      new_password = SecureRandom.base64(6)
+      if donor.update_attributes(password: secure_password(new_password))
+        DonorMailer.reset_password(donor.email, new_password).deliver
+        message = "Your new password has been sent to your email"
+      else
+        message = "Failed to reset password"
+      end
+    else
+      message = "Password reset has expired"
+    end
+    render json: { :message => message }.to_json
+  else
+    render json: { :message => "Password reset has expired or not exist." }.to_json
+  end
+
+end
 
   # def endowments
   #   endowments = current_donor.endowments
