@@ -4,9 +4,6 @@ class Api::EndowmentController < Api::BaseController
 
   skip_before_filter :require_authentication, :only => [:index, :show]
 
-  GIV_GRANT_AMOUNT = App.giv["giv_grant_amount"]
-  SHARE_PRECISION = App.giv["share_precision"]
-
   def index
     page = params[:page] || 1
     perpage = params[:per_page] || 10
@@ -101,8 +98,8 @@ class Api::EndowmentController < Api::BaseController
   def global_balances(endowment)
     last_donation_price = Share.last.donation_price rescue 0.0
     endowment_share_balance = BigDecimal("#{endowment.donations.sum(:shares_added)}") - BigDecimal("#{endowment.charity_grants.sum(:shares_subtracted)}")
-    endowment_grants = (BigDecimal("#{endowment_share_balance}") * BigDecimal("#{GIV_GRANT_AMOUNT}")).round(SHARE_PRECISION)
-          
+    endowment_grants = endowment.charity_grants.sum(:gross_amount)
+
     global_balances = {
       "endowment_donor_count" => endowment.donations.count('donor_id', :distinct => true),
       "endowment_donations_count" => endowment.donations.count('id', :distinct => true),
