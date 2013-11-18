@@ -67,6 +67,7 @@ class Api::EndowmentController < Api::BaseController
   def my_balances(endowment)
     unless current_donor.blank?
       last_donation_price = Share.last.donation_price rescue 0.0
+      my_donations_count = current_donor.donations.where("endowment_id = ?", endowment.id).count('id', :distinct => true)
       my_donations_amount = current_donor.donations.where("endowment_id = ?", endowment.id).sum(:gross_amount)
       my_grants_shares = ((current_donor.charity_grants.where("endowment_id = ?", endowment.id).sum(:shares_subtracted)) * 10).ceil / 10.0
       my_grants_amount = ((current_donor.donor_grants.where("endowment_id = ?", endowment.id).sum(:shares_pending)) * 10).ceil / 10.0
@@ -77,37 +78,36 @@ class Api::EndowmentController < Api::BaseController
       my_investment_gainloss = my_endowment_balance - my_balance_pre_investment
 
       {
-        "my_donations_count" => current_donor.donations.where("endowment_id = ?", endowment.id).count('id', :distinct => true),
-        "my_donations_shares" => my_donations_shares,
+        "my_donations_count" => my_donations_count,
+        #"my_donations_shares" => my_donations_shares, # We should not expose shares to users -- too confusing
         "my_donations_amount" => my_donations_amount,
-        "my_grants_shares" => my_grants_shares,
+        #"my_grants_shares" => my_grants_shares,
         "my_grants_amount" => my_grants_amount,
 
         "my_balance_pre_investment" => my_balance_pre_investment,
-        "my_endowment_share_balance" => my_endowment_share_balance,
-        "my_endowment_balance" => my_endowment_balance,
+        #"my_endowment_share_balance" => my_endowment_share_balance,
 
         "my_investment_gainloss" => my_investment_gainloss,
-        "my_investment_gailoss_percentage" => (my_investment_gainloss / my_donations_amount * 100).round(3)
+        "my_investment_gailoss_percentage" => (my_investment_gainloss / my_donations_amount * 100).round(3),
+        "my_endowment_balance" => my_endowment_balance
       }
     else
-      { "my_donations_count" => "0.0", "my_donations_shares" => "0.0", "my_donations_amount" => "0.0", "my_grants_shares" => "0.0", "my_grants_amount" => "0.0", "my_balance_pre_investment" => "0.0", "my_endowment_share_balance" => "0.0", "my_endowment_balance" => "0.0", "my_investment_gainloss" => "0.0", "my_investment_gainloss_percentage" => "0.0" }
+      { "my_donations_count" => "0.0", "my_donations_amount" => "0.0", "my_grants_amount" => "0.0", "my_balance_pre_investment" => "0.0", "my_investment_gainloss" => "0.0", "my_investment_gainloss_percentage" => "0.0", "my_endowment_balance" => "0.0" }
     end
   end
 
   def global_balances(endowment)
     last_donation_price = Share.last.donation_price rescue 0.0
     endowment_share_balance = BigDecimal("#{endowment.donations.sum(:shares_added)}") - BigDecimal("#{endowment.charity_grants.sum(:shares_subtracted)}")
-    endowment_grants = endowment.charity_grants.sum(:gross_amount)
 
     global_balances = {
       "endowment_donor_count" => endowment.donations.count('donor_id', :distinct => true),
       "endowment_donations_count" => endowment.donations.count('id', :distinct => true),
       "endowment_donations" => endowment.donations.sum(:gross_amount),
       "endowment_transaction_fees" => endowment.donations.sum(:transaction_fees),
-      "endowment_fees" => endowment.donations.sum(:gross_amount),
-      "endowment_grants" => endowment_grants,
-      "endowment_share_balance" => ((endowment.donations.sum(:shares_added) - endowment.charity_grants.sum(:shares_subtracted)) * 10).ceil / 10.0,
+      "endowment_fees" => endowment.donations.sum(:giv2giv_fees),
+      "endowment_grants" => endowment.charity_grants.sum(:gross_amount),
+      #"endowment_share_balance" => ((endowment.donations.sum(:shares_added) - endowment.charity_grants.sum(:shares_subtracted)) * 10).ceil / 10.0,
       "endowment_balance" => ((endowment_share_balance * last_donation_price) * 10).ceil / 10.0
     }
   end
