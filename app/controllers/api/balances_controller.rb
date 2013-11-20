@@ -48,7 +48,7 @@ class Api::BalancesController < Api::BaseController
 
 
 # TODO delayed_job
-    donor_grant_shares_by_donor = DonorGrant.select("donor_id as id").where("status = ?", "pending").group("donor_id")
+    donor_grant_shares_by_donor = DonorGrant.select("donor_id as id").where("status = ?", "pending").distinct
     donor_grant_shares_by_donor.each do |donor_grant_share|
       donor = Donor.find(donor_grant_share.id)
       DonorMailer.endowment_grant_money(donor.email, donor.name, total_grant_amount).deliver
@@ -92,7 +92,20 @@ class Api::BalancesController < Api::BaseController
 
         results << sent_grant
 
-        DonorGrants.where("status = ?", "pending").where("charity_id = ?", charity.id).update_attributes(:status => "sent", :transaction_id => transaction_id)
+        update_grants = DonorGrants.where("status = ?", "pending").where("charity_id = ?", charity.id)
+
+        update_grants.each do |grant|
+
+             percent_of_grant = BigDecimal("#{grant.shares_subtracted}") / BigDecimal("#{donor_grant_share.shares_subtracted}")
+
+             grant.update_attributes(:transaction_id => transaction_id,
+                       :gross_amount => BigDecimal("#{gross_amount}") * percent_of_grant,
+                       :giv2giv_fee => BigDecimal("#{giv2giv_fee}") * percent_of_grant,
+                       :transaction_fee => BigDecimal("#{dwolla_fee}") * percent_of_grant,
+                       :net_amount => BigDecimal("#{net_amount}") * percent_of_grant,
+                       :status => 'sent'
+                       )
+        end
 
       rescue Dwolla::APIError => error
         render json: { :message => error.message }.to_json

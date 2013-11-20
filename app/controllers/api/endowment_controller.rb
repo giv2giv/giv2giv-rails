@@ -105,8 +105,8 @@ class Api::EndowmentController < Api::BaseController
       "endowment_donations_count" => endowment.donations.count('id', :distinct => true),
       "endowment_donations" => endowment.donations.sum(:gross_amount),
       "endowment_transaction_fees" => endowment.donations.sum(:transaction_fees),
-      #"endowment_fees" => endowment.donor_grants.sum(:giv2giv_fees),
-      #"endowment_grants" => endowment.donor_grants.sum(:gross_amount),
+      "endowment_fees" => "0.0", #endowment.donor_grants.sum(:giv2giv_fees),
+      "endowment_grants" => "0.0", #endowment.donor_grants.sum(:gross_amount),
       #"endowment_share_balance" => ((endowment.donations.sum(:shares_added) - endowment.donor_grants.sum(:shares_subtracted)) * 10).ceil / 10.0,
       "endowment_balance" => ((endowment_share_balance * last_donation_price) * 10).ceil / 10.0
     }
