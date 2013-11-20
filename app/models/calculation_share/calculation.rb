@@ -83,7 +83,7 @@ module CalculationShare
                                         :endowment_id => endowment.id,
                                         :charity_id => charity.id,
                                         :date => Date.today,
-                                        :shares_pending => charity_grant_shares,
+                                        :shares_subtracted => charity_grant_shares,
                                         :status => 'pending'
                                         )
                 grant_record.save

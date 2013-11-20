@@ -16,7 +16,7 @@ class Api::BalancesController < Api::BaseController
       {
         'charity_id' => charity.charity_id,
         'charity_email' => charity.charity.email,
-        'grant_amount' => (BigDecimal("#{DonorGrant.where("charity_id = ?", charity.charity_id).sum(:shares_pending)}") * BigDecimal("#{Share.last.grant_price}")).round(SHARE_PRECISION)
+        'grant_amount' => (BigDecimal("#{DonorGrant.where("charity_id = ?", charity.charity_id).sum(:shares_subtracted)}") * BigDecimal("#{Share.last.grant_price}")).round(SHARE_PRECISION)
       }
     end
     respond_to do |format|
@@ -41,14 +41,14 @@ class Api::BalancesController < Api::BaseController
 
     last_grant_price = Share.last_grant_price
 
-    total_grant_shares = DonorGrant.where("status = ?", "pending").sum(:shares_pending)
+    total_grant_shares = DonorGrant.where("status = ?", "pending").sum(:shares_subtracted)
     total_grant_amount = ((BigDecimal("#{total_grant_shares}") * BigDecimal("#{last_grant_price}")).to_f * 10).ceil / 10.0
     total_giv2giv_fee = (total_grant_amount * 10).ceil / 10.0
     results = []
 
 
 # TODO delayed_job
-    donor_grant_shares_by_donor = DonorGrant.select("donor_id as id, sum(shares_pending) as shares_pending").where("status = ?", "pending").group("donor_id")
+    donor_grant_shares_by_donor = DonorGrant.select("donor_id as id").where("status = ?", "pending").group("donor_id")
     donor_grant_shares_by_donor.each do |donor_grant_share|
       donor = Donor.find(donor_grant_share.id)
       DonorMailer.endowment_grant_money(donor.email, donor.name, total_grant_amount).deliver
@@ -56,12 +56,12 @@ class Api::BalancesController < Api::BaseController
 
 
 
-    donor_grant_shares_by_charity = DonorGrant.select("charity_id as charity_id, sum(shares_pending) as shares_pending").where("status = ?", "pending").group("charity_id")
+    donor_grant_shares_by_charity = DonorGrant.select("charity_id as charity_id, sum(shares_subtracted) as shares_subtracted").where("status = ?", "pending").group("charity_id")
     donor_grant_shares_by_charity.each do |donor_grant_share|
 
       charity = Charity.find(donor_grant_share.id)
 
-      gross_amount = ((BigDecimal("#{donor_grant_share.shares_pending}") * BigDecimal("#{last_grant_price}")).to_f * 10).ceil / 10.0
+      gross_amount = ((BigDecimal("#{donor_grant_share.shares_subtracted}") * BigDecimal("#{last_grant_price}")).to_f * 10).ceil / 10.0
       giv2giv_fee = (gross_amount * GIV_FEE_AMOUNT * 10).ceil / 10.0
       net_amount = gross_amount - giv2giv_fee
 
@@ -85,7 +85,7 @@ class Api::BalancesController < Api::BaseController
                          :giv2giv_fee => giv2giv_fee,
                          :transaction_fee => dwolla_fee,
                          :net_amount => net_amount,
-                         :shares_subtracted => donor_grant_share.shares_pending,
+                         :shares_subtracted => donor_grant_share.shares_subtracted,
                          :status => 'sent'
                          )
         sent_grant.save

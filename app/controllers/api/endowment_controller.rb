@@ -70,7 +70,7 @@ class Api::EndowmentController < Api::BaseController
       my_donations_count = current_donor.donations.where("endowment_id = ?", endowment.id).count('id', :distinct => true)
       my_donations_amount = current_donor.donations.where("endowment_id = ?", endowment.id).sum(:gross_amount)
       my_grants_shares = ((current_donor.donor_grants.where("endowment_id = ?", endowment.id).sum(:shares_subtracted)) * 10).ceil / 10.0
-      my_grants_amount = ((current_donor.donor_grants.where("endowment_id = ?", endowment.id).sum(:shares_pending)) * 10).ceil / 10.0
+      my_grants_amount = ((current_donor.donor_grants.where("endowment_id = ?", endowment.id).sum(:shares_subtracted)) * 10).ceil / 10.0
       my_donations_shares = ((current_donor.donations.where("endowment_id = ?", endowment.id).sum(:shares_added)) * 10).ceil / 10.0
       my_balance_pre_investment = my_donations_amount - my_grants_amount
       my_endowment_share_balance = my_donations_shares - my_grants_shares
