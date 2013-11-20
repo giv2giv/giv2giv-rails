@@ -69,7 +69,7 @@ class Api::EndowmentController < Api::BaseController
       last_donation_price = Share.last.donation_price rescue 0.0
       my_donations_count = current_donor.donations.where("endowment_id = ?", endowment.id).count('id', :distinct => true)
       my_donations_amount = current_donor.donations.where("endowment_id = ?", endowment.id).sum(:gross_amount)
-      my_grants_shares = ((current_donor.charity_grants.where("endowment_id = ?", endowment.id).sum(:shares_subtracted)) * 10).ceil / 10.0
+      my_grants_shares = ((current_donor.donor_grants.where("endowment_id = ?", endowment.id).sum(:shares_subtracted)) * 10).ceil / 10.0
       my_grants_amount = ((current_donor.donor_grants.where("endowment_id = ?", endowment.id).sum(:shares_pending)) * 10).ceil / 10.0
       my_donations_shares = ((current_donor.donations.where("endowment_id = ?", endowment.id).sum(:shares_added)) * 10).ceil / 10.0
       my_balance_pre_investment = my_donations_amount - my_grants_amount
@@ -98,7 +98,7 @@ class Api::EndowmentController < Api::BaseController
 
   def global_balances(endowment)
     last_donation_price = Share.last.donation_price rescue 0.0
-    endowment_share_balance = BigDecimal("#{endowment.donations.sum(:shares_added)}") - BigDecimal("#{endowment.charity_grants.sum(:shares_subtracted)}")
+    endowment_share_balance = BigDecimal("#{endowment.donations.sum(:shares_added)}") - BigDecimal("#{endowment.donor_grants.sum(:shares_subtracted)}")
 
     global_balances = {
       "endowment_donor_count" => endowment.donations.count('donor_id', :distinct => true),
@@ -106,8 +106,8 @@ class Api::EndowmentController < Api::BaseController
       "endowment_donations" => endowment.donations.sum(:gross_amount),
       "endowment_transaction_fees" => endowment.donations.sum(:transaction_fees),
       "endowment_fees" => endowment.donations.sum(:giv2giv_fees),
-      "endowment_grants" => endowment.charity_grants.sum(:gross_amount),
-      #"endowment_share_balance" => ((endowment.donations.sum(:shares_added) - endowment.charity_grants.sum(:shares_subtracted)) * 10).ceil / 10.0,
+      "endowment_grants" => endowment.donor_grants.sum(:gross_amount),
+      #"endowment_share_balance" => ((endowment.donations.sum(:shares_added) - endowment.donor_grants.sum(:shares_subtracted)) * 10).ceil / 10.0,
       "endowment_balance" => ((endowment_share_balance * last_donation_price) * 10).ceil / 10.0
     }
   end

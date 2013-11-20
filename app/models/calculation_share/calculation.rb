@@ -68,7 +68,7 @@ module CalculationShare
 
         endowments.each do |endowment|
 
-          endowment_share_balance = BigDecimal("#{endowment.donations.sum(:shares_added)}") - BigDecimal("#{endowment.charity_grants.sum(:shares_subtracted)}")
+          endowment_share_balance = BigDecimal("#{endowment.donations.sum(:shares_added)}") - BigDecimal("#{endowment.donor_grants.sum(:shares_subtracted)}")
           endowment_grant_shares = (BigDecimal("#{endowment_share_balance}") * BigDecimal("#{GIV_GRANT_AMOUNT}")).round(SHARE_PRECISION)
           charity_grant_shares = (BigDecimal("#{endowment_grant_shares}") / BigDecimal("#{endowment.charities.count}")).round(SHARE_PRECISION)
 
