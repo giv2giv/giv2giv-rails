@@ -1,5 +1,5 @@
 class Api::DonorsController < Api::BaseController
-  skip_before_filter :require_authentication, :only => [:create, :forgot_password, :reset_password]
+  skip_before_filter :require_authentication, :only => [:create, :forgot_password, :reset_password, :balance_information]
 
   def create
     donor = Donor.new(params[:donor])
