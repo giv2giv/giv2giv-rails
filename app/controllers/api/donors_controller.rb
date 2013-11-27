@@ -37,7 +37,7 @@ class Api::DonorsController < Api::BaseController
   end
 
   def subscriptions
-    last_grant_price = Share.last.grant_price
+    last_grant_price = Share.last.grant_price rescue 0.0
     subscriptions = current_donor.donor_subscriptions
     subscriptions_list = []
     subscriptions.each do |subscription|
@@ -50,8 +50,8 @@ class Api::DonorsController < Api::BaseController
         "endowment_total_donations" => Donation.where("endowment_id = ?", subscription.endowment_id).sum(:gross_amount),
         "endowment_donor_current_balance" => ((BigDecimal(current_donor.donations.where("endowment_id = ?", subscription.endowment_id).sum(:shares_added)) - BigDecimal(current_donor.donor_grants.sum(:shares_subtracted))) * last_grant_price * 10).ceil / 10.0,
         "endowment_total_balance" => ((BigDecimal(Donation.where("endowment_id = ?", subscription.endowment_id).sum(:shares_added)) - BigDecimal(current_donor.donor_grants.where("endowment_id = ?", subscription.endowment_id).sum(:shares_subtracted))) * last_grant_price * 10).ceil / 10.0,
-        "total_granted_by_donor" => current_donor.donor_grants.where("status = ?", 'sent').where("endowment_id = ?", subscription.endowment_id).sum(:grant_amount),
-        "total_granted_from_endowment" => DonorGrant.where("status = ?", 'sent').where("endowment_id = ?", subscription.endowment_id).sum(:grant_amount)
+        "total_granted_by_donor" => current_donor.donor_grants.where("status = ?", 'sent').where("endowment_id = ?", subscription.endowment_id),#.sum(:grant_amount),
+        "total_granted_from_endowment" => DonorGrant.where("status = ?", 'sent').where("endowment_id = ?", subscription.endowment_id)#.sum(:grant_amount)
       }
     ]
     subscriptions_list << subscriptions_hash
