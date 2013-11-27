@@ -1,6 +1,6 @@
 class PaymentAccount < ActiveRecord::Base
   require "stripe"
-  
+
   VALID_PROCESSORS = %w(stripe)
   PLAN_ID = 1
   PER_SHARE_DEFAULT = 100000
@@ -50,7 +50,7 @@ class PaymentAccount < ActiveRecord::Base
         else
           random_password = SecureRandom.hex(10)
           random_name = SecureRandom.hex(10)
-            
+
           if check_donor.blank?
             # entry as unregistered donor
             email = random_name + "@" + random_password + ".com"
@@ -80,7 +80,7 @@ class PaymentAccount < ActiveRecord::Base
                                              :stripe_cust_id => customer.id
                                             )
                 if payment.save
-                  
+
                   begin
                     cust_charge = Stripe::Charge.create(
                                                         :amount => amount * 100,
@@ -111,7 +111,7 @@ class PaymentAccount < ActiveRecord::Base
                   payment.errors
                 end # end payment save
               else
-                { :message => "Error! Creating payment account" }.to_json    
+                { :message => "Error! Creating payment account" }.to_json
               end # end donor save
 
           else
@@ -138,7 +138,7 @@ class PaymentAccount < ActiveRecord::Base
                 { :message => "Success" }.to_json
               else
                 { :message => "Error" }.to_json
-              end  
+              end
             else
               check_donor = Donor.where("email = ? AND password = ? AND type_donor = 'registered'", email, password).first
               cust_id = check_donor.payment_accounts.find(payment_account_id)
@@ -169,7 +169,7 @@ class PaymentAccount < ActiveRecord::Base
                 { :message => "Success" }.to_json
               else
                 { :message => "Error" }.to_json
-              end 
+              end
 
             end # end check registered email
           end #end check email
@@ -187,7 +187,7 @@ class PaymentAccount < ActiveRecord::Base
       customer.card = stripeToken
       customer.save
     end
-    
+
     def cancel_subscription(subscription_id)
       begin
         subscription = DonorSubcription.find(subscription_id)
@@ -198,7 +198,7 @@ class PaymentAccount < ActiveRecord::Base
           total_quantity = cu.subscription.quantity.to_i
           amount = subscription.gross_amount
           if total_quantity > amount
-            update_qty = total_quantity - amount 
+            update_qty = total_quantity - amount
             cu.update_subscription(:plan => PLAN_ID, :quantity => update_qty)
           else
             cu.cancel_subscription
@@ -294,7 +294,7 @@ class PaymentAccount < ActiveRecord::Base
 
           end # end check minimum donation
         else
-          { :message => "You need to add one or more charity to this group" }.to_json
+          { :message => "No charities in this endowment" }.to_json
         end
       else
         { :message => "Wrong donor id" }.to_json
