@@ -13,11 +13,12 @@ class Api::PaymentAccountsController < Api::BaseController
 
   def create
     set_token = params[:stripeToken]
+
     if set_token.blank?
       render json: { :message => "Please provide your stripe token" }.to_json
     else
-      if params.has_key?(:payment_account)
-        payment = PaymentAccount.new_account(set_token, current_donor.id, {:donor => current_donor}.merge(params[:payment_account]))
+      if params.has_key?(:processor)
+        payment = PaymentAccount.new_account(set_token, current_donor.id, {:donor => current_donor, :processor => params[:processor]})
         render json: payment.to_json
       else
         render json: { :message => "Wrong parameters" }.to_json
@@ -30,17 +31,19 @@ class Api::PaymentAccountsController < Api::BaseController
     if set_token.blank?
       render json: { :message => "Please provide your stripe token"}.to_json
     else
+      params[:payment_account] = {"processor"=> params[:processor]}#, "stripeToken"=> params[:stripeToken]}
+
       if params.has_key?(:payment_account)
         payment = PaymentAccount.update_account(set_token, current_donor.id, current_donor_id, {:donor => current_donor}.merge(params[:payment_account]))
 
         respond_to do |format|
-            if current_donor_id && current_donor_id.update_attributes(params[:payment_account])
-              format.json { render json: current_donor_id }
-            elsif current_donor_id
-              format.json { render json: current_donor_id.errors, status: :unprocessable_entity }
-            else
-              format.json { head :not_found }
-            end
+          if current_donor_id && current_donor_id.update_attributes(params[:payment_account])
+            format.json { render json: current_donor_id }
+          elsif current_donor_id
+            format.json { render json: current_donor_id.errors, status: :unprocessable_entity }
+          else
+            format.json { head :not_found }
+          end
         end
 
       else
@@ -108,10 +111,10 @@ class Api::PaymentAccountsController < Api::BaseController
       respond_to do |format|
         if params.has_key?(:start_date) and params.has_key?(:end_date) and params.has_key?(:endowment_id)
           format.json { render json: { :donations => current_donor.donations.where("endowment_id = ? AND DATE(created_at) between ? AND ?", params[:endowment_id], params[:start_date], params[:end_date]), :total => current_donor.donations.where("endowment_id = ? AND DATE(created_at) between ? AND ?", params[:endowment_id], params[:start_date], params[:end_date]).sum(:gross_amount) } }
-        elsif params.has_key?(:start_date) and params.has_key?(:end_date)   
+        elsif params.has_key?(:start_date) and params.has_key?(:end_date)
           format.json { render json: { :donations => current_donor.donations.where("DATE(created_at) between ? AND ?", params[:start_date], params[:end_date]), :total => current_donor.donations.where("DATE(created_at) between ? AND ?", params[:start_date], params[:end_date]).sum(:gross_amount) } }
         elsif params.has_key?(:endowment_id)
-          format.json { render json: { :donations => current_donor.donations.where("endowment_id = ?", params[:endowment_id]), :total =>current_donor.donations.where("endowment_id = ?", params[:endowment_id]).sum(:gross_amount) } }
+          format.json { render json: { :donations => current_donor.donor_subscriptions.where("endowment_id = ?", params[:endowment_id]), :total =>current_donor.donor_subscriptions.where("endowment_id = ?", params[:endowment_id]).sum(:gross_amount) } }
         else
           donor_payment_accounts = current_donor.payment_accounts.all
           donation_data = []
