@@ -106,33 +106,6 @@ class Api::PaymentAccountsController < Api::BaseController
     end
   end
 
-<<<<<<< HEAD
-=======
-  def all_donation_list
-    if current_donor
-      respond_to do |format|
-        if params.has_key?(:start_date) and params.has_key?(:end_date) and params.has_key?(:endowment_id)
-          format.json { render json: { :donations => current_donor.donations.where("endowment_id = ? AND DATE(created_at) between ? AND ?", params[:endowment_id], params[:start_date], params[:end_date]), :total => current_donor.donations.where("endowment_id = ? AND DATE(created_at) between ? AND ?", params[:endowment_id], params[:start_date], params[:end_date]).sum(:gross_amount) } }
-        elsif params.has_key?(:start_date) and params.has_key?(:end_date)
-          format.json { render json: { :donations => current_donor.donations.where("DATE(created_at) between ? AND ?", params[:start_date], params[:end_date]), :total => current_donor.donations.where("DATE(created_at) between ? AND ?", params[:start_date], params[:end_date]).sum(:gross_amount) } }
-        elsif params.has_key?(:endowment_id)
-          format.json { render json: { :donations => current_donor.donations.where("endowment_id = ?", params[:endowment_id]), :total =>current_donor.donor_subscriptions.where("endowment_id = ?", params[:endowment_id]).sum(:gross_amount) } }
-        else
-          donor_payment_accounts = current_donor.payment_accounts.all
-          donation_data = []
-          donor_payment_accounts.each do |payment_account|
-            donation_data << payment_account.donations
-            # donation_data << payment_account.donor_subscriptions
-          end
-          format.json { render json: donation_data }
-        end
-      end
-    else
-      render :json => { :message => "unauthorized" }.to_json
-    end
-  end
-
->>>>>>> d9ab294a0528fc9fcfd80b00e213a8d66015b470
   def cancel_subscription
     if current_donor
       respond_to do |format|
