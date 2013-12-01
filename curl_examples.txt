@@ -72,7 +72,23 @@
 
     [[{"su_102qK22mGsIlOBKnh4ayVkME":{"endowment_name":"Build Houses","endowment_donation_amount":20.0,"endowment_donor_count":15,"endowment_donor_total_donations":20.0,"endowment_total_donations":20.0,"endowment_donor_current_balance":20.0,"endowment_total_balance":20.0,"total_granted_by_donor":0.0,"total_granted_from_endowment":0.0}}]]
 
-6. Forgot Password
+6. Show donations from this donor
+
+    Authorization token in Header *required*. See session #authenticate
+
+    Arguments :
+
+    endowment_id         : optional
+    start_date           : optional ( ex : 2013-10-15 )
+    end_date             : optional ( ex : 2013-10-17 )
+
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=6MyKLFF_11ab8WrthtAT5Q' -d '{"endowment_id":"1", "start_date":"2013-10-15", "end_date":"2015-10-17"}' http://localhost:3000/api/donors/endowments.json
+
+    Examples Response:
+    {"donations":[{"donation":{"created_at":"2013-12-01T01:52:34Z","donor_id":6,"endowment_id":11,"gross_amount":333.0,"id":3,"net_amount":323.043,"payment_account_id":2,"shares_added":"0.00323043","transaction_fees":9.957,"updated_at":"2013-12-01T01:52:34Z"}}],"total":333.0}
+
+
+7. Forgot Password
 
     Arguments : 
 
@@ -84,7 +100,7 @@
 
     { "message":"Email sent with password reset instructions" }
 
-7. Reset Password
+8. Reset Password
 
     Arguments : 
 
@@ -374,23 +390,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     {"donation":{"amount":5.0,"endowment_id":1,"created_at":"2013-09-24T04:56:48Z","id":1,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:56:48Z"}}
 
-2. Show all donations from this donor to 1 or all endowments
-
-    Authorization token in Header *required*. See session #authenticate
-
-    Arguments :
-
-    endowment_id 	 : optional
-    start_date           : optional ( ex : 2013-10-15 )
-    end_date             : optional ( ex : 2013-10-17 )
-
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"endowment_id":"1", "start_date":"2013-10-15", "end_date":"2013-10-17"}' http://localhost:3000/api/donors/payment_accounts/all_donation_list.json
-
-    Examples Response:
-
-    [{"donation":{"amount":5.0,"endowment_id":1,"created_at":"2013-09-24T04:56:48Z","id":1,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:56:48Z"}},{"donation":{"amount":5.0,"endowment_id":1,"created_at":"2013-09-24T06:11:28Z","id":2,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T06:11:28Z"}}]
-    
-3. Stop subscribing to one endowment but keep subscription to all others
+2. Stop subscribing to one endowment but keep subscription to all others
 
     Authorization token in Header *required*. See session #authenticate
 
@@ -406,7 +406,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     {"id":"su_102bnk2mGsIlOBKnkLysKB6V","plan":{"id":"1","interval":"month","name":"Pay Permonth","amount":500,"currency":"usd","object":"plan","livemode":false,"interval_count":1,"trial_period_days":null},"object":"subscription","start":1379707483,"status":"canceled","customer":"cus_2bnkfxPZws93SD","cancel_at_period_end":false,"current_period_start":1379707483,"current_period_end":1382299483,"ended_at":1379723435,"trial_start":null,"trial_end":null,"canceled_at":1379723435,"quantity":1,"application_fee_percent":null}
 
-4. Stop subscribing to all endowments
+3. Stop subscribing to all endowments
 
     Authorization token in Header *required*. See session #authenticate
 
@@ -416,7 +416,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     {"message":"Your subscriptions has been canceled"}
 
-5. One-time payment
+4. One-time payment
 
     Arguments :
 

@@ -12,7 +12,8 @@ Giv2givRails::Application.routes.draw do
       resource :donors, :except => [:new, :edit, :destroy] do
         get 'balance_information', :on => :member
         get 'subscriptions', :on => :member
-        get 'endowments', :on => :member
+        get 'donations', :on => :member
+        #get 'endowments', :on => :member
         post 'forgot_password', :on => :member
         get "reset_password", :on => :member
         
@@ -20,7 +21,6 @@ Giv2givRails::Application.routes.draw do
           post 'donate_subscription', :on => :member
           get 'donation_list', :on => :member
           post 'one_time_payment', :on => :collection
-          get 'all_donation_list', :on => :collection
           get 'cancel_subscription', :on => :member
           get 'cancel_all_subscription', :on => :collection
         end
