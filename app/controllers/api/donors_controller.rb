@@ -43,7 +43,7 @@ class Api::DonorsController < Api::BaseController
     subscriptions.each do |subscription|
       #Better to include Endowment.where("endowment_id = ?", subscription.endowment_id).my_balances and endowment.global_balances
       subscriptions_hash = [ subscription.stripe_subscription_id => {
-        "endowment_name" => Endowment.where("endowment_id = ?", subscription.endowment_id).name,
+        "endowment_name" => subscription.endowment.name,
         "endowment_donation_amount" => subscription.gross_amount,
         "endowment_donor_count" => Donation.where("endowment_id = ?", subscription.endowment_id).count('donor_id', :distinct => true),
         "endowment_donor_total_donations" => current_donor.donations.where("endowment_id = ?", subscription.endowment_id).sum(:gross_amount),
