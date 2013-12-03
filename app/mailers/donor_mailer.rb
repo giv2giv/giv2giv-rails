@@ -18,7 +18,7 @@ class DonorMailer < ActionMailer::Base
   end
 
   def forgot_password(donor)
-    mail(:to => donor.email, :subject => "[ giv2giv.org ] New Password", content_type: "text/html", :body => "Url reset password : http://api.giv2giv.org/?reset_token=#{donor.password_reset_token}")    
+    mail(:to => donor.email, :subject => "[ giv2giv.org ] New Password", content_type: "text/html", :body => "Url reset password : https://api.giv2giv.org/api/donors/reset_password.json?reset_token=#{donor.password_reset_token}")    
   end
 
   def reset_password(email, new_password)
