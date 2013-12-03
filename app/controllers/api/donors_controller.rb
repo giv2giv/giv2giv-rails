@@ -16,8 +16,9 @@ class Api::DonorsController < Api::BaseController
   end
 
   def balance_information
+    last_donation_price = Share.last.donation_price rescue 0.0
+
     if defined? current_donor.id
-      last_donation_price = Share.last.donation_price rescue 0.0
       share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.donor_grants.sum(:shares_subtracted)}")
       donor_current_balance = ((BigDecimal("#{share_balance}") * BigDecimal("#{last_donation_price}")) * 10).ceil / 10.0
       donor_total_donations = current_donor.donations.sum(:gross_amount)

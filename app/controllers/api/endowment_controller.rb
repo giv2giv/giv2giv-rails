@@ -65,7 +65,8 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def my_balances(endowment)
-    unless current_donor.blank?
+    if defined? current_donor.id
+      #current_donor = Donor.find(current_session.session_id)
       last_donation_price = Share.last.donation_price rescue 0.0
       my_donations_count = current_donor.donations.where("endowment_id = ?", endowment.id).count('id', :distinct => true)
       my_donations_amount = current_donor.donations.where("endowment_id = ?", endowment.id).sum(:gross_amount)
