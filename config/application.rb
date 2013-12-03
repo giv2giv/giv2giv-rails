@@ -74,17 +74,18 @@ module Giv2givRails
 
 
     # Open CORS up 
-    config.middleware.use Rack::Cors do
+    #config.middleware.use Rack::Cors do
+    config.middleware.insert 0, Rack::Cors do
       allow do
         origins '*'
       	if Rails.env.eql?("production")
-            resource '/api/*', :headers => :any, :methods => [:post, :get, :put]
-        	resource '/api/sessions/*', :headers => :any, :methods => [:post]
-        	resource '/api/donors/payment_accounts/*', :headers => :any, :methods => [:get, :post, :put, :delete]
-        	resource '/api/endowment/*', :headers => :any, :methods => [:post, :get, :put]
-        	resource '/api/charity/*', :headers => :any, :methods => [:get]
+                resource '/api/*', :headers => :any, :methods => [:post, :get, :put]
+                resource '/api/sessions/*', :headers => :any, :methods => [:post]
+                resource '/api/donors/payment_accounts/*', :headers => :any, :methods => [:get, :post, :put, :delete]
+                resource '/api/endowment/*', :headers => :any, :methods => [:post, :get, :put]
+                resource '/api/charity/*', :headers => :any, :methods => [:get]
         else
-        	resource '*', :headers => :any, :methods => [:get, :post, :put, :delete, :options, :head, :trace, :connect]
+                resource '*', :headers => :any, :methods => [:get, :post, :put, :delete, :options, :head, :trace, :connect]
         end
       end
     end
