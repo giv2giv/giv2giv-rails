@@ -47,6 +47,8 @@ class Api::DonorsController < Api::BaseController
         "endowment_id" => subscription.endowment.id,
         "endowment_name" => subscription.endowment.name,
         "endowment_donation_amount" => subscription.gross_amount,
+        "endowment_donation_type" => subscription.type_subscription,
+        "charities" => Endowment.where("endowment_id = ?", subscription.endowment_id).charities,
         "endowment_donor_count" => Donation.where("endowment_id = ?", subscription.endowment_id).count('donor_id', :distinct => true),
         "endowment_donor_total_donations" => current_donor.donations.where("endowment_id = ?", subscription.endowment_id).sum(:gross_amount),
         "endowment_total_donations" => Donation.where("endowment_id = ?", subscription.endowment_id).sum(:gross_amount),
