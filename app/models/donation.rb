@@ -22,8 +22,8 @@ class Donation < ActiveRecord::Base
                              :payment_account_id => donor_subscription.payment_account_id,
                              :gross_amount => gross_amount,
                              :transaction_fees => transaction_fees,
-                             :net_amount => net_amount
-                             :shares_added => buy_shares,
+                             :net_amount => net_amount,
+                             :shares_added => buy_shares
                              )
 
       if donation.save
