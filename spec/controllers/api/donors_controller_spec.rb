@@ -3,16 +3,16 @@ require 'spec_helper'
 describe Api::DonorsController do
 
   before(:each) do
-    @donor = default_donor
+    @donor = create(:donor)
   end
 
   describe "create" do
     it "should create donor on success" do
       Donor.should_receive(:new).and_return(@donor)
-      post :create, :format => :json
+      post :create, :format => :json, :donor => {:password => "passwerd"}
 
       response.status.should == 201
-      resp = JSON.parse(response.body)
+      resp = JSON.parse(response.body)["donor"]
       resp['email'].should == @donor.email
       resp['name'].should == @donor.name
     end
@@ -22,8 +22,8 @@ describe Api::DonorsController do
       @donor.should_not be_valid
       Donor.should_receive(:new).and_return(@donor)
 
-      post :create, :format => :json
-      response.status.should == 422
+      post :create, :format => :json, :donor => {:password => "passwerd"}
+      response.should_not be_success
       resp = JSON.parse(response.body)
       resp['email'].should_not be_blank
     end
@@ -34,7 +34,7 @@ describe Api::DonorsController do
                 :email => 'dc@ltc.com'}
       post :create, :format => :json, :donor => params
       response.status.should == 201
-      resp = JSON.parse(response.body)
+      resp = JSON.parse(response.body)["donor"]
       resp['email'].should == params[:email]
       resp['name'].should == params[:name]
     end
@@ -66,7 +66,7 @@ describe Api::DonorsController do
 
       put :update, :format => :json
       response.status.should == 200
-      resp = JSON.parse(response.body)
+      resp = JSON.parse(response.body)["donor"]
       resp['name'].should == @donor.name
     end
   end # end update
@@ -81,7 +81,7 @@ describe Api::DonorsController do
       setup_authenticated_session
       get :show, :format => :json
       response.status.should == 200
-      resp = JSON.parse(response.body)
+      resp = JSON.parse(response.body)["donor"]
       resp['name'].should == @donor.name
     end
   end

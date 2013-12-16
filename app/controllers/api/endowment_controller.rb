@@ -65,7 +65,7 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def my_balances(endowment)
-    if defined? current_donor.id
+    if current_donor.present? && current_donor.id
       #current_donor = Donor.find(current_session.session_id)
       last_donation_price = Share.last.donation_price rescue 0.0
       my_donations_count = current_donor.donations.where("endowment_id = ?", endowment.id).count('id', :distinct => true)
@@ -89,7 +89,7 @@ class Api::EndowmentController < Api::BaseController
         #"my_endowment_share_balance" => my_endowment_share_balance,
 
         "my_investment_gainloss" => my_investment_gainloss,
-        "my_investment_gailoss_percentage" => (my_investment_gainloss / my_donations_amount * 100).round(3),
+        #"my_investment_gailoss_percentage" => (my_investment_gainloss / my_donations_amount * 100).round(3),
         "my_endowment_balance" => my_endowment_balance
       }
     else
