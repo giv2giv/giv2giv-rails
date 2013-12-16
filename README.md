@@ -2,6 +2,10 @@
 
 This API provides simple REST endpoints for features shared by the front end applications (also located in this github account). It uses Ruby 1.9.3, Rails and MySQL.
 
+
+This API is difficult to replicate in a development environment due to its dependency on etrade.com and stripe.com OAUTH keys. Ping hello@giv2giv.org for access to sandbox keys.
+
+
 You can jump into our [chat room](https://lightcastle.campfirenow.com/4d2e5) to keep up with development as it happens.
 
 Want to help out? Checkout [giv2giv](http://www.giv2giv.org) and see [Contributing](#contributing).
