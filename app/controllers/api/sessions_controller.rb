@@ -8,7 +8,7 @@ class Api::SessionsController < Api::BaseController
 
     respond_to do |format|
       if donor
-        sess = Session.find_or_create_by_session_id(donor.id)
+        sess = Session.find_or_create_by_donor_id(donor.id)
         format.json { render json: {session: sess, donor: donor}, status: :created }
       else
         format.json { render :json => {:message => "unauthorized"}.to_json, :status => :unauthorized }

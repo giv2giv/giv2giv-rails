@@ -51,7 +51,7 @@ class Api::EndowmentController < Api::BaseController
     params[:endowment] = { name: params[:name], minimum_donation_amount: params[:minimum_donation_amount], endowment_visibility: params[:endowment_visibility], description: params[:description] }
     group = Endowment.new(params[:endowment])
 
-    group.donor_id = current_session.session_id
+    group.donor_id = current_session.donor_id
     respond_to do |format|
       if group.save
         if params.has_key?(:charity_id)
@@ -66,7 +66,6 @@ class Api::EndowmentController < Api::BaseController
 
   def my_balances(endowment)
     if current_donor.present? && current_donor.id
-      #current_donor = Donor.find(current_session.session_id)
       last_donation_price = Share.last.donation_price rescue 0.0
       my_donations_count = current_donor.donations.where("endowment_id = ?", endowment.id).count('id', :distinct => true)
       my_donations_amount = current_donor.donations.where("endowment_id = ?", endowment.id).sum(:gross_amount)
@@ -128,7 +127,7 @@ class Api::EndowmentController < Api::BaseController
 
   def rename_endowment
     endowment = Endowment.find(params[:id])
-    if (endowment.donor_id.to_s.eql?(current_session.session_id))
+    if (endowment.donor_id.to_s.eql?(current_session.donor_id))
       respond_to do |format|
         if endowment.donations.size >= 1
           format.json { render json: "Cannot edit endowment when it already has donations to it" }
@@ -145,7 +144,7 @@ class Api::EndowmentController < Api::BaseController
   def add_charity
     group = Endowment.find(params[:id])
 
-    if (group.donor_id.to_s.eql?(current_session.session_id))
+    if (group.donor_id.to_s.eql?(current_session.donor_id))
       respond_to do |format|
         if group.donations.size < 1
           group.add_charity(params[:charity_id])
@@ -161,7 +160,7 @@ class Api::EndowmentController < Api::BaseController
 
   def remove_charity
     group = Endowment.find(params[:id])
-    if (group.donor_id.to_s.eql?(current_session.session_id))
+    if (group.donor_id.to_s.eql?(current_session.donor_id))
       respond_to do |format|
         if group.donations.size < 1
           group.remove_charity(params[:id], params[:charity_id])
@@ -177,7 +176,7 @@ class Api::EndowmentController < Api::BaseController
 
   def destroy
     group = Endowment.find(params[:id])
-    if (group.donor_id.to_s.eql?(current_session.session_id))
+    if (group.donor_id.to_s.eql?(current_session.donor_id))
       respond_to do |format|
         if group.donations.size < 1
           group.delete(params[:charity])
