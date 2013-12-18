@@ -137,10 +137,10 @@ describe Api::PaymentAccountsController do
 
     it "should work" do
       amount = 10
-      cgi = 1
+      endowment_id = 1
       setup_authenticated_session(@donor)
-      PaymentAccount.any_instance.stub(:donate).with(amount.to_s, cgi.to_s).and_return({})
-      post :one_time_payment,:format => :json, :id => @pa.id, :payment_account => {:gross_amount => amount, :endowment_id => cgi}
+      PaymentAccount.any_instance.stub(:donate).with(amount.to_s, endowment_id.to_s).and_return({})
+      post :one_time_payment,:format => :json, :id => @pa.id, :payment_account => {:gross_amount => amount, :endowment_id => endowment_id}
       response.status.should == 200
     end
 

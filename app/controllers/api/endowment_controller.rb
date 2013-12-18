@@ -49,17 +49,17 @@ class Api::EndowmentController < Api::BaseController
 
   def create
     params[:endowment] = { name: params[:name], minimum_donation_amount: params[:minimum_donation_amount], endowment_visibility: params[:endowment_visibility], description: params[:description] }
-    group = Endowment.new(params[:endowment])
+    endowment = Endowment.new(params[:endowment])
 
-    group.donor_id = current_session.donor_id
+    endowment.donor_id = current_session.donor_id
     respond_to do |format|
-      if group.save
+      if endowment.save
         if params.has_key?(:charity_id)
-          charities = group.add_charity(params[:charity_id])
+          charities = endowment.add_charity(params[:charity_id])
         end
-        format.json { render json: group.to_json(:include => charities)}
+        format.json { render json: endowment.to_json(:include => charities)}
       else
-        format.json { render json: group.errors , status: :unprocessable_entity }
+        format.json { render json: endowment.errors , status: :unprocessable_entity }
       end
     end
   end
@@ -142,12 +142,12 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def add_charity
-    group = Endowment.find(params[:id])
+    endowment = Endowment.find(params[:id])
 
-    if (group.donor_id.to_s.eql?(current_session.donor_id))
+    if (endowment.donor_id.to_s.eql?(current_session.donor_id))
       respond_to do |format|
-        if group.donations.size < 1
-          group.add_charity(params[:charity_id])
+        if endowment.donations.size < 1
+          endowment.add_charity(params[:charity_id])
           format.json { render json: { :message => "Charity has been added"}.to_json }
         else
           format.json { render json: "Cannot edit endowment when it already has donations to it" }
@@ -159,11 +159,11 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def remove_charity
-    group = Endowment.find(params[:id])
-    if (group.donor_id.to_s.eql?(current_session.donor_id))
+    endowment = Endowment.find(params[:id])
+    if (endowment.donor_id.to_s.eql?(current_session.donor_id))
       respond_to do |format|
-        if group.donations.size < 1
-          group.remove_charity(params[:id], params[:charity_id])
+        if endowment.donations.size < 1
+          endowment.remove_charity(params[:id], params[:charity_id])
           format.json { render json: { :message => "Charity has been removed" }.to_json }
         else
           format.json { render json: "Cannot edit endowment when it already has donations to it" }
@@ -175,11 +175,11 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def destroy
-    group = Endowment.find(params[:id])
-    if (group.donor_id.to_s.eql?(current_session.donor_id))
+    endowment = Endowment.find(params[:id])
+    if (endowment.donor_id.to_s.eql?(current_session.donor_id))
       respond_to do |format|
-        if group.donations.size < 1
-          group.delete(params[:charity])
+        if endowment.donations.size < 1
+          endowment.delete(params[:charity])
           format.json { render json: "Destroyed #{params[:charity]} record." }
         else
           format.json { render json: "Cannot edit endowment when it already has donations to it" }
