@@ -76,6 +76,9 @@ class Api::EndowmentController < Api::BaseController
       my_endowment_share_balance = my_donations_shares - my_grants_shares
       my_endowment_balance = ((my_endowment_share_balance * last_donation_price) * 10).ceil / 10.0
       my_investment_gainloss = my_endowment_balance - my_balance_pre_investment
+      if (my_donations_amount.present?)
+          my_investment_gailoss_percentage = (my_investment_gainloss / my_donations_amount * 100).round(3)
+      end
 
       {
         "my_donations_count" => my_donations_count,
@@ -88,7 +91,7 @@ class Api::EndowmentController < Api::BaseController
         #"my_endowment_share_balance" => my_endowment_share_balance,
 
         "my_investment_gainloss" => my_investment_gainloss,
-        #"my_investment_gailoss_percentage" => (my_investment_gainloss / my_donations_amount * 100).round(3),
+        "my_investment_gailoss_percentage" => my_investment_gainloss_percentage,
         "my_endowment_balance" => my_endowment_balance
       }
     else
