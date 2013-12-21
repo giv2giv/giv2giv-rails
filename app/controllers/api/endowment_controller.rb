@@ -4,64 +4,20 @@ class Api::EndowmentController < Api::BaseController
 
   skip_before_filter :require_authentication, :only => [:index, :show]
 
-  def index
-    page = params[:page] || 1
-    perpage = params[:per_page] || 10
-    query = params[:query] || ""
+  def global_balances(endowment)
+    last_donation_price = Share.last.donation_price rescue 0.0
+    endowment_share_balance = BigDecimal("#{endowment.donations.sum(:shares_added)}") - BigDecimal("#{endowment.donor_grants.sum(:shares_subtracted)}")
 
-    perpage=50 if perpage.to_i > 50
-
-    endowments = []
-    charities = []
-
-    #tags = Tag.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ])
-    #tags.each do |tag|
-      #tag.charities.each do |c|
-        #charities << c
-      #end
-    #end
-
-    #charities.each do |c|
-      #endowments << c.endowments
-    #end
-
-    q = "%#{query}%"
-    if q=="%%"
-	Endowment.where("endowment_visibility = ?", "public").order("RAND()").limit(perpage).each do |row|
-          endowments << row
-        end
-    else
-        Endowment.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ]).each do |row|
-          endowments << row
-        end
-    end
-
-    results = endowments.compact.flatten.uniq.paginate(:page => page, :per_page => perpage)
-    respond_to do |format|
-      if !results.empty?
-        format.json { render json: results }
-      else
-        format.json { render json: { :message => "Not found" }.to_json }
-      end
-    end
-
-  end
-
-  def create
-    params[:endowment] = { name: params[:name], minimum_donation_amount: params[:minimum_donation_amount], endowment_visibility: params[:endowment_visibility], description: params[:description] }
-    endowment = Endowment.new(params[:endowment])
-
-    endowment.donor_id = current_session.donor_id
-    respond_to do |format|
-      if endowment.save
-        if params.has_key?(:charity_id)
-          charities = endowment.add_charity(params[:charity_id])
-        end
-        format.json { render json: endowment.to_json(:include => charities)}
-      else
-        format.json { render json: endowment.errors , status: :unprocessable_entity }
-      end
-    end
+    global_balances = {
+      "endowment_donor_count" => endowment.donations.count('donor_id', :distinct => true),
+      "endowment_donations_count" => endowment.donations.count('id', :distinct => true),
+      "endowment_donations" => endowment.donations.sum(:gross_amount),
+      "endowment_transaction_fees" => endowment.donations.sum(:transaction_fees),
+      "endowment_fees" => endowment.donor_grants.sum(:giv2giv_fee),
+      "endowment_grants" => endowment.donor_grants.sum(:gross_amount),
+      #"endowment_share_balance" => ((endowment.donations.sum(:shares_added) - endowment.donor_grants.sum(:shares_subtracted)) * 10).ceil / 10.0,
+      "endowment_balance" => ((endowment_share_balance * last_donation_price) * 10).ceil / 10.0
+    }
   end
 
   def my_balances(endowment)
@@ -99,20 +55,79 @@ class Api::EndowmentController < Api::BaseController
     end
   end
 
-  def global_balances(endowment)
-    last_donation_price = Share.last.donation_price rescue 0.0
-    endowment_share_balance = BigDecimal("#{endowment.donations.sum(:shares_added)}") - BigDecimal("#{endowment.donor_grants.sum(:shares_subtracted)}")
 
-    global_balances = {
-      "endowment_donor_count" => endowment.donations.count('donor_id', :distinct => true),
-      "endowment_donations_count" => endowment.donations.count('id', :distinct => true),
-      "endowment_donations" => endowment.donations.sum(:gross_amount),
-      "endowment_transaction_fees" => endowment.donations.sum(:transaction_fees),
-      "endowment_fees" => endowment.donor_grants.sum(:giv2giv_fee),
-      "endowment_grants" => endowment.donor_grants.sum(:gross_amount),
-      #"endowment_share_balance" => ((endowment.donations.sum(:shares_added) - endowment.donor_grants.sum(:shares_subtracted)) * 10).ceil / 10.0,
-      "endowment_balance" => ((endowment_share_balance * last_donation_price) * 10).ceil / 10.0
-    }
+  def index
+    page = params[:page] || 1
+    perpage = params[:per_page] || 10
+    query = params[:query] || ""
+
+    perpage=50 if perpage.to_i > 50
+
+    endowments = []
+    charities = []
+
+    #tags = Tag.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ])
+    #tags.each do |tag|
+      #tag.charities.each do |c|
+        #charities << c
+      #end
+    #end
+
+    #charities.each do |c|
+      #endowments << c.endowments
+    #end
+
+    endowments_list = []
+
+    q = "%#{query}%"
+    if q=="%%"
+	    endowments = Endowment.where("endowment_visibility = ?", "public").order("RAND()").limit(perpage)
+    else
+      endowments = Endowment.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ])
+    end
+
+    endowments = endowments.compact.flatten.uniq.paginate(:page => page, :per_page => perpage)
+
+    endowments.each do |endowment|
+      endowment_hash = {
+        "id" => endowment.id,
+        "created_at" => endowment.created_at,
+        "updated_at" => endowment.created_at,
+        "name" => endowment.name,
+        "description" => endowment.description,
+        "endowment_visibility" => endowment.endowment_visibility,
+        "my_balances" => my_balances(endowment),
+        "global_balances" => global_balances(endowment),
+        "charities" => endowment.charities              
+      }
+      endowments_list << endowment_hash
+    end # endowment.each
+
+    respond_to do |format|
+      if endowments_list.present?
+        format.json { render json: { :endowments => endowments_list } }
+      else
+        format.json { render json: { :message => "Not found" }.to_json }
+      end
+    end
+
+  end
+
+  def create
+    params[:endowment] = { name: params[:name], minimum_donation_amount: params[:minimum_donation_amount], endowment_visibility: params[:endowment_visibility], description: params[:description] }
+    endowment = Endowment.new(params[:endowment])
+
+    endowment.donor_id = current_session.donor_id
+    respond_to do |format|
+      if endowment.save
+        if params.has_key?(:charity_id)
+          charities = endowment.add_charity(params[:charity_id])
+        end
+        format.json { render json: endowment.to_json(:include => charities)}
+      else
+        format.json { render json: endowment.errors , status: :unprocessable_entity }
+      end
+    end
   end
 
   def show
