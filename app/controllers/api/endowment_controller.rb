@@ -92,7 +92,7 @@ class Api::EndowmentController < Api::BaseController
       endowment_hash = {
         "id" => endowment.id,
         "created_at" => endowment.created_at,
-        "updated_at" => endowment.created_at,
+        "updated_at" => endowment.updated_at,
         "name" => endowment.name,
         "description" => endowment.description,
         "endowment_visibility" => endowment.endowment_visibility,
@@ -114,7 +114,7 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def create
-    params[:endowment] = { name: params[:name], minimum_donation_amount: params[:minimum_donation_amount], endowment_visibility: params[:endowment_visibility], description: params[:description] }
+    #params[:endowment] = { name: params[:name], minimum_donation_amount: params[:minimum_donation_amount], endowment_visibility: params[:endowment_visibility], description: params[:description] }
     endowment = Endowment.new(params[:endowment])
 
     endowment.donor_id = current_session.donor_id
@@ -135,7 +135,7 @@ class Api::EndowmentController < Api::BaseController
     endowment_hash = {
       "id" => endowment.id,
       "created_at" => endowment.created_at,
-      "updated_at" => endowment.created_at,
+      "updated_at" => endowment.updated_at,
       "name" => endowment.name,
       "description" => endowment.description,
       "endowment_visibility" => endowment.endowment_visibility,
