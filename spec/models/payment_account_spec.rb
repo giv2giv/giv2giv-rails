@@ -60,7 +60,7 @@ describe PaymentAccount do
       # expect {PaymentAccount.one_time_payment(1, 1)}.to raise_error(EndowmentInvalid)
     end
 
-    pending "should raise an exception if charity group is not valid" do
+    pending "should raise an exception if endowment is not valid" do
       # Endowment.stub(:find).and_return(build(:endowment))
       # Endowment.any_instance.stub(:valid?).and_return(false)
       # expect {PaymentAccount.one_time_payment(1, 100)}.to raise_error(PaymentAccountInvalid)

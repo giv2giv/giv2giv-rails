@@ -112,13 +112,23 @@ class Api::EndowmentController < Api::BaseController
     }
   end
 
-
   def show
     endowment = Endowment.find(params[:id])
+    endowment_hash = {
+      "id" => endowment.id,
+      "created_at" => endowment.created_at,
+      "updated_at" => endowment.created_at,
+      "name" => endowment.name,
+      "description" => endowment.description,
+      "endowment_visibility" => endowment.endowment_visibility,
+      "my_balances" => my_balances(endowment),
+      "global_balances" => global_balances(endowment),
+      "charities" => endowment.charities
+    }
 
     respond_to do |format|
       if endowment
-        format.json { render json: { endowment: endowment, my_balances: my_balances(endowment), global_balances: global_balances(endowment) } }
+        format.json { render json: { endowment: endowment_hash } }
       else
         format.json { head :not_found }
       end
@@ -189,5 +199,6 @@ class Api::EndowmentController < Api::BaseController
       render json: { :message => "You can edit this endowment" }.to_json
     end
   end
+
 
 end

@@ -28,7 +28,7 @@
 
     Arguments : none
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' http://localhost:3000/api/donors.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=l6M4VWVgiVFhT4IbgSkYwA' http://localhost:3000/api/donors.json
 
     Examples Response:
 
@@ -42,7 +42,7 @@
 
     email, password, name, address, city, country, facebook_id, phone_number, state, zip  :  optional
 
-    curl -X PUT -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"email":"email@domain.com","name":"Firman"}' http://localhost:3000/api/donors.json
+    curl -X PUT -H "Content-Type: application/json" -H 'Authorization: Token token=l6M4VWVgiVFhT4IbgSkYwA' -d '{"email":"email@domain.com","name":"Firman"}' http://localhost:3000/api/donors.json
 
     Examples Response:
 
@@ -54,7 +54,7 @@
 
     http://localhost:3000/api/donors/balance_information.json
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' http://localhost:3000/api/donors/balance_information.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=l6M4VWVgiVFhT4IbgSkYwA' http://localhost:3000/api/donors/balance_information.json
 
     Examples Response:
 
@@ -66,7 +66,7 @@
 
     http://localhost:3000/api/donors/subscriptions.json
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' http://localhost:3000/api/donors/subscriptions.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=l6M4VWVgiVFhT4IbgSkYwA' http://localhost:3000/api/donors/subscriptions.json
 
     Examples Response:
 
@@ -128,7 +128,7 @@
 
     Examples Response:
 
-    {"session":{"created_at":"2013-09-24T04:35:36Z","session_id":1,"token":"ylq_9rXRdHkp2HxPklsqEg","updated_at":"2013-09-24T04:35:36Z"}}
+    {"session":{"created_at":"2013-09-24T04:35:36Z","session_id":1,"token":"l6M4VWVgiVFhT4IbgSkYwA","updated_at":"2013-09-24T04:35:36Z"}}
 
 2. Destroy token
 
@@ -136,7 +136,7 @@
 
     Arguments : none
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '' http://localhost:3000/api/sessions/destroy.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=l6M4VWVgiVFhT4IbgSkYwA' -d '' http://localhost:3000/api/sessions/destroy.json
 
     Examples Response:
 
@@ -191,7 +191,7 @@
     description     : optional
     charity_id      : optional, separated by comma
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"name":"Build Houses","endowment_visibility":"public", "description":"Your description","minimum_donation_amount":"1","charity_id":"1,24,6,4,3"}' http://localhost:3000/api/endowment.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=l6M4VWVgiVFhT4IbgSkYwA' -d '{"name":"Build Houses","endowment_visibility":"public", "description":"Your description","minimum_donation_amount":"1","charity_id":"1,24,6,4,3"}' http://localhost:3000/api/endowment.json
 
     Examples Response:
 
@@ -209,7 +209,7 @@
 
     http://localhost:3000/api/endowment/{ENDOWMENT_ID}/add_charity.json
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"charity_id":"1,24,6,4,3"}' http://localhost:3000/api/endowment/1/add_charity.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=l6M4VWVgiVFhT4IbgSkYwA' -d '{"charity_id":"1,24,6,4,3"}' http://localhost:3000/api/endowment/1/add_charity.json
 
     Examples Response:
 
@@ -227,7 +227,7 @@
 
     http://localhost:3000/api/endowment/{ENDOWMENT_ID}/remove_charity.json
 
-    curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"charity_id":"1"}' http://localhost:3000/api/endowment/1/remove_charity.json
+    curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=l6M4VWVgiVFhT4IbgSkYwA' -d '{"charity_id":"1"}' http://localhost:3000/api/endowment/1/remove_charity.json
 
     Examples Response:
 
@@ -245,7 +245,7 @@
 
     http://localhost:3000/api/endowment/{ENDOWMENT_ID}/rename_endowment.json
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}' http://localhost:3000/api/endowment/1/rename_endowment.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=l6M4VWVgiVFhT4IbgSkYwA' -d '{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}' http://localhost:3000/api/endowment/1/rename_endowment.json
 
     Examples Response:
 
@@ -281,8 +281,7 @@
 
     Examples Response
 
-    {"endowment":{"created_at":"2013-09-19T08:52:46Z","description":"My Description","donor_id":2,"id":4,"minimum_donation_amount":3.0,"name":"Giv2Giv Build House","endowment_balance":"0.0","my_endowment_balance":"0.0","updated_at":"2013-09-19T09:36:01Z","charities":[{"activity_code":"907908000.0","address":"PO BOX 124","city":"MILFORD","classification_code":"1.0","created_at":"2013-09-19T03:42:52Z","description":null,"ein":516022762,"id":4,"name":"AMERICAN LEGION","ntee_code":"","state":"DE","subsection_code":"19.0","updated_at":"2013-09-19T03:42:52Z","website":null,"zip":"19963-0124"}]}}
-
+    {"endowment":{"id":1,"created_at":"2013-12-21T08:59:22Z","updated_at":"2013-12-21T08:59:22Z","name":"Build Houses","description":"Your description","endowment_visibility":"public","my_balances":{"my_donations_count":"0.0","my_donations_amount":"0.0","my_grants_amount":"0.0","my_balance_pre_investment":"0.0","my_investment_gainloss":"0.0","my_investment_gainloss_percentage":"0.0","my_endowment_balance":"0.0"},"global_balances":{"endowment_donor_count":0,"endowment_donations_count":0,"endowment_donations":0.0,"endowment_transaction_fees":0.0,"endowment_fees":"0.0","endowment_grants":"0.0","endowment_balance":0.0},"charities":[{"charity":{"active":"true","activity_code":"0.0","address":"1103 N MARKET ST","city":"WILMINGTON","classification_code":"1.0","created_at":"2013-12-07T03:46:45Z","description":null,"ein":"202783473","email":null,"id":1,"name":"1103 MARKET STREET FOUNDATION","ntee_code":"A80","state":"DE","subsection_code":"3.0","updated_at":"2013-12-07T03:46:45Z","website":null,"zip":"19801-1223"}},{"charity":{"active":"false","activity_code":"0.0","address":"PO BOX 115","city":"MONTCHANIN","classification_code":"1.0","created_at":"2013-12-07T03:46:45Z","description":null,"ein":"273330508","email":null,"id":3,"name":"1916 FOUNDATION","ntee_code":"T20","state":"DE","subsection_code":"3.0","updated_at":"2013-12-07T03:46:45Z","website":null,"zip":"19710-0115"}},{"charity":{"active":"true","activity_code":"0.0","address":"22922 E TRAP POND RD","city":"GEORGETOWN","classification_code":"1.0","created_at":"2013-12-07T03:46:46Z","description":null,"ein":"223634861","email":null,"id":4,"name":"1ST LEGION PROVISIONAL ARMY OF CONFEDERATE STATES","ntee_code":"A84","state":"DE","subsection_code":"3.0","updated_at":"2013-12-07T03:46:46Z","website":null,"zip":"19947-4728"}},{"charity":{"active":"false","activity_code":"0.0","address":"FOUNDATION SOURCE 501 SILVERSIDE RD","city":"WILMINGTON","classification_code":"1.0","created_at":"2013-12-07T03:46:46Z","description":null,"ein":"274000348","email":null,"id":6,"name":"214 PHILANTHROPIC FOUNDATION INC","ntee_code":"T22","state":"DE","subsection_code":"3.0","updated_at":"2013-12-07T03:46:46Z","website":null,"zip":"19809-0000"}},{"charity":{"active":"true","activity_code":"0.0","address":"11391 CHIPMANS POND RD","city":"LAUREL","classification_code":"2.0","created_at":"2013-12-07T03:46:46Z","description":null,"ein":"274333359","email":null,"id":24,"name":"A FATHERS HEART MINISTRIES INC","ntee_code":"X99","state":"DE","subsection_code":"3.0","updated_at":"2013-12-07T03:46:46Z","website":null,"zip":"19956-3521"}}]}}
 
 
 ** PAYMENT ACCOUNT MANAGEMENT **
@@ -298,7 +297,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
     stripeToken  : required
     processor    : "stripe"
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"processor": "stripe", "stripeToken":"tok_102dPs2mGsIlOBKnRLRez6VK"}' http://localhost:3000/api/donors/payment_accounts.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=l6M4VWVgiVFhT4IbgSkYwA' -d '{"processor": "stripe", "stripeToken":"tok_102dPs2mGsIlOBKnRLRez6VK"}' http://localhost:3000/api/donors/payment_accounts.json
 
     Examples Response:
 
@@ -310,7 +309,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     Arguments : none
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' http://localhost:3000/api/donors/payment_accounts.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=l6M4VWVgiVFhT4IbgSkYwA' http://localhost:3000/api/donors/payment_accounts.json
 
     Examples Response:
 
@@ -326,7 +325,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     http://localhost:3000/api/donors/payment_accounts/{PAYMENT_ACCOUNT_ID}.json
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' http://localhost:3000/api/donors/payment_accounts/1.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=l6M4VWVgiVFhT4IbgSkYwA' http://localhost:3000/api/donors/payment_accounts/1.json
 
     Examples Response:
 
@@ -345,7 +344,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     http://localhost:3000/api/donors/payment_accounts/{PAYMENT_ACCOUNT_ID}.json
 
-    curl -X PUT -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"processor": "stripe", "stripeToken":"tok_102d3t2mGsIlOBKnFoh4bbJ7"}' http://localhost:3000/api/donors/payment_accounts/1.json
+    curl -X PUT -H "Content-Type: application/json" -H 'Authorization: Token token=l6M4VWVgiVFhT4IbgSkYwA' -d '{"processor": "stripe", "stripeToken":"tok_102d3t2mGsIlOBKnFoh4bbJ7"}' http://localhost:3000/api/donors/payment_accounts/1.json
 
     Examples Response:
 
@@ -361,7 +360,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     http://localhost:3000/api/donors/payment_accounts/{PAYMENT_ACCOUNT_ID}.json
 
-    curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' http://localhost:3000/api/donors/payment_accounts/15.json
+    curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=l6M4VWVgiVFhT4IbgSkYwA' http://localhost:3000/api/donors/payment_accounts/15.json
 
     Examples Response:
 
@@ -385,7 +384,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
     { PAYMENT_ACCOUNT_ID } 
     http://localhost:3000/api/donors/payment_accounts/{ PAYMENT_ACCOUNT_ID }/donate_subscription.json
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg' -d '{"amount":"5", "endowment_id":"1"}' http://localhost:3000/api/donors/payment_accounts/1/donate_subscription.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=l6M4VWVgiVFhT4IbgSkYwA' -d '{"amount":"5", "endowment_id":"1"}' http://localhost:3000/api/donors/payment_accounts/1/donate_subscription.json
 
     Examples Response:
 
@@ -401,7 +400,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
     http://localhost:3000/api/donors/payment_accounts/{ DONOR_SUBSCRIPTION_ID }/cancel_subscription.json
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=ylq_9rXRdHkp2HxPklsqEg'  http://localhost:3000/api/donors/payment_accounts/1/cancel_subscription.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=l6M4VWVgiVFhT4IbgSkYwA'  http://localhost:3000/api/donors/payment_accounts/1/cancel_subscription.json
 
     Examples Response:
 

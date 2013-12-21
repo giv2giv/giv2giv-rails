@@ -52,23 +52,23 @@ describe Api::EndowmentController do
 
   describe "show" do
     it "should not require prior authentication" do
-      cg = create(:endowment_with_charity)
-      get :show, :format => :json, :id => cg.id
+      endowment = create(:endowment_with_charity)
+      get :show, :format => :json, :id => endowment.id
       response.should be_success
-      resp = JSON.parse(response.body)['endowment']['endowment']
-      resp['name'].should == cg.name
-      resp['id'].should == cg.id
+      resp = JSON.parse(response.body)['endowment']
+      resp['name'].should == endowment.name
+      resp['id'].should == endowment.id
     end
 
     it "should work" do
       donor = create(:donor)
       setup_authenticated_session(donor)
-      cg = create(:endowment, donor: donor)
-      get :show, :format => :json, :id => cg.id
+      endowment = create(:endowment, donor: donor)
+      get :show, :format => :json, :id => endowment.id
       response.should be_success
-      resp = JSON.parse(response.body)['endowment']['endowment']
-      resp['name'].should == cg.name
-      resp['id'].should == cg.id
+      resp = JSON.parse(response.body)['endowment']
+      resp['name'].should == endowment.name
+      resp['id'].should == endowment.id
     end
 
     it "should not be found" do
@@ -86,28 +86,28 @@ describe Api::EndowmentController do
       setup_authenticated_session(donor)
 
       c = create(:charity)
-      cg = create(:endowment, donor: donor)
-      post :add_charity, :format => :json, :id => cg.id, :charity_id => c.id.to_s
-      new_charity = cg.charities.find( c.id )
+      endowment = create(:endowment, donor: donor)
+      post :add_charity, :format => :json, :id => endowment.id, :charity_id => c.id.to_s
+      new_charity = endowment.charities.find( c.id )
       new_charity.name.should == c.name
     end
 
     it "should not add a charity because the endowment already has donations" do
       setup_authenticated_session
       c = create(:charity)
-      cg = create(:endowment)
+      endowment = create(:endowment)
       pa = create(:payment_account)
-      donation = cg.donations.build(:gross_amount => 50,
-                                    :endowment_id => cg.id,
+      donation = endowment.donations.build(:gross_amount => 50,
+                                    :endowment_id => endowment.id,
                                     :payment_account_id => pa.id)
       donation.save!
 
-      post :add_charity, :format => :json, :id => cg.id, :charity_id => c.id
-      cg.donations.first.gross_amount.should == donation.gross_amount
+      post :add_charity, :format => :json, :id => endowment.id, :charity_id => c.id
+      endowment.donations.first.gross_amount.should == donation.gross_amount
 
-      cg.reload
+      endowment.reload
 
-      cg.charities.exists?(c.id).should be_false
+      endowment.charities.exists?(c.id).should be_false
       c.destroy
     end
 

@@ -57,12 +57,11 @@ class Api::DonorsController < Api::BaseController
         "endowment_total_balance" => ((BigDecimal(Donation.where("endowment_id = ?", subscription.endowment_id).sum(:shares_added)) - BigDecimal(current_donor.donor_grants.where("endowment_id = ?", subscription.endowment_id).sum(:shares_subtracted))) * last_grant_price * 10).ceil / 10.0,
         "total_granted_by_donor" => current_donor.donor_grants.where("status = ?", 'sent').where("endowment_id = ?", subscription.endowment_id),#.sum(:grant_amount),
         "total_granted_from_endowment" => DonorGrant.where("status = ?", 'sent').where("endowment_id = ?", subscription.endowment_id)#.sum(:grant_amount)
-      }
-    ]
-    subscriptions_list << subscriptions_hash
+      } ]
+      subscriptions_list << subscriptions_hash
+    end
+    render json: subscriptions_list
   end
-  render json: subscriptions_list
-end
 
 def update
   donor = current_donor

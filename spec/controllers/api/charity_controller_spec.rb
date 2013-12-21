@@ -31,7 +31,7 @@ describe Api::CharityController do
       resp = JSON.parse(response.body)['charity']
       resp['name'].should == c.name
       resp['id'].should == c.id
-      resp['ein'].should == c.ein
+      resp['ein'].should == c.ein.to_s
     end
 
     it "should work when authenticated" do
@@ -42,7 +42,7 @@ describe Api::CharityController do
       resp = JSON.parse(response.body)['charity']
       resp['name'].should == c.name
       resp['id'].should == c.id
-      resp['ein'].should == c.ein
+      resp['ein'].should == c.ein.to_s
     end
 
     it "should not be found" do
