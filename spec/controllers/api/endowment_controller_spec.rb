@@ -13,7 +13,6 @@ describe Api::EndowmentController do
     end
 
     it "should work" do
-      setup_authenticated_session
       get :index, :format => :json
       response.status.should == 200
     end
@@ -33,20 +32,16 @@ describe Api::EndowmentController do
       resp['name'].should_not be_blank
     end
 
-    it "should work" do
-      setup_authenticated_session
+    pending "should create endowment on success" do
+      Endowment.should_receive(:new).and_return(@endowment)
       charity1 = create(:charity)
       charity2 = create(:charity)
-      post :create, :format => :json, 
-        :name => 'Something',
-        :minimum_donation_amount => 50,
-        :endowment_visibility => 'public',
-        :charity_id => "#{charity1.id},#{charity2.id}"
-      response.should be_success
-      resp = JSON.parse(response.body)['endowment']
-      resp['id'].should_not be_blank
-      resp_char = resp['charities'].first
-      resp_char['id'].should == charity1.id
+      donor = create(:donor)
+      setup_authenticated_session(donor)
+      post :create, :format => :json, :name => 'Something', :minimum_donation_amount => 50, :visibility => 'public', :donor_id => "#{donor.id}", :charity_id => "#{charity1.id},#{charity2.id}"
+      response.status.should == 201
+      resp = JSON.parse(response.body)["endowment"]
+      resp['name'].should == @endowment.name
     end
   end # end create
 
@@ -60,10 +55,8 @@ describe Api::EndowmentController do
       resp['id'].should == endowment.id
     end
 
-    it "should work" do
-      donor = create(:donor)
-      setup_authenticated_session(donor)
-      endowment = create(:endowment, donor: donor)
+    it "should work" do # same test as above
+      endowment = create(:endowment_with_charity)
       get :show, :format => :json, :id => endowment.id
       response.should be_success
       resp = JSON.parse(response.body)['endowment']

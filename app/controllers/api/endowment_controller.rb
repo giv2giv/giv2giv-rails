@@ -81,7 +81,7 @@ class Api::EndowmentController < Api::BaseController
 
     q = "%#{query}%"
     if q=="%%"
-	    endowments = Endowment.where("endowment_visibility = ?", "public").order("RAND()").limit(perpage)
+	    endowments = Endowment.where("visibility = ?", "public").order("RAND()").limit(perpage)
     else
       endowments = Endowment.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ])
     end
@@ -95,7 +95,7 @@ class Api::EndowmentController < Api::BaseController
         "updated_at" => endowment.updated_at,
         "name" => endowment.name,
         "description" => endowment.description,
-        "endowment_visibility" => endowment.endowment_visibility,
+        "visibility" => endowment.visibility,
         "my_balances" => my_balances(endowment),
         "global_balances" => global_balances(endowment),
         "charities" => endowment.charities              
@@ -114,7 +114,7 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def create
-    #params[:endowment] = { name: params[:name], minimum_donation_amount: params[:minimum_donation_amount], endowment_visibility: params[:endowment_visibility], description: params[:description] }
+    #params[:endowment] = { name: params[:name], minimum_donation_amount: params[:minimum_donation_amount], visibility: params[:visibility], description: params[:description] }
     endowment = Endowment.new(params[:endowment])
 
     endowment.donor_id = current_session.donor_id
@@ -138,7 +138,7 @@ class Api::EndowmentController < Api::BaseController
       "updated_at" => endowment.updated_at,
       "name" => endowment.name,
       "description" => endowment.description,
-      "endowment_visibility" => endowment.endowment_visibility,
+      "visibility" => endowment.visibility,
       "my_balances" => my_balances(endowment),
       "global_balances" => global_balances(endowment),
       "charities" => endowment.charities

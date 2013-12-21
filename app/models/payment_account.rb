@@ -40,7 +40,7 @@ class PaymentAccount < ActiveRecord::Base
     check_donor = Donor.find_by_email(email)
     amount = amount.to_i
 
-    if (endowment.endowment_visibility.eql?("private")) and (check_donor.id != endowment.donor_id)
+    if (endowment.visibility.eql?("private")) and (check_donor.id != endowment.donor_id)
       { :message => "Sorry! You cannot make a donation to a private endowment" }.to_json
     else
 
@@ -254,7 +254,7 @@ class PaymentAccount < ActiveRecord::Base
     check_donor = Donor.find(payment_donor.donor_id)
     amount = amount.to_i
 
-    if (endowment.endowment_visibility.eql?("private")) and (payment_donor.donor_id != endowment.donor_id)
+    if (endowment.visibility.eql?("private")) and (payment_donor.donor_id != endowment.donor_id)
       { :message => "Sorry! You cannot make a donation to a private endowment" }.to_json
     else
 

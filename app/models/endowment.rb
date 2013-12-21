@@ -9,7 +9,7 @@ class Endowment < ActiveRecord::Base
 
   validates :name, :presence => true, :uniqueness => { :case_sensitive => false }
   validates :minimum_donation_amount, :presence => true, :format => { :with => /^\d+??(?:\.\d{0,2})?$/ }, :numericality => {:greater_than => 0}
-  validates :endowment_visibility, :presence => true, :inclusion => { :in => VALID_TYPE }
+  validates :visibility, :presence => true, :inclusion => { :in => VALID_TYPE }
 
   def as_json(options = {})
     super( :include => [:charities => { :only => [:id, :name, :active] }] )
@@ -22,10 +22,10 @@ class Endowment < ActiveRecord::Base
     end
   end
 
-  def remove_charity(group_id, charity_id)
-    group = Endowment.find(group_id)
-    charity = group.charities.find(charity_id)
-    group.charities.delete(charity)
+  def remove_charity(endowment_id, charity_id)
+    endowment = Endowment.find(endowment_id)
+    charity = endowment.charities.find(charity_id)
+    endowment.charities.delete(charity)
   end
 
 end
