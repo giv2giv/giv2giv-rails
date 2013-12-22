@@ -32,16 +32,16 @@ describe Api::EndowmentController do
       resp['name'].should_not be_blank
     end
 
-    pending "should create endowment on success" do
-      Endowment.should_receive(:new).and_return(@endowment)
+    it "should create endowment on success" do
       charity1 = create(:charity)
       charity2 = create(:charity)
       donor = create(:donor)
       setup_authenticated_session(donor)
-      post :create, :format => :json, :name => 'Something', :minimum_donation_amount => 50, :visibility => 'public', :donor_id => "#{donor.id}", :charity_id => "#{charity1.id},#{charity2.id}"
-      response.status.should == 201
+      post :create, :format => :json, :charity_id => "#{charity1.id},#{charity2.id}",
+                                      :endowment => {:name => 'Something', :minimum_donation_amount => 50, :visibility => 'public', :donor_id => "#{donor.id}"}
+      response.should be_success
       resp = JSON.parse(response.body)["endowment"]
-      resp['name'].should == @endowment.name
+      resp['name'].should == 'Something'
     end
   end # end create
 
