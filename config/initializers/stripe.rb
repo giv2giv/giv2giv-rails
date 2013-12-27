@@ -42,12 +42,17 @@ StripeEvent.setup do
       transaction_fees = charge_amount - donation_amount
 
       subscriptions = DonorSubscription.find_by_stripe_subscription_id(ret_invoice.lines.data.id) # will this work? stripe subscription.id
-      subscriptions_gross_amount_sum = donor_subscriptions.sum(gross_amount)
+      subscriptions_gross_amount_sum = subscriptions.sum(gross_amount)
 
       subscriptions.each do |subscription|
-         this_endowment_percentage_of_gross = subscription.gross_amount / subscriptions_gross_amount_sum # What % is this endowment to all subscribed endowments?
-         this_endowment_portion_of_net = this_endowment_percentage_of_gross * donation_amount # apply same % to charge net fees
-         Donation.add_donation(subscription.id, charge_amount, transaction_fees, donation_amount)
+         this_endowment_percentage_of_gross = BigDecimal(subscription.gross_amount) / BigDecimal(subscriptions_gross_amount_sum) # What % is this endowment to all subscribed endowments?
+
+# Should we use BigDecimal here?
+
+         this_endowment_portion_of_charge = (BigDecimal(this_endowment_percentage_of_gross) * BigDecimal(subscription.gross_amount)).round(SHARE_PRECISION) # apply same % to charge 
+         this_endowment_portion_of_fees = (BigDecimal(this_endowment_percentage_of_gross) * (BigDecimal(charge_amount) - BigDecimal(donation_amount))).round(SHARE_PRECISION) # apply same % to fees
+         this_endowment_portion_of_donation = (BigDecimal(this_endowment_percentage_of_gross) * BigDecimal(donation_amount)).round(SHARE_PRECISION) # apply same % to donation
+         Donation.add_donation(subscription.id, this_endowment_portion_of_charge, this_endowment_portion_of_fees, this_endowment_portion_of_donation)
       end
 
       if donation.save
