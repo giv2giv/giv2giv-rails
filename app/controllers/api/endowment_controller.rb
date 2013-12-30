@@ -120,8 +120,8 @@ class Api::EndowmentController < Api::BaseController
     endowment.donor_id = current_session.donor_id
     respond_to do |format|
       if endowment.save
-        if params.has_key?(:charity_id)
-          charities = endowment.add_charity(params[:charity_id])
+        if params.has_key?(:charities)
+          charities = endowment.add_charity(params[:charities])
         end
         format.json { render json: endowment.to_json(:include => charities)}
       else
@@ -175,7 +175,7 @@ class Api::EndowmentController < Api::BaseController
     if (endowment.donor_id.to_s.eql?(current_session.donor_id))
       respond_to do |format|
         if endowment.donations.size < 1
-          endowment.add_charity(params[:charity_id])
+          endowment.add_charity(params[:charities])
           format.json { render json: { :message => "Charity has been added"}.to_json }
         else
           format.json { render json: "Cannot edit endowment when it already has donations to it" }

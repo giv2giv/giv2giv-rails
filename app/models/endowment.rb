@@ -15,10 +15,9 @@ class Endowment < ActiveRecord::Base
     super( :include => [:charities => { :only => [:id, :name, :active] }] )
   end
 
-  def add_charity(charity_ids)
-    charity_ids = charity_ids.split(",").map { |s| s.to_i }
-    charity_ids.each do |charity_id|
-      self.charities << Charity.find(charity_id)
+  def add_charity(charities)
+    charities.each do |charity|
+      self.charities << Charity.find(charity[:id])
     end
   end
 
