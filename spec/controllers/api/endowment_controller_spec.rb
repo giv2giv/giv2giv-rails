@@ -37,7 +37,7 @@ describe Api::EndowmentController do
       charity2 = create(:charity)
       donor = create(:donor)
       setup_authenticated_session(donor)
-      post :create, :format => :json, :charity_id => "#{charity1.id},#{charity2.id}",
+      post :create, :format => :json, :charities => [{:id => "#{charity1.id}"},{:id => "#{charity2.id}"}],
                                       :endowment => {:name => 'Something', :minimum_donation_amount => 50, :visibility => 'public', :donor_id => "#{donor.id}"}
       response.should be_success
       resp = JSON.parse(response.body)["endowment"]
@@ -73,17 +73,18 @@ describe Api::EndowmentController do
     end
   end # end show
 
+  
   describe "add_charity" do
     it "should create an empty endowment and add a charity to it" do
       donor = create(:donor)
       setup_authenticated_session(donor)
-
       c = create(:charity)
       endowment = create(:endowment, donor: donor)
-      post :add_charity, :format => :json, :id => endowment.id, :charity_id => c.id.to_s
-      new_charity = endowment.charities.find( c.id )
+      json = { :format => 'json', :id => endowment.id, :charities => [{ :id => c.id }] }
+      post :add_charity, json
+      new_charity = endowment.charities.find( c.id.to_s )
       new_charity.name.should == c.name
-    end
+    end 
 
     it "should not add a charity because the endowment already has donations" do
       setup_authenticated_session
