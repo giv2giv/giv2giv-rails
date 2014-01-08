@@ -32,125 +32,30 @@ class PaymentAccount < ActiveRecord::Base
       end
     end
 
-  def one_time_payment(amount, endowment_id, email = nil, stripeToken = nil, payment_account_id = nil, password = nil)
-    raise EndowmentInvalid unless Endowment.find(endowment_id)
+    def one_time_payment(amount, endowment_id, email = nil, stripeToken = nil, payment_account_id = nil, password = nil)
+      raise EndowmentInvalid unless (endowment = Endowment.find(endowment_id))
 
-    endowment = Endowment.find(endowment_id)
-    num_of_charity = endowment.charities.count
-    check_donor = Donor.find_by_email(email)
-    amount = amount.to_i
+      num_of_charity = endowment.charities.count
+      check_donor = Donor.find_by_email(email)
+      amount = amount.to_i
 
-    if (endowment.visibility.eql?("private")) and (check_donor.id != endowment.donor_id)
-      { :message => "Sorry! You cannot make a donation to a private endowment" }.to_json
-    else
+      if (endowment.visibility.eql?("private")) and (check_donor.id != endowment.donor_id)
+        { :message => "Sorry! You cannot make a donation to a private endowment" }.to_json
+      else
 
-      if num_of_charity > 0
-        if amount < endowment.minimum_donation_amount.to_i
-          { :message => "Minimum amount for create donation $#{endowment.minimum_donation_amount}" }.to_json
-        else
-          random_password = SecureRandom.hex(10)
-          random_name = SecureRandom.hex(10)
-
-          if check_donor.blank?
-            # entry as unregistered donor
-            email = random_name + "@" + random_password + ".com"
-
-            begin
-              customer = Stripe::Customer.create(description: "Giv2Giv Donation", email: email, card: stripeToken)
-            rescue Stripe::CardError => e
-              body = e.json_body
-              err  = body[:error]
-              { :message => "#{err[:message]}" }.to_json
-              return false
-            end
-
-            donor = Donor.new(
-                               :name => random_name,
-                               :email => email,
-                               :password => random_password,
-                               :type_donor => 'unregistered'
-                             )
-
-            if donor.save
-                # create new payment
-                payment = PaymentAccount.new(
-                                             :processor => "stripe",
-                                             :donor_id => donor.id,
-                                             :requires_reauth => 0,
-                                             :stripe_cust_id => customer.id
-                                            )
-                if payment.save
-
-                  begin
-                    cust_charge = Stripe::Charge.create(
-                                                        :amount => amount * 100,
-                                                        :currency => "usd",
-                                                        :description => "giv2giv.org donation to #{Endowment.find(endowment_id).name}",
-                                                        :customer => payment.stripe_cust_id,
-                                                       )
-                  rescue Stripe::CardError => e
-                    body = e.json_body
-                    err  = body[:error]
-                    { :message => "#{err[:message]}" }.to_json
-                    return false
-                  end
-
-                  subscription = donor.donor_subscriptions.build(:donor_id => donor.id,
-                                                                :payment_account_id => payment.id,
-                                                                :endowment_id => endowment_id,
-                                                                :stripe_subscription_id => cust_charge.id,
-                                                                :type_subscription => "one_time_payment",
-                                                                :gross_amount => amount
-                                                                )
-                  if subscription.save
-                    { :message => "Success" }.to_json
-                  else
-                    { :message => "Error" }.to_json
-                  end
-                else
-                  payment.errors
-                end # end payment save
-              else
-                { :message => "Error! Creating payment account" }.to_json
-              end # end donor save
-
+        if num_of_charity > 0
+          if amount < endowment.minimum_donation_amount.to_i
+            { :message => "Minimum amount for create donation $#{endowment.minimum_donation_amount}" }.to_json
           else
+            random_password = SecureRandom.hex(10)
+            random_name = SecureRandom.hex(10)
 
-            if check_donor.type_donor.eql?("unregistered")
-              cu = Stripe::Customer.retrieve(check_donor.payment_accounts.last.stripe_cust_id)
-              cu.card = stripeToken
-              cu.save
-              cust_charge = Stripe::Charge.create(
-                                          :amount => amount * 100,
-                                          :currency => "usd",
-                                          :description => "giv2giv.org donation to #{Endowment.find(endowment_id).name}",
-                                          :customer => check_donor.payment_accounts.last.stripe_cust_id
-                                         )
-
-              subscription = donor.donor_subscriptions.build(:donor_id => donor.id,
-                                                             :payment_account_id => check_donor.payment_accounts.last.id,
-                                                             :endowment_id => endowment_id,
-                                                             :stripe_subscription_id => cust_charge.id,
-                                                             :type_subscription => "one_time_payment",
-                                                             :gross_amount => amount
-                                                             )
-              if subscription.save
-                { :message => "Success" }.to_json
-              else
-                { :message => "Error" }.to_json
-              end
-            else
-              check_donor = Donor.where("email = ? AND password = ? AND type_donor = 'registered'", email, password).first
-              cust_id = check_donor.payment_accounts.find(payment_account_id)
+            if check_donor.blank?
+              # entry as unregistered donor
+              email = random_name + "@" + random_password + ".com"
 
               begin
-                cu = Stripe::Customer.retrieve(cust_id.stripe_cust_id)
-                cust_charge = Stripe::Charge.create(
-                                                  :amount => amount * 100,
-                                                  :currency => "usd",
-                                                  :description => "giv2giv.org donation to #{Endowment.find(endowment_id).name}",
-                                                  :customer => cust_id.stripe_cust_id
-                                                 )
+                customer = Stripe::Customer.create(description: "Giv2Giv Donation", email: email, card: stripeToken)
               rescue Stripe::CardError => e
                 body = e.json_body
                 err  = body[:error]
@@ -158,28 +63,122 @@ class PaymentAccount < ActiveRecord::Base
                 return false
               end
 
-              subscription = check_donor.donor_subscriptions.build(:donor_id => check_donor.id,
-                                                             :payment_account_id => cust_id.id,
-                                                             :endowment_id => endowment_id,
-                                                             :stripe_subscription_id => cust_charge.id,
-                                                             :type_subscription => "one_time_payment",
-                                                             :gross_amount => amount
-                                                             )
-              if subscription.save
-                { :message => "Success" }.to_json
+              donor = Donor.new(
+                                 :name => random_name,
+                                 :email => email,
+                                 :password => random_password,
+                                 :type_donor => 'unregistered'
+                               )
+
+              if donor.save
+                  # create new payment
+                  payment = PaymentAccount.new(
+                                               :processor => "stripe",
+                                               :donor_id => donor.id,
+                                               :requires_reauth => 0,
+                                               :stripe_cust_id => customer.id
+                                              )
+                  if payment.save
+
+                    begin
+                      cust_charge = Stripe::Charge.create(
+                                                          :amount => amount * 100,
+                                                          :currency => "usd",
+                                                          :description => "giv2giv.org donation to #{Endowment.find(endowment_id).name}",
+                                                          :customer => payment.stripe_cust_id,
+                                                         )
+                    rescue Stripe::CardError => e
+                      body = e.json_body
+                      err  = body[:error]
+                      { :message => "#{err[:message]}" }.to_json
+                      return false
+                    end
+
+                    subscription = donor.donor_subscriptions.build(:donor_id => donor.id,
+                                                                  :payment_account_id => payment.id,
+                                                                  :endowment_id => endowment_id,
+                                                                  :stripe_subscription_id => cust_charge.id,
+                                                                  :type_subscription => "one_time_payment",
+                                                                  :gross_amount => amount
+                                                                  )
+                    if subscription.save
+                      { :message => "Success" }.to_json
+                    else
+                      { :message => "Error" }.to_json
+                    end
+                  else
+                    payment.errors
+                  end # end payment save
+                else
+                  { :message => "Error! Creating payment account" }.to_json
+                end # end donor save
+
+            else
+
+              if check_donor.type_donor.eql?("unregistered")
+                cu = Stripe::Customer.retrieve(check_donor.payment_accounts.last.stripe_cust_id)
+                cu.card = stripeToken
+                cu.save
+                cust_charge = Stripe::Charge.create(
+                                            :amount => amount * 100,
+                                            :currency => "usd",
+                                            :description => "giv2giv.org donation to #{Endowment.find(endowment_id).name}",
+                                            :customer => check_donor.payment_accounts.last.stripe_cust_id
+                                           )
+
+                subscription = donor.donor_subscriptions.build(:donor_id => donor.id,
+                                                               :payment_account_id => check_donor.payment_accounts.last.id,
+                                                               :endowment_id => endowment_id,
+                                                               :stripe_subscription_id => cust_charge.id,
+                                                               :type_subscription => "one_time_payment",
+                                                               :gross_amount => amount
+                                                               )
+                if subscription.save
+                  { :message => "Success" }.to_json
+                else
+                  { :message => "Error" }.to_json
+                end
               else
-                { :message => "Error" }.to_json
-              end
+                check_donor = Donor.where("email = ? AND password = ? AND type_donor = 'registered'", email, password).first
+                cust_id = check_donor.payment_accounts.find(payment_account_id)
 
-            end # end check registered email
-          end #end check email
-        end # end check minimum donation
-      else
-        { :message => "You need add one or more charity to this group" }.to_json
-      end # end check charity
-    end # end check visibility
+                begin
+                  cu = Stripe::Customer.retrieve(cust_id.stripe_cust_id)
+                  cust_charge = Stripe::Charge.create(
+                                                    :amount => amount * 100,
+                                                    :currency => "usd",
+                                                    :description => "giv2giv.org donation to #{Endowment.find(endowment_id).name}",
+                                                    :customer => cust_id.stripe_cust_id
+                                                   )
+                rescue Stripe::CardError => e
+                  body = e.json_body
+                  err  = body[:error]
+                  { :message => "#{err[:message]}" }.to_json
+                  return false
+                end
 
-  end
+                subscription = check_donor.donor_subscriptions.build(:donor_id => check_donor.id,
+                                                               :payment_account_id => cust_id.id,
+                                                               :endowment_id => endowment_id,
+                                                               :stripe_subscription_id => cust_charge.id,
+                                                               :type_subscription => "one_time_payment",
+                                                               :gross_amount => amount
+                                                               )
+                if subscription.save
+                  { :message => "Success" }.to_json
+                else
+                  { :message => "Error" }.to_json
+                end
+
+              end # end check registered email
+            end #end check email
+          end # end check minimum donation
+        else
+          { :message => "You need add one or more charity to this group" }.to_json
+        end # end check charity
+      end # end check visibility
+
+    end
 
     def update_account(stripeToken, donor_id, payment_id, options = {})
       check_donor = Donor.find(donor_id)

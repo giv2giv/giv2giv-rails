@@ -13,7 +13,7 @@ class Donation < ActiveRecord::Base
       
       share_price = Share.last.donation_price
 
-      donor_subscription = DonorSubscription.find_by_stripe_subscription_id(subscription_id)
+      donor_subscription = DonorSubscription.find(subscription_id)
 
       buy_shares = (BigDecimal("#{net_amount}") / BigDecimal("#{share_price}"))
       donation = Donation.new(
@@ -25,12 +25,7 @@ class Donation < ActiveRecord::Base
                              :net_amount => net_amount,
                              :shares_added => buy_shares
                              )
-
-      if donation.save
-        {"gross_amount" => gross_amount, "status" => "success"}
-      else
-        puts "ERROR!"
-      end
+      return donation
     end
 
   end
