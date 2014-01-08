@@ -11,11 +11,11 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131116180630) do
+ActiveRecord::Schema.define(:version => 20131221133035) do
 
   create_table "charities", :force => true do |t|
     t.string   "name",                :null => false
-    t.integer  "ein",                 :null => false
+    t.string   "ein",                 :null => false
     t.string   "address"
     t.string   "city"
     t.string   "state"
@@ -29,10 +29,7 @@ ActiveRecord::Schema.define(:version => 20131116180630) do
     t.datetime "created_at",          :null => false
     t.datetime "updated_at",          :null => false
     t.string   "email"
-    t.float    "balance"
     t.string   "active"
-    t.float    "giv2giv_fees"
-    t.float    "transaction_fees"
   end
 
   add_index "charities", ["ein"], :name => "index_charities_on_ein"
@@ -55,11 +52,8 @@ ActiveRecord::Schema.define(:version => 20131116180630) do
 
   create_table "charity_grants", :force => true do |t|
     t.integer  "charity_id"
-    t.integer  "endowment_id"
-    t.integer  "donor_id"
     t.decimal  "shares_subtracted", :precision => 30, :scale => 20
     t.integer  "transaction_id"
-    t.date     "date"
     t.float    "transaction_fee"
     t.float    "giv2giv_fee"
     t.float    "gross_amount"
@@ -89,11 +83,15 @@ ActiveRecord::Schema.define(:version => 20131116180630) do
     t.integer  "endowment_id"
     t.integer  "donor_id"
     t.string   "status"
-    t.datetime "created_at",                                     :null => false
-    t.datetime "updated_at",                                     :null => false
-    t.decimal  "shares_pending", :precision => 30, :scale => 20
+    t.datetime "created_at",                                        :null => false
+    t.datetime "updated_at",                                        :null => false
+    t.decimal  "shares_subtracted", :precision => 30, :scale => 20
     t.date     "date"
     t.integer  "transaction_id"
+    t.decimal  "gross_amount",      :precision => 30, :scale => 20
+    t.decimal  "giv2giv_fee",       :precision => 30, :scale => 20
+    t.decimal  "transaction_fee",   :precision => 30, :scale => 20
+    t.decimal  "net_amount",        :precision => 30, :scale => 20
   end
 
   create_table "donor_subscriptions", :force => true do |t|
@@ -133,7 +131,7 @@ ActiveRecord::Schema.define(:version => 20131116180630) do
     t.datetime "created_at",              :null => false
     t.datetime "updated_at",              :null => false
     t.integer  "donor_id"
-    t.string   "endowment_visibility"
+    t.string   "visibility"
   end
 
   create_table "etrade_tokens", :force => true do |t|
@@ -172,13 +170,13 @@ ActiveRecord::Schema.define(:version => 20131116180630) do
   add_index "payment_accounts", ["donor_id"], :name => "index_payment_accounts_on_donor_id"
 
   create_table "sessions", :force => true do |t|
-    t.string   "session_id", :null => false
+    t.string   "donor_id",   :null => false
     t.string   "token",      :null => false
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
 
-  add_index "sessions", ["session_id"], :name => "index_sessions_on_session_id"
+  add_index "sessions", ["donor_id"], :name => "index_sessions_on_donor_id"
   add_index "sessions", ["updated_at"], :name => "index_sessions_on_updated_at"
 
   create_table "shares", :force => true do |t|
