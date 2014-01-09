@@ -20,23 +20,22 @@ class StripeCallbacks
     end
   end
 
-  def process_recurring_payment(event, invoice)
+  def process_recurring_payment(invoice)
     charge_amount = invoice.lines.data.first.amount / 100
     donation_amount = net_amount(charge_amount)
     transaction_fees = charge_amount - donation_amount
 
     subscriptions = DonorSubscription.where(stripe_subscription_id: invoice.lines.data.first.id) # will this work? stripe subscription.id
+
     subscriptions_gross_amount_sum = subscriptions.sum(:gross_amount)
 
     subscriptions.each do |subscription|
        this_endowment_percentage_of_gross = BigDecimal(subscription.gross_amount.to_s) / BigDecimal(subscriptions_gross_amount_sum.to_s) # What % is this endowment to all subscribed endowments?
 
-# Should we use BigDecimal here?
-
-       this_endowment_portion_of_charge = (BigDecimal(this_endowment_percentage_of_gross.to_s) * BigDecimal(subscription.gross_amount.to_s)).round(SHARE_PRECISION) # apply same % to charge 
-       this_endowment_portion_of_fees = (BigDecimal(this_endowment_percentage_of_gross.to_s) * (BigDecimal(charge_amount.to_s) - BigDecimal(donation_amount.to_s))).round(SHARE_PRECISION) # apply same % to fees
+       this_endowment_portion_of_fees = (BigDecimal(this_endowment_percentage_of_gross.to_s) * BigDecimal(transaction_fees.to_s)).round(SHARE_PRECISION) # apply same % to fees
        this_endowment_portion_of_donation = (BigDecimal(this_endowment_percentage_of_gross.to_s) * BigDecimal(donation_amount.to_s)).round(SHARE_PRECISION) # apply same % to donation
-       donation = Donation.add_donation(subscription.id, this_endowment_portion_of_charge, this_endowment_portion_of_fees, this_endowment_portion_of_donation)
+
+       donation = Donation.add_donation(subscription.id, subscription.gross_amount, this_endowment_portion_of_fees, this_endowment_portion_of_donation)
 
        if !donation.save
 	       puts "ERROR!" # TODO: better error handling
@@ -61,7 +60,7 @@ class StripeCallbacks
     	process_one_time_payment(event)
 
     else
-    	process_recurring_payment(event, ret_invoice)
+    	process_recurring_payment(ret_invoice)
     end # end else
    
 	end

@@ -6,9 +6,9 @@ describe Api::EndowmentController do
     it "should not require prior authentication" do
       get :index, :format => :json
       response.status.should == 200
-      cg = create(:endowment)
+      endowment = create(:endowment)
       resp = JSON.parse(response.body)
-      charity = resp.select { |char| char['name'] == cg.name }
+      charity = resp.select { |char| char['name'] == endowment.name }
       charity.should_not be_nil
     end
 
@@ -98,6 +98,7 @@ describe Api::EndowmentController do
 
       post :add_charity, :format => :json, :id => endowment.id, :charity_id => c.id
       endowment.donations.first.gross_amount.should == donation.gross_amount
+      donation.destroy
 
       endowment.reload
 
@@ -111,25 +112,26 @@ describe Api::EndowmentController do
     it "should rename a endowment" do
       donor = create(:donor)
       setup_authenticated_session(donor)
-      cg = create(:endowment, donor: donor)
-      post :rename_endowment, :format => :json, :id => cg.id, :endowment => {:name => "some new name"}
-      cg.reload
-      cg.name.should == "some new name"
+      endowment = create(:endowment, donor: donor)
+      post :rename_endowment, :format => :json, :id => endowment.id, :endowment => {:name => "some new name"}
+      endowment.reload
+      endowment.name.should == "some new name"
     end
 
     it "should fail because endowment already has donations" do
       setup_authenticated_session
-      cg = create(:endowment)
+      endowment = create(:endowment)
       pa = create(:payment_account)
-      name = cg.name
-      donation = cg.donations.build(:gross_amount => 50,
-                                    :endowment_id => cg.id,
+      name = endowment.name
+      donation = endowment.donations.build(:gross_amount => 50,
+                                    :endowment_id => endowment.id,
                                     :payment_account_id => pa.id)
       donation.save!
 
-      post :rename_endowment, :format => :json, :id => cg.id, :name => "some new name"
-      cg.reload
-      cg.name.should == name
+      post :rename_endowment, :format => :json, :id => endowment.id, :name => "some new name"
+      endowment.reload
+      endowment.name.should == name
+      donation.destroy
     end
 
 

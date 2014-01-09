@@ -7,14 +7,14 @@ feature "Stripe Allocation" do
   	donor = create(:donor, password: 'password')
   	payment_account = create(:payment_account, donor: donor)
 
-  	Stripe::Customer.should_receive(:retrieve).once.with(payment_account.stripe_cust_id).and_return(mock(Stripe::Customer))
+  	Stripe::Customer.should_receive(:retrieve).once.with(payment_account.stripe_cust_id).and_return(double(Stripe::Customer))
 
   	expected_charge_params = { amount: 12300, 
   							   currency: "usd", 
   							   description: "giv2giv.org donation to Sample Endowment",
                                customer: payment_account.stripe_cust_id }
 
-   	mock_cust_charge = mock(Stripe::Charge)
+   	mock_cust_charge = double(Stripe::Charge)
    	mock_cust_charge.should_receive(:id).once.and_return(22)
   	Stripe::Charge.should_receive(:create).once.with(expected_charge_params).and_return(mock_cust_charge)
 
