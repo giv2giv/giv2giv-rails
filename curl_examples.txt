@@ -83,7 +83,7 @@
     start_date           : optional ( ex : 2013-10-15 )
     end_date             : optional ( ex : 2013-10-17 )
 
-    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=4pv0edzz5Bq142wVahy9zw' -d '{"endowment_id":"1", "start_date":"2013-10-15", "end_date":"2015-10-17"}' http://localhost:3000/api/donors/endowments.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=4pv0edzz5Bq142wVahy9zw' -d '{"endowment_id":"1", "start_date":"2013-10-15", "end_date":"2015-10-17"}' http://localhost:3000/api/donors/donations.json
 
     Examples Response:
     {"donations":[{"donation":{"created_at":"2013-12-01T01:52:34Z","donor_id":6,"endowment_id":11,"gross_amount":333.0,"id":3,"net_amount":323.043,"payment_account_id":2,"shares_added":"0.00323043","transaction_fees":9.957,"updated_at":"2013-12-01T01:52:34Z"}}],"total":333.0}
