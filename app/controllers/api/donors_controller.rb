@@ -22,11 +22,11 @@ class Api::DonorsController < Api::BaseController
       share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.donor_grants.sum(:shares_subtracted)}")
       donor_current_balance = ((BigDecimal("#{share_balance}") * BigDecimal("#{last_donation_price}")) * 10).ceil / 10.0
       donor_total_donations = current_donor.donations.sum(:gross_amount)
-      donor_total_grants = current_donor.donor_grants.where("status = ?", 'sent').sum(:gross_amount)
+      donor_total_grants = current_donor.donor_grants.where("status = ?", 'sent').sum(:gross_amount).to_f
     else
-      donor_current_balance = "0.0"
-      donor_total_donations = "0.0"
-      donor_total_grants = "0.0"
+      donor_current_balance = 0.0
+      donor_total_donations = 0.0
+      donor_total_grants = 0.0
     end
 
     giv2giv_share_balance = BigDecimal("#{Donation.sum(:shares_added)}") - BigDecimal("#{CharityGrant.sum(:shares_subtracted)}")
@@ -40,7 +40,9 @@ class Api::DonorsController < Api::BaseController
   def subscriptions
     last_grant_price = Share.last.grant_price rescue 0.0
     subscriptions = current_donor.donor_subscriptions
+    subscriptions ||= []
     subscriptions_list = []
+    
     subscriptions.each do |subscription|
       #Better to include Endowment.where("endowment_id = ?", subscription.endowment_id).my_balances and endowment.global_balances
       endowment = Endowment.find(subscription.endowment_id)

@@ -4,11 +4,38 @@ class Api::PaymentAccountsController < Api::BaseController
   skip_before_filter :require_authentication, :only => :one_time_payment
 
   def index
-    pas = current_donor.payment_accounts
 
-    respond_to do |format|
-      format.json { render json: pas }
+    payment_accounts = current_donor.payment_accounts
+    payment_accounts ||= []
+    accounts_list = []
+
+    payment_accounts.each do |account|
+      stripe_customer = Stripe::Customer.retrieve(account.stripe_cust_id)
+
+      cards_list = []
+      stripe_customer.cards.data.each do |card|
+        cards_hash = [ card.id => {
+          "type" => card.type,
+          "last4" => card.last4,
+          "exp_month" => card.exp_month,
+          "exp_year" => card.exp_month
+        } ]
+        cards_list << cards_hash
+      end
+
+      accounts_hash = [ account.id => {
+        "created_at" => account.created_at,
+        "updated_at" => account.updated_at,
+        "processor" => account.processor,
+        "requires_reauth" => account.requires_reauth,
+        "stripe_cust_id" => account.stripe_cust_id,
+	"cards" => cards_list
+      } ]
+      accounts_list << accounts_hash
     end
+
+    render json: accounts_list
+
   end
 
   def create
@@ -60,6 +87,7 @@ class Api::PaymentAccountsController < Api::BaseController
         format.json { head :not_found }
       end
     end
+
   end
 
   def destroy
