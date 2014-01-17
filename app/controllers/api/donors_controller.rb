@@ -49,6 +49,7 @@ class Api::DonorsController < Api::BaseController
       subscriptions_hash = [ subscription.stripe_subscription_id => {
         "endowment_id" => endowment.id,
         "endowment_name" => endowment.name,
+        "endowment_description" => endowment.description,
         "endowment_donation_amount" => subscription.gross_amount,
         "endowment_donation_type" => subscription.type_subscription,
         "charities" => endowment.charities,
