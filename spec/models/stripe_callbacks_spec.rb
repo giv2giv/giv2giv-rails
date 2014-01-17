@@ -1,5 +1,4 @@
 require 'spec_helper'
-require_relative '../../lib/stripe_callbacks.rb'
 
 describe StripeCallbacks do
 	describe "net_amount" do
