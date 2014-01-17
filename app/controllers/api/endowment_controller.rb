@@ -23,6 +23,8 @@ class Api::EndowmentController < Api::BaseController
   def my_balances(endowment)
     if current_donor.present? && current_donor.id
       last_donation_price = Share.last.donation_price rescue 0.0
+      my_donation_amount = current_donor.subscriptions.where("endowment_id = ?", endowment.id).gross_amount
+      my_type_subscription = current_donor.subscriptions.where("endowment_id = ?", endowment.id).type_subscription
       my_donations_count = current_donor.donations.where("endowment_id = ?", endowment.id).count('id', :distinct => true)
       my_donations_amount = current_donor.donations.where("endowment_id = ?", endowment.id).sum(:gross_amount)
       my_grants_shares = ((current_donor.donor_grants.where("endowment_id = ?", endowment.id).sum(:shares_subtracted)) * 10).ceil / 10.0
@@ -40,6 +42,8 @@ class Api::EndowmentController < Api::BaseController
 
 
       {
+        "my_donation_amount" => my_donation_amount,
+        "frequency" => my_type_subscription,
         "my_donations_count" => my_donations_count,
         #"my_donations_shares" => my_donations_shares, # We should not expose shares to users -- too confusing
         "my_donations_amount" => my_donations_amount,
@@ -99,6 +103,7 @@ class Api::EndowmentController < Api::BaseController
         "name" => endowment.name,
         "description" => endowment.description,
         "visibility" => endowment.visibility,
+        "minimum_donation_amount" => endowment.minimum_donation_amount,
         "my_balances" => my_balances(endowment),
         "global_balances" => global_balances(endowment),
         "charities" => endowment.charities              
