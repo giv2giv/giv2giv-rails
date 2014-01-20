@@ -23,8 +23,8 @@ class Api::EndowmentController < Api::BaseController
   def my_balances(endowment)
     if current_donor.present? && current_donor.id
       last_donation_price = Share.last.donation_price rescue 0.0
-      my_donation_amount = current_donor.subscriptions.where("endowment_id = ?", endowment.id).gross_amount
-      my_type_subscription = current_donor.subscriptions.where("endowment_id = ?", endowment.id).type_subscription
+      my_donation_amount = current_donor.donor_subscriptions.where("endowment_id = ?", endowment.id).last!.gross_amount
+      my_type_subscription = current_donor.donor_subscriptions.where("endowment_id = ?", endowment.id).last!.type_subscription
       my_donations_count = current_donor.donations.where("endowment_id = ?", endowment.id).count('id', :distinct => true)
       my_donations_amount = current_donor.donations.where("endowment_id = ?", endowment.id).sum(:gross_amount)
       my_grants_shares = ((current_donor.donor_grants.where("endowment_id = ?", endowment.id).sum(:shares_subtracted)) * 10).ceil / 10.0
