@@ -23,8 +23,16 @@ class Api::EndowmentController < Api::BaseController
   def my_balances(endowment)
     if current_donor.present? && current_donor.id
       last_donation_price = Share.last.donation_price rescue 0.0
-      my_donation_amount = current_donor.donor_subscriptions.where("endowment_id = ?", endowment.id).last!.gross_amount
-      my_type_subscription = current_donor.donor_subscriptions.where("endowment_id = ?", endowment.id).last!.type_subscription
+      if my_donation_amount_row = current_donor.donor_subscriptions.find_by_endowment_id(endowment.id)
+        my_donation_amount = my_donation_amount_row.gross_amount
+      else
+        my_donation_amount = 0.0
+      end
+      if my_type_subscription_row = current_donor.donor_subscriptions.find_by_endowment_id(endowment.id)
+        my_donation_frequency = my_type_subscription_row.type_subscription
+      else
+        my_donation_frequency = ""
+      end
       my_donations_count = current_donor.donations.where("endowment_id = ?", endowment.id).count('id', :distinct => true)
       my_donations_amount = current_donor.donations.where("endowment_id = ?", endowment.id).sum(:gross_amount)
       my_grants_shares = ((current_donor.donor_grants.where("endowment_id = ?", endowment.id).sum(:shares_subtracted)) * 10).ceil / 10.0
@@ -43,7 +51,7 @@ class Api::EndowmentController < Api::BaseController
 
       {
         "my_donation_amount" => my_donation_amount,
-        "frequency" => my_type_subscription,
+        "frequency" => my_donation_frequency,
         "my_donations_count" => my_donations_count,
         #"my_donations_shares" => my_donations_shares, # We should not expose shares to users -- too confusing
         "my_donations_amount" => my_donations_amount,
@@ -139,7 +147,7 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def show
-    endowment = Endowment.find(params[:id])
+    endowment = Endowment.find_by_id(params[:id])
     endowment_hash = {
       "id" => endowment.id,
       "created_at" => endowment.created_at,
@@ -162,7 +170,7 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def rename_endowment
-    endowment = Endowment.find(params[:id])
+    endowment = Endowment.find_by_id(params[:id])
     if (endowment.donor_id.to_s.eql?(current_session.donor_id))
       respond_to do |format|
         if endowment.donations.size >= 1
@@ -178,7 +186,7 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def add_charity
-    endowment = Endowment.find(params[:id])
+    endowment = Endowment.find_by_id(params[:id])
 
     if (endowment.donor_id.to_s.eql?(current_session.donor_id))
       respond_to do |format|
@@ -195,7 +203,7 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def remove_charity
-    endowment = Endowment.find(params[:id])
+    endowment = Endowment.find_by_id(params[:id])
     if (endowment.donor_id.to_s.eql?(current_session.donor_id))
       respond_to do |format|
         if endowment.donations.size < 1
@@ -211,7 +219,7 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def destroy
-    endowment = Endowment.find(params[:id])
+    endowment = Endowment.find_by_id(params[:id])
     if (endowment.donor_id.to_s.eql?(current_session.donor_id))
       respond_to do |format|
         if endowment.donations.size < 1
