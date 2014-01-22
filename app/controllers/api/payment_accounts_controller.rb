@@ -18,7 +18,7 @@ class Api::PaymentAccountsController < Api::BaseController
           "type" => card.type,
           "last4" => card.last4,
           "exp_month" => card.exp_month,
-          "exp_year" => card.exp_month
+          "exp_year" => card.exp_year
         } ]
         cards_list << cards_hash
       end
@@ -93,8 +93,9 @@ class Api::PaymentAccountsController < Api::BaseController
   def destroy
     respond_to do |format|
       if current_donor_id
-        current_donor_id.destroy
-        render json: { :message => "Payment account has been delete" }.to_json
+        account = current_donor.payment_accounts.find(params[:id])
+        account.destroy
+        format.json { render json: { :message => "Payment account has been deleted" }.to_json }
       else
         format.json { head :not_found }
       end
