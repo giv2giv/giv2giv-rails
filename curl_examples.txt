@@ -86,7 +86,7 @@
     curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=4pv0edzz5Bq142wVahy9zw' -d '{"endowment_id":"1", "start_date":"2013-10-15", "end_date":"2015-10-17"}' http://localhost:3000/api/donors/donations.json
 
     Examples Response:
-    {"donations":[{"donation":{"created_at":"2013-12-01T01:52:34Z","donor_id":6,"endowment_id":11,"gross_amount":333.0,"id":3,"net_amount":323.043,"payment_account_id":2,"shares_added":"0.00323043","transaction_fees":9.957,"updated_at":"2013-12-01T01:52:34Z"}}],"total":333.0}
+    {"timestamp":"2014-01-17T04:11:27+00:00","donations":[{"donation":{"created_at":"2014-01-17T03:07:58Z","donor_id":4,"endowment_id":1,"gross_amount":100.0,"id":1,"net_amount":90.0,"payment_account_id":8,"shares_added":"10.0","transaction_fees":10.0,"updated_at":null}},{"donation":{"created_at":"2014-01-17T03:07:58Z","donor_id":4,"endowment_id":1,"gross_amount":100.0,"id":2,"net_amount":90.0,"payment_account_id":8,"shares_added":"10.0","transaction_fees":10.0,"updated_at":null}}],"total":200.0}
 
 
 7. Forgot Password
