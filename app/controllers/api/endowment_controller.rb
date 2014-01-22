@@ -155,6 +155,7 @@ class Api::EndowmentController < Api::BaseController
       "name" => endowment.name,
       "description" => endowment.description,
       "visibility" => endowment.visibility,
+      "minimum_donation_amount" => endowment.minimum_donation_amount,
       "my_balances" => my_balances(endowment),
       "global_balances" => global_balances(endowment),
       "charities" => endowment.charities
