@@ -5,6 +5,7 @@ class Api::PaymentAccountsController < Api::BaseController
 
   def index
 
+
     payment_accounts = current_donor.payment_accounts
     payment_accounts ||= []
     accounts_list = []
@@ -91,9 +92,12 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def destroy
+
     respond_to do |format|
       if current_donor_id
         account = current_donor.payment_accounts.find(params[:id])
+	customer = Stripe::Customer.retrieve(account.stripe_cust_id)
+	customer.delete
         account.destroy
         format.json { render json: { :message => "Payment account has been deleted" }.to_json }
       else
