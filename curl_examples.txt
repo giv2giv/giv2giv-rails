@@ -13,14 +13,15 @@
     email    : required
     password : required
     name     : required
+    accepted_terms : required
 
     address, city, country, facebook_id, phone_number, state, zip  :  optional
 
-    curl -X POST -H "Content-Type: application/json" -d '{ "email":"email@domain.com","password":"password","name":"donor name" }' http://localhost:3000/api/donors.json
+    curl -X POST -H "Content-Type: application/json" -d '{ "email":"email@domain.com","password":"password","name":"donor name","accepted-terms":"true" }' http://localhost:3000/api/donors.json
 
     Examples Response:
 
-    {"donor":{"address":null,"city":null,"country":null,"created_at":"2013-09-24T04:34:59Z","email":"email@domain.com","facebook_id":null,"id":1,"name":"donor name","phone_number":null,"state":null,"updated_at":"2013-09-24T04:34:59Z","zip":null}}
+    {"donor":{"address":null,"city":null,"country":null,"created_at":"2013-09-24T04:34:59Z","email":"email@domain.com","facebook_id":null,"id":1,"name":"donor name","phone_number":null,"state":null,"accepted_terms":"2013-09-24T04:34:59Z","updated_at":"2013-09-24T04:34:59Z","zip":null}}
 
 2. Retrieve donor info
 
@@ -142,7 +143,15 @@
 
     {"message":"Successfuly remove your session"}
 
+3. Check token
 
+    Authorization token in Header *required*. See session #authenticate
+
+    Arguments : none
+
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=4pv0edzz5Bq142wVahy9zw' -d '' http://localhost:3000/api/sessions/ping.json
+
+    {"session":{"created_at":"2013-09-24T04:35:36Z","session_id":1,"token":"4pv0edzz5Bq142wVahy9zw","updated_at":"2013-09-24T04:35:36Z"}}
 
 ** CHARITY MANAGEMENT **
 
@@ -442,7 +451,48 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
    {"donation":{"amount":5.0,"endowment_id":1,"created_at":"2013-09-24T04:56:48Z","id":1,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:56:48Z"}}
 
 
+** SUGGESTIONS and WISHES **
 
+1. Create wish
+
+    Arguments :
+
+    { wish_text }  : required
+    { page }        : required
+
+    Header Authorization Token : optional
+
+    curl -X POST -H "Content-Type: application/json" -d '{"page":"endowment_details","wish_text":"Smaller font"}' http://localhost:3000/api/wishes.json
+
+    Example Response:
+
+    {"wish":{"created_at":"2014-01-28T16:42:17Z","donor_id":1,"id":4,"page":"endowment_details","wish_text":"Smaller font","updated_at":"2014-01-28T16:42:17Z"}}
+
+2. Show specific wish
+
+Arguments :
+
+    { wish_id }  : required
+
+    Header Authorization Token : optional
+
+    curl -X GET -H "Content-Type: application/json" http://localhost:3000/api/wishes/1.json
+
+    Example Response:
+
+    {"wish":{"created_at":"2014-01-28T16:42:17Z","donor_id":1,"id":1,"page":"endowment_details","wish_text":"Smaller font","updated_at":"2014-01-28T16:42:17Z"}}
+
+3. Show random wish
+
+Arguments : none
+
+    curl -X GET -H "Content-Type: application/json" http://localhost:3000/api/wishes/random.json
+
+    Example Response:
+
+    {"wish":{"created_at":"2014-01-28T16:42:17Z","donor_id":1,"id":1,"page":"endowment_details","wish_text":"Smaller font","updated_at":"2014-01-28T16:42:17Z"}}
+
+ 
 
 ** SHARES MANAGEMENT **
 

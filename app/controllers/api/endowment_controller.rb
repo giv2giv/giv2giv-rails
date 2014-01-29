@@ -11,37 +11,43 @@ class Api::EndowmentController < Api::BaseController
     global_balances = {
       "endowment_donor_count" => endowment.donations.count('donor_id', :distinct => true),
       "endowment_donations_count" => endowment.donations.count('id', :distinct => true),
-      "endowment_donations" => endowment.donations.sum(:gross_amount),
-      "endowment_transaction_fees" => endowment.donations.sum(:transaction_fees),
-      "endowment_fees" => endowment.donor_grants.sum(:giv2giv_fee),
-      "endowment_grants" => endowment.donor_grants.sum(:gross_amount),
+      "endowment_donations" => (endowment.donations.sum(:gross_amount) * 10).ceil / 10.0,
+      "endowment_transaction_fees" => (endowment.donations.sum(:transaction_fees) * 10).ceil / 10.0,
+      "endowment_fees" => (endowment.donor_grants.sum(:giv2giv_fee) * 10).ceil / 10.0,
+      "endowment_grants" => (endowment.donor_grants.sum(:gross_amount) * 10).ceil / 10.0,
       #"endowment_share_balance" => ((endowment.donations.sum(:shares_added) - endowment.donor_grants.sum(:shares_subtracted)) * 10).ceil / 10.0,
-      "endowment_balance" => ((endowment_share_balance * last_donation_price) * 10).ceil / 10.0
+      "endowment_balance" => (endowment_share_balance * last_donation_price * 10).ceil / 10.0
     }
   end
 
   def my_balances(endowment)
     if current_donor.present? && current_donor.id
       last_donation_price = Share.last.donation_price rescue 0.0
-      if my_donation_amount_row = current_donor.donor_subscriptions.find_by_endowment_id(endowment.id)
-        my_donation_amount = my_donation_amount_row.gross_amount
+      if my_subscription_row = current_donor.donor_subscriptions.find_by_endowment_id(endowment.id)
+        my_subscription_id = my_subscription_row.id
+        my_subscription_amount = my_subscription_row.gross_amount
+        my_subscription_type = my_subscription_row.type_subscription
       else
-        my_donation_amount = 0.0
+        my_subscription_id = ""
+        my_subscription_amount = ""
+        my_subscription_type = ""
       end
-      if my_type_subscription_row = current_donor.donor_subscriptions.find_by_endowment_id(endowment.id)
-        my_donation_frequency = my_type_subscription_row.type_subscription
-      else
-        my_donation_frequency = ""
-      end
-      my_donations_count = current_donor.donations.where("endowment_id = ?", endowment.id).count('id', :distinct => true)
-      my_donations_amount = current_donor.donations.where("endowment_id = ?", endowment.id).sum(:gross_amount)
-      my_grants_shares = ((current_donor.donor_grants.where("endowment_id = ?", endowment.id).sum(:shares_subtracted)) * 10).ceil / 10.0
-      my_grants_amount = ((current_donor.donor_grants.where("endowment_id = ?", endowment.id).sum(:gross_amount)) * 10).ceil / 10.0
-      my_donations_shares = ((current_donor.donations.where("endowment_id = ?", endowment.id).sum(:shares_added)) * 10).ceil / 10.0
+      my_donations = current_donor.donations.where("endowment_id = ?", endowment.id)
+      my_grants = current_donor.donor_grants.where("endowment_id = ?", endowment.id)
+
+      my_donations_count = my_donations.count('id', :distinct => true)
+      my_donations_amount = my_donations.sum(:gross_amount)
+      my_donations_shares = my_donations.sum(:shares_added)
+
+      my_grants_amount = my_grants.sum(:gross_amount)
+      my_grants_shares = my_grants.sum(:shares_subtracted)
+
       my_balance_pre_investment = my_donations_amount - my_grants_amount
       my_endowment_share_balance = my_donations_shares - my_grants_shares
-      my_endowment_balance = ((my_endowment_share_balance * last_donation_price) * 10).ceil / 10.0
-      my_investment_gainloss = my_endowment_balance - my_balance_pre_investment
+
+      my_endowment_balance = (my_endowment_share_balance * last_donation_price * 10).ceil / 10.0
+      my_investment_gainloss = (my_endowment_balance - my_balance_pre_investment * 10).ceil / 10.0
+
       if defined?(:my_donations_count) && my_donations_count > 0
         my_investment_gainloss_percentage = (my_investment_gainloss / my_donations_amount * 100).round(3)
       else
@@ -50,20 +56,22 @@ class Api::EndowmentController < Api::BaseController
 
 
       {
-        "my_donation_amount" => my_donation_amount,
-        "frequency" => my_donation_frequency,
+        "my_subscription_id" => my_subscription_id,
+        "my_subscription_amount" => my_subscription_amount.to_f,
+        "my_subscription_type" => my_subscription_type,
+
         "my_donations_count" => my_donations_count,
         #"my_donations_shares" => my_donations_shares, # We should not expose shares to users -- too confusing
-        "my_donations_amount" => my_donations_amount,
+        "my_donations_amount" => my_donations_amount.to_f,
         #"my_grants_shares" => my_grants_shares,
-        "my_grants_amount" => my_grants_amount,
+        "my_grants_amount" => my_grants_amount.to_f,
 
-        "my_balance_pre_investment" => my_balance_pre_investment,
+        "my_balance_pre_investment" => my_balance_pre_investment.to_f,
         #"my_endowment_share_balance" => my_endowment_share_balance,
 
-        "my_investment_gainloss" => my_investment_gainloss,
+        "my_investment_gainloss" => my_investment_gainloss.to_f,
         "my_investment_gailoss_percentage" => my_investment_gainloss_percentage,
-        "my_endowment_balance" => my_endowment_balance
+        "my_endowment_balance" => my_endowment_balance.to_f
       }
     else
       { "my_donations_count" => "0.0", "my_donations_amount" => "0.0", "my_grants_amount" => "0.0", "my_balance_pre_investment" => "0.0", "my_investment_gainloss" => "0.0", "my_investment_gainloss_percentage" => "0.0", "my_endowment_balance" => "0.0" }

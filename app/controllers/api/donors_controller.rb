@@ -2,15 +2,25 @@ class Api::DonorsController < Api::BaseController
   skip_before_filter :require_authentication, :only => [:create, :forgot_password, :reset_password, :balance_information]
 
   def create
-    donor = Donor.new(params[:donor])
-    donor.type_donor = "registered"
-    donor.password = secure_password(params[:donor][:password])
 
-    respond_to do |format|
-      if donor.save
-        format.json { render json: donor, status: :created }
-      else
-        format.json { render json: donor.errors, status: :unprocessable_entity }
+    if (params[:donor][:accepted_terms])
+
+      donor = Donor.new(params[:donor])
+      donor.type_donor = "registered"
+      donor.password = secure_password(params[:donor][:password])
+      donor.accepted_terms = DateTime.now()
+
+      respond_to do |format|
+        if donor.save
+          format.json { render json: donor, status: :created }
+        else
+          format.json { render json: donor.errors, status: :unprocessable_entity }
+        end
+      end
+
+    else
+      respond_to do |format|
+        format.json { render json: { :message => "Must accept terms" }.to_json, status: :unprocessable_entity }
       end
     end
   end
@@ -38,7 +48,7 @@ class Api::DonorsController < Api::BaseController
   end
 
   def subscriptions
-    last_grant_price = Share.last.grant_price rescue 0.0
+    last_donation_price = Share.last.donation_price rescue 0.0
     subscriptions = current_donor.donor_subscriptions
     subscriptions ||= []
     subscriptions_list = []
@@ -57,8 +67,8 @@ class Api::DonorsController < Api::BaseController
         "endowment_donor_count" => Donation.where("endowment_id = ?", subscription.endowment_id).count('donor_id', :distinct => true),
         "endowment_donor_total_donations" => current_donor.donations.where("endowment_id = ?", subscription.endowment_id).sum(:gross_amount),
         "endowment_total_donations" => Donation.where("endowment_id = ?", subscription.endowment_id).sum(:gross_amount),
-        "endowment_donor_current_balance" => ((BigDecimal(current_donor.donations.where("endowment_id = ?", subscription.endowment_id).sum(:shares_added)) - BigDecimal(current_donor.donor_grants.sum(:shares_subtracted))) * last_grant_price * 10).ceil / 10.0,
-        "endowment_total_balance" => ((BigDecimal(Donation.where("endowment_id = ?", subscription.endowment_id).sum(:shares_added)) - BigDecimal(current_donor.donor_grants.where("endowment_id = ?", subscription.endowment_id).sum(:shares_subtracted))) * last_grant_price * 10).ceil / 10.0,
+        "endowment_donor_current_balance" => ((BigDecimal(current_donor.donations.where("endowment_id = ?", subscription.endowment_id).sum(:shares_added)) - BigDecimal(current_donor.donor_grants.sum(:shares_subtracted))) * last_donation_price * 10).ceil / 10.0,
+        "endowment_total_balance" => ((BigDecimal(Donation.where("endowment_id = ?", subscription.endowment_id).sum(:shares_added)) - BigDecimal(current_donor.donor_grants.where("endowment_id = ?", subscription.endowment_id).sum(:shares_subtracted))) * last_donation_price * 10).ceil / 10.0,
         "total_granted_by_donor" => current_donor.donor_grants.where("status = ?", 'sent').where("endowment_id = ?", subscription.endowment_id),#.sum(:grant_amount),
         "total_granted_from_endowment" => DonorGrant.where("status = ?", 'sent').where("endowment_id = ?", subscription.endowment_id)#.sum(:grant_amount)
       } ]
@@ -71,7 +81,7 @@ def update
   donor = current_donor
 
   respond_to do |format|
-    if donor && donor.update_attributes(params[:donor])
+    if donor && donor.update_attributes(params[:donor].except(:accepted_terms))
       format.json { render json: donor }
     else
       format.json { render json: donor.errors, status: :unprocessable_entity }

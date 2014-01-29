@@ -189,7 +189,7 @@ class PaymentAccount < ActiveRecord::Base
 
     def cancel_subscription(subscription_id)
       begin
-        subscription = DonorSubcription.find(subscription_id)
+        subscription = DonorSubscription.find(subscription_id)
         cust_id = PaymentAccount.find(subscription.payment_account_id).stripe_cust_id
 
         begin
@@ -245,10 +245,10 @@ class PaymentAccount < ActiveRecord::Base
   def donate_subscription(amount, endowment_id, payment_id, email)
 
     raise PaymentAccountInvalid unless self.valid?
-    raise EndowmentInvalid unless Endowment.find(endowment_id)
+    raise EndowmentInvalid unless Endowment.find_by_id(endowment_id)
 
-    payment_donor = PaymentAccount.find(payment_id)
-    endowment = Endowment.find(endowment_id)
+    payment_donor = PaymentAccount.find_by_id(payment_id)
+    endowment = Endowment.find_by_id(endowment_id)
     num_of_charity = endowment.charities.count
     check_donor = Donor.find(payment_donor.donor_id)
     amount = amount.to_i
@@ -265,6 +265,8 @@ class PaymentAccount < ActiveRecord::Base
 
             begin
               customer = Stripe::Customer.retrieve(check_donor.payment_accounts.find(payment_id).stripe_cust_id)
+              Rails.logger.debug "customer obj"
+              Rails.logger.debug customer
               if customer.subscription.blank?
                 id_subscription = customer.update_subscription(:plan => PLAN_ID, :quantity => amount, :prorate => false)
               else

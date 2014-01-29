@@ -16,6 +16,14 @@ class Api::SessionsController < Api::BaseController
     end
   end
 
+  def ping
+    if current_session
+      respond_to do |format|
+        format.json { render json: {session: current_session}, status: :created }
+      end
+    end
+  end
+
   def destroy
     if current_session
       current_session.destroy

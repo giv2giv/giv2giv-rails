@@ -5,23 +5,21 @@ class Api::PaymentAccountsController < Api::BaseController
 
   def index
 
-
     payment_accounts = current_donor.payment_accounts
     payment_accounts ||= []
     accounts_list = []
 
     payment_accounts.each do |account|
       stripe_customer = Stripe::Customer.retrieve(account.stripe_cust_id)
-
       cards_list = []
-      stripe_customer.cards.data.each do |card|
-        cards_hash = [ card.id => {
-          "type" => card.type,
-          "last4" => card.last4,
-          "exp_month" => card.exp_month,
-          "exp_year" => card.exp_year
-        } ]
-        cards_list << cards_hash
+        stripe_customer.cards.data.each do |card|
+          cards_hash = [ card.id => {
+            "type" => card.type,
+            "last4" => card.last4,
+            "exp_month" => card.exp_month,
+            "exp_year" => card.exp_year
+          } ]
+          cards_list << cards_hash
       end
 
       accounts_hash = [ account.id => {
@@ -30,7 +28,7 @@ class Api::PaymentAccountsController < Api::BaseController
         "processor" => account.processor,
         "requires_reauth" => account.requires_reauth,
         "stripe_cust_id" => account.stripe_cust_id,
-	"cards" => cards_list
+	      "cards" => cards_list
       } ]
       accounts_list << accounts_hash
     end
@@ -96,9 +94,11 @@ class Api::PaymentAccountsController < Api::BaseController
     respond_to do |format|
       if current_donor_id
         account = current_donor.payment_accounts.find(params[:id])
-	customer = Stripe::Customer.retrieve(account.stripe_cust_id)
-	customer.delete
+        subscription = DonorSubscription.find_by_payment_account_id(params[:id])
+	      customer = Stripe::Customer.retrieve(account.stripe_cust_id)
+	      customer.delete
         account.destroy
+        subscription.destroy
         format.json { render json: { :message => "Payment account has been deleted" }.to_json }
       else
         format.json { head :not_found }

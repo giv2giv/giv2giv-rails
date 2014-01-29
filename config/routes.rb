@@ -8,6 +8,7 @@ Giv2givRails::Application.routes.draw do
 
       post 'sessions/destroy' => 'sessions#destroy'
       post 'sessions/create' => 'sessions#create'
+      post 'sessions/ping' => 'sessions#ping'
 
       resource :donors, :except => [:new, :edit, :destroy] do
         get 'balance_information', :on => :member
@@ -34,6 +35,10 @@ Giv2givRails::Application.routes.draw do
 
       resources :charity, :except => [:new, :edit, :destroy, :update, :create] do
         #
+      end
+
+      resources :wishes, :except => [:new, :edit, :destroy, :update] do
+        get 'random', :on => :collection
       end
 
       resources :balances, :except => [:new, :edit, :destroy, :create, :update, :show, :index] do

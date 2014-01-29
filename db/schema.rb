@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131221133035) do
+ActiveRecord::Schema.define(:version => 20140128103351) do
 
   create_table "charities", :force => true do |t|
     t.string   "name",                :null => false
@@ -122,6 +122,7 @@ ActiveRecord::Schema.define(:version => 20131221133035) do
     t.string   "password_reset_token"
     t.datetime "expire_password_reset"
     t.string   "auth_token"
+    t.datetime "accepted_terms"
   end
 
   create_table "endowments", :force => true do |t|
@@ -200,5 +201,13 @@ ActiveRecord::Schema.define(:version => 20131221133035) do
 
   add_index "tags", ["id"], :name => "index_tags_on_id"
   add_index "tags", ["name"], :name => "index_tags_on_name", :length => {"name"=>255}
+
+  create_table "wishes", :force => true do |t|
+    t.integer  "donor_id"
+    t.text     "page"
+    t.text     "wish_text"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
 
 end

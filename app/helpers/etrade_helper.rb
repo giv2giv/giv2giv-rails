@@ -5,8 +5,7 @@ module EtradeHelper
 
   CUST_KEY = App.etrade["oauth_consumer_key"]
   CUST_SECRET = App.etrade["consumer_secret"]
-  SITE = App.etrade["etrade_site"]
-  REQUEST_SITE = App.etrade["request_site"]
+  REQUEST_SITE = App.etrade["sandbox_site"]
   TOKEN = EtradeToken.last.token rescue ""
   SECRET = EtradeToken.last.secret rescue ""
 
@@ -51,7 +50,7 @@ module EtradeHelper
   #last 30 days
     consumer = OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {:site => REQUEST_SITE, :http_method => :get})
     access_token = OAuth::Token.new(TOKEN, SECRET)
-    consumer.request(:get, "/accounts/rest/#{account_id.to_s}/transactions", access_token).body
+    consumer.request(:get, "/accounts/sandbox/rest/#{account_id.to_s}/transactions", access_token).body
   end
 
   def get_fees(account_id)

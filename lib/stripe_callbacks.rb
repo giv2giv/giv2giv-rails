@@ -1,10 +1,14 @@
 class StripeCallbacks
 
+  SHARE_PRECISION = App.giv["share_precision"]
+
   def net_amount (gross_amount)
     (((gross_amount - (gross_amount * STRIPE_FEES)) - STRIPE_FEES_CENTS).to_f * 10).ceil / 10.0
   end
 
   def process_one_time_payment(event)
+    # TODO this needs updating - can it be the same as process_recurring?
+
     charge_amount = event.data.object.amount / 100
     donation_amount = net_amount(charge_amount)
     transaction_fees = charge_amount - donation_amount
@@ -20,22 +24,29 @@ class StripeCallbacks
     end
   end
 
-  def process_recurring_payment(invoice)
-    charge_amount = invoice.lines.data.first.amount / 100
-    donation_amount = net_amount(charge_amount)
-    transaction_fees = charge_amount - donation_amount
+  def process_recurring_payment(event)
+
+    invoice = Stripe::Invoice.retrieve(event.data.object.invoice)
+
+    transaction = Stripe::BalanceTransaction.retrieve(event.data.object.balance_transaction)
+
+    charge_amount = transaction.amount
+    donation_amount = transaction.net
+    transaction_fee = transaction.fee
+
+    percent_net = BigDecimal(donation_amount.to_s) / BigDecimal(charge_amount.to_s)
 
     subscriptions = DonorSubscription.where(stripe_subscription_id: invoice.lines.data.first.id) # will this work? stripe subscription.id
 
     subscriptions_gross_amount_sum = subscriptions.sum(:gross_amount)
 
     subscriptions.each do |subscription|
-       this_endowment_percentage_of_gross = BigDecimal(subscription.gross_amount.to_s) / BigDecimal(subscriptions_gross_amount_sum.to_s) # What % is this endowment to all subscribed endowments?
 
-       this_endowment_portion_of_fees = (BigDecimal(this_endowment_percentage_of_gross.to_s) * BigDecimal(transaction_fees.to_s)).round(SHARE_PRECISION) # apply same % to fees
-       this_endowment_portion_of_donation = (BigDecimal(this_endowment_percentage_of_gross.to_s) * BigDecimal(donation_amount.to_s)).round(SHARE_PRECISION) # apply same % to donation
+       this_endowment_percentage_of_gross = BigDecimal(subscription.gross_amount.to_s) / BigDecimal(charge_amount.to_s)
+       this_endowment_transaction_fees = (BigDecimal(this_endowment_percentage_of_gross.to_s) * BigDecimal(transaction_fee.to_s)).round(SHARE_PRECISION)
+       this_endowment_donation = (BigDecimal(this_endowment_percentage_of_gross.to_s) * BigDecimal(donation_amount.to_s)).round(SHARE_PRECISION)
 
-       donation = Donation.add_donation(subscription.id, subscription.gross_amount, this_endowment_portion_of_fees, this_endowment_portion_of_donation)
+       donation = Donation.add_donation(subscription.id, subscription.gross_amount, this_endowment_transaction_fees, this_endowment_donation)
 
        if !donation.save
 	       puts "ERROR!" # TODO: better error handling
@@ -44,8 +55,9 @@ class StripeCallbacks
     end
 
     donor = Donor.find(subscriptions.first.donor_id)
-    DonorMailer.charge_success(donor.email, charge_amount).deliver
+    DonorMailer.charge_success(donor.email, charge_amount/100).deliver
   end
+
 
 	def charge_succeeded(event)
     invoice = event.data.object.invoice
@@ -57,10 +69,12 @@ class StripeCallbacks
     end
 
     if ret_invoice.blank?
+      Rails.logger.debug "Processing one-time"
     	process_one_time_payment(event)
 
     else
-    	process_recurring_payment(ret_invoice)
+      Rails.logger.debug "Processing recurring"
+    	process_recurring_payment(event)
     end # end else
    
 	end
