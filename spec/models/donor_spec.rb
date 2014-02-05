@@ -49,14 +49,16 @@ describe Donor do
   describe "authentication" do
     it "should not store password in plaintext" do
       pass = 'passwerd'
-      donor = create(:donor, password: pass)
+      accepted_terms = 'true'
+      donor = create(:donor, password: pass, accepted_terms: accepted_terms)
       donor.reload
       donor.password.to_s.should_not equal pass
     end
 
     it "should compare password to hash" do
       pass = 'passwerd'
-      donor = create(:donor, password: pass)
+      accepted_terms = 'true'
+      donor = create(:donor, password: pass, accepted_terms: accepted_terms)
       donor.reload
       donor.password.to_s.should_not equal pass
       (donor.password == pass).should be true
@@ -66,7 +68,8 @@ describe Donor do
     it "should authenticate successfully" do
       email = 'nocoll@ltc.com'
       pass = 'passwerd'
-      donor = create(:donor, email: email, password: pass)
+      accepted_terms = 'true'
+      donor = create(:donor, email: email, password: pass, accepted_terms: accepted_terms)
 
       e = Donor.authenticate(email, pass)
       e.should be_an_instance_of Donor

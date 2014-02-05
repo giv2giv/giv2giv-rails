@@ -24,11 +24,11 @@ module CalculationShare
 
         # shares added by donation
         shares_donated_yesterday = Donation.where("date_format(created_at, '%Y%m%d') = ?", date_yesterday).sum(:shares_added)
+        Rails.logger.debug shares_donated_yesterday
         # shares removed by grant
         shares_granted_yesterday = CharityGrant.where("status = ?", "sent").where("date_format(created_at, '%Y%m%d') = ?", date_yesterday).sum(:shares_subtracted)
         donors_shares_total_beginning = Share.order("created_At DESC").last.share_total_end.to_f rescue 0.0
         share_total_end = (BigDecimal("#{donors_shares_total_beginning}") + BigDecimal("#{shares_donated_yesterday}") - BigDecimal("#{shares_granted_yesterday}")).round(SHARE_PRECISION)
-
         # get donation share price
         # givbalance / total_donor_shares_all_time
         preliminary_share_price = (BigDecimal("#{givbalance}") / BigDecimal("#{share_total_end}")).to_f
@@ -135,8 +135,10 @@ module CalculationShare
       def get_etrade_balance
         # just let return error message default from api
         etrade_balance = Etrade.get_net_account_value
+        etrade_balance = BigDecimal(etrade_balance.to_s) - 1000 # 1000 of g2g corporate seed money in account to avoid trade fees
         puts "Etrade Balance : #{etrade_balance}"
-        return etrade_balance.to_f
+        return etrade_balance
+        
       end
 
     end # end self

@@ -16,6 +16,7 @@ class Api::CharityController < Api::BaseController
 
     #let's not sqli ourselves in the API
     q = "%#{query}%"
+    #q = q.gsub!(' ','%')
 
     offset_count = (page.to_i-1)*perpage.to_i
     charities_with_matching_name = Charity.where("name LIKE ?", q).limit(perpage).offset(offset_count)

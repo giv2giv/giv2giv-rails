@@ -9,7 +9,7 @@ describe Api::DonorsController do
   describe "create" do
     it "should create donor on success" do
       Donor.should_receive(:new).and_return(@donor)
-      post :create, :format => :json, :donor => {:password => "passwerd"}
+      post :create, :format => :json, :donor => {:password => "passwerd", :accept_terms => "true"}
 
       response.status.should == 201
       resp = JSON.parse(response.body)["donor"]
@@ -31,7 +31,8 @@ describe Api::DonorsController do
     it "should work" do
       params = {:name => 'Kendal',
                 :password => 'welcome',
-                :email => 'dc@ltc.com'}
+                :email => 'dc@ltc.com',
+                :accept_terms => 'true'}
       post :create, :format => :json, :donor => params
       response.status.should == 201
       resp = JSON.parse(response.body)["donor"]

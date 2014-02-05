@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140128103351) do
+ActiveRecord::Schema.define(:version => 20140201180745) do
 
   create_table "charities", :force => true do |t|
     t.string   "name",                :null => false
@@ -33,6 +33,7 @@ ActiveRecord::Schema.define(:version => 20140128103351) do
   end
 
   add_index "charities", ["ein"], :name => "index_charities_on_ein"
+  add_index "charities", ["name"], :name => "index_charities_on_name"
 
   create_table "charities_endowments", :id => false, :force => true do |t|
     t.integer "endowment_id", :null => false

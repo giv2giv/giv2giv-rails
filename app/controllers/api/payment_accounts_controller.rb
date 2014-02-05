@@ -107,8 +107,10 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def donate_subscription
+
     respond_to do |format|
       if current_donor_id && donation = current_donor_id.donate_subscription(params[:amount], params[:endowment_id], params[:id], current_donor.email)
+        Rails.logger.debug donation
         format.json { render json: donation }
       else
         format.json { head :not_found }
