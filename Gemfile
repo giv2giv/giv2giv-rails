@@ -1,4 +1,5 @@
 source 'https://rubygems.org'
+source 'https://code.stripe.com'
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -27,7 +28,7 @@ gem 'rufus-scheduler'
 
 # Gems used to interact with payment processors
 gem 'dwolla-ruby'
-gem 'stripe', :git => 'https://github.com/stripe/stripe-ruby'
+gem 'stripe'
 gem 'httparty'
 
 # Gems used for the charity import
