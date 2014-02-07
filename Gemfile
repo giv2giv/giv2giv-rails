@@ -40,4 +40,4 @@ gem 'spreadsheet'
 gem 'will_paginate', '~> 3.0'
 
 # Stripe events hooks
-gem 'stripe_event'
+gem 'stripe_event', :git => 'git://github.com/integrallis/stripe_event.git'
