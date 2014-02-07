@@ -428,27 +428,21 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
 4. One-time payment
 
+    Authorization token in Header *required*. See session #authenticate
+
     Arguments :
 
     amount             : required
-    endowment_id   : required
+    endowment_id       : required
 
-    For registered user    :
-    
-    email              : required
-    payment_account_id : required
-    password           : required
+    { PAYMENT_ACCOUNT_ID } : required
+    http://localhost:3000/api/donors/payment_accounts/{ PAYMENT_ACCOUNT_ID }/one_time_payment.json
 
-    For unregistered user  :
-    
-    email              : optional
-    stripeToken        : required if donor is unregistered 
-
-    curl -X POST -H "Content-Type: application/json" -d '{"amount":"5", "endowment_id":"1", "email":"email@email.com","stripeToken":"tok_102drE2mGsIlOBKnv6SfzVlO"}' http://localhost:3000/api/donors/payment_accounts/one_time_payment.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=4pv0edzz5Bq142wVahy9zw' -d '{"amount":"5", "endowment_id":"1"}' http://localhost:3000/api/donors/payment_accounts/1/one_time_payment.json
 
     Examples Response:
 
-   {"donation":{"amount":5.0,"endowment_id":1,"created_at":"2013-09-24T04:56:48Z","id":1,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:56:48Z"}}
+    {"donation":{"amount":5.0,"endowment_id":1,"created_at":"2013-09-24T04:56:48Z","id":1,"payment_account_id":1,"transaction_id":null,"transaction_processor":"stripe","transaction_type":"subscription","updated_at":"2013-09-24T04:56:48Z"}}
 
 
 ** SUGGESTIONS and WISHES **

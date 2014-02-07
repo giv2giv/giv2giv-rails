@@ -21,7 +21,7 @@ Giv2givRails::Application.routes.draw do
           post 'donate_subscription', :on => :member
           get 'donation_list', :on => :member
           get 'all_donation_list', :on => :collection
-          post 'one_time_payment', :on => :collection
+          post 'one_time_payment', :on => :member
           get 'cancel_subscription', :on => :member
           get 'cancel_all_subscription', :on => :collection
         end

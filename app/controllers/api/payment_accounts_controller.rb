@@ -1,7 +1,6 @@
 class Api::PaymentAccountsController < Api::BaseController
-  before_filter :current_donor_id, :except => [:index, :create, :one_time_payment]
+  before_filter :current_donor_id, :except => [:index, :create]
   skip_before_filter :current_donor_id, :only => [:all_donation_list, :cancel_subscription, :cancel_all_subscription]
-  skip_before_filter :require_authentication, :only => :one_time_payment
 
   def index
 
@@ -90,16 +89,20 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def destroy
-
+    require "stripe"
     respond_to do |format|
       if current_donor_id
-        account = current_donor.payment_accounts.find(params[:id])
-        subscription = DonorSubscription.find_by_payment_account_id(params[:id])
-	      customer = Stripe::Customer.retrieve(account.stripe_cust_id)
-	      customer.delete
-        account.destroy
-        subscription.destroy
-        format.json { render json: { :message => "Payment account has been deleted" }.to_json }
+          account = current_donor.payment_accounts.find(params[:id])
+          subscription = DonorSubscription.find_by_payment_account_id(params[:id])
+          customer = Stripe::Customer.retrieve(account.stripe_cust_id)
+          
+          account.destroy
+          if subscription
+            subscription.destroy
+          end
+          customer.delete
+          
+          format.json { render json: { :message => "Payment account has been deleted" }.to_json }
       else
         format.json { head :not_found }
       end
@@ -107,10 +110,8 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def donate_subscription
-
     respond_to do |format|
-      if current_donor_id && donation = current_donor_id.donate_subscription(params[:amount], params[:endowment_id], params[:id], current_donor.email)
-        Rails.logger.debug donation
+      if current_donor_id && donation = current_donor_id.donate_subscription(params[:amount], params[:endowment_id], params[:id])
         format.json { render json: donation }
       else
         format.json { head :not_found }
@@ -119,15 +120,12 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def one_time_payment
-    if params.has_key?(:password)
-      password = secure_password(params[:password])
-    else
-      password = params[:password]
-    end
-
     respond_to do |format|
-      donation = PaymentAccount.one_time_payment(params[:amount].to_i, params[:endowment_id], params[:email], params[:stripeToken], params[:payment_account_id], password)
-      format.json { render json: donation }
+      if current_donor_id && donation = current_donor_id.one_time_payment(params[:amount], params[:endowment_id], params[:id])
+        format.json { render json: donation }
+      else
+        format.json { head :not_found }
+      end
     end
   end
 
