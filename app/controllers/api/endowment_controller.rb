@@ -105,10 +105,19 @@ class Api::EndowmentController < Api::BaseController
 
     q = "%#{query}%"
     if q=="%%"
-	    endowments = Endowment.where("visibility = ?", "public").order("RAND()").limit(perpage)
+      if current_donor.present? && current_donor.id
+  	    endowments = Endowment.where("(visibility = ? OR donor_id = ?)", "public", current_donor.id).order("RAND()").limit(perpage)
+      else
+        endowments = Endowment.where("visibility = ?", "public").order("RAND()").limit(perpage)
+      end
     else
-      endowments = Endowment.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ])
+      if current_donor.present? && current_donor.id
+        endowments = Endowment.where("name LIKE ? AND (visibility = ? OR donor_id = ?)", "%#{query}%", "public", current_donor.id).order("RAND()").limit(perpage)
+      else
+        endowments = Endowment.where("name LIKE ? AND visibility = ?", "%#{query}%", "public").order("RAND()").limit(perpage)
+      end
     end
+
 
     endowments = endowments.compact.flatten.uniq.paginate(:page => page, :per_page => perpage)
 
