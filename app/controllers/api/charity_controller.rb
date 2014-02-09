@@ -23,7 +23,7 @@ class Api::CharityController < Api::BaseController
     #q = q.gsub!(' ','%')
     
 
-    if city.defined?
+    if cityq
       charities_with_matching_name = Charity.where("name LIKE ?", nameq).where("city LIKE ?", cityq).limit(perpage).offset(offset_count)
     else
       charities_with_matching_name = Charity.where("name LIKE ?", nameq).limit(perpage).offset(offset_count)
