@@ -71,9 +71,13 @@ class PaymentAccount < ActiveRecord::Base
         payment_accounts = current_donor.payment_accounts
         payment_accounts.each do |payment_account|
           begin
-            cu = Stripe::Customer.retrieve(payment_account.stripe_cust_id)
-            cu.cancel_subscription
-            payment_account.donor_subscriptions.destroy_all
+
+            subscriptions = Stripe::Customer.retrieve(payment_account.stripe_cust_id).subscriptions.all()
+            subscriptions.each do |subscription|
+              subscription.delete()
+            end
+
+          payment_account.donor_subscriptions.destroy_all
           rescue Stripe::CardError => e
             body = e.json_body
             err  = body[:error]

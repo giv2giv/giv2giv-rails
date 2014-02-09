@@ -23,7 +23,7 @@ Giv2givRails::Application.routes.draw do
           get 'all_donation_list', :on => :collection
           post 'one_time_payment', :on => :member
           get 'cancel_subscription', :on => :member
-          get 'cancel_all_subscription', :on => :collection
+          #get 'cancel_all_subscription', :on => :collection #development stage
         end
       end
 
@@ -42,9 +42,9 @@ Giv2givRails::Application.routes.draw do
       end
 
       resources :balances, :except => [:new, :edit, :destroy, :create, :update, :show, :index] do
-        get 'show_grants', :on => :collection
-        post 'approve_donor_grants', :on => :collection
-        post 'deny_grant', :on => :member
+        #get 'show_grants', :on => :collection #admin-only
+        #post 'approve_donor_grants', :on => :collection #admin-only
+        #post 'deny_grant', :on => :member #admin-only
       end
 
     end # end namespace api

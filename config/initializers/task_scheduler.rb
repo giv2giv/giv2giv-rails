@@ -69,5 +69,5 @@ class GrantPrice
 end # end class
 
 scheduler = Rufus::Scheduler.new
-scheduler.cron '1 0 * * *', SchedulerPrice.new, :blocking => true
-scheduler.every '90d', GrantPrice.new, :blocking => true
+#scheduler.cron '5 0 * * *', SchedulerPrice.new, :blocking => true # midnight ET?
+#scheduler.every '90d', GrantPrice.new, :blocking => true #Don't make this automatic yet
