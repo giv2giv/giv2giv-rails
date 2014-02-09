@@ -139,17 +139,25 @@ class Api::EndowmentController < Api::BaseController
 
   def create
     #params[:endowment] = { name: params[:name], minimum_donation_amount: params[:minimum_donation_amount], visibility: params[:visibility], description: params[:description] }
-    endowment = Endowment.new(params[:endowment])
-
-    endowment.donor_id = current_session.donor_id
     respond_to do |format|
-      if endowment.save
-        if params.has_key?(:charities)
-          charities = endowment.add_charity(params[:charities])
+
+      if params[:minimum_donation_amount].to_f < 2.0
+        format.json { render json: { :message => "Minimum donation at giv2giv is $2" }.to_json }
+      end
+
+      endowment = Endowment.new(params[:endowment])
+
+      if endowment.visibility.eql?("private") && self.donor_id != endowment.donor_id
+
+        endowment.donor_id = current_session.donor_id
+        if endowment.save
+          if params.has_key?(:charities)
+            charities = endowment.add_charity(params[:charities])
+          end
+          format.json { render json: endowment.to_json(:include => charities)}
+        else
+          format.json { render json: endowment.errors , status: :unprocessable_entity }
         end
-        format.json { render json: endowment.to_json(:include => charities)}
-      else
-        format.json { render json: endowment.errors , status: :unprocessable_entity }
       end
     end
   end
