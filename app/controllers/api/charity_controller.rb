@@ -9,17 +9,26 @@ class Api::CharityController < Api::BaseController
     page = params[:page] || 1
     perpage = params[:per_page] || 10
     perpage = 50 if perpage.to_i > 50
+    offset_count = (page.to_i-1)*perpage.to_i
+
     query = params[:query] || ""
+    city = params[:city]
 
     charities_with_matching_tags = []
     charities_with_matching_name = []
 
     #let's not sqli ourselves in the API
-    q = "%#{query}%"
+    nameq = "%#{query}%"
+    cityq = "%#{city}%"
     #q = q.gsub!(' ','%')
+    
 
-    offset_count = (page.to_i-1)*perpage.to_i
-    charities_with_matching_name = Charity.where("name LIKE ?", q).limit(perpage).offset(offset_count)
+    if city.defined?
+      charities_with_matching_name = Charity.where("name LIKE ?", nameq).where("city LIKE ?", cityq).limit(perpage).offset(offset_count)
+    else
+      charities_with_matching_name = Charity.where("name LIKE ?", nameq).limit(perpage).offset(offset_count)
+    end
+
 
     #tag_limit = perpage - charities_with_matching_name.size
     #Tag.where("name LIKE ?", q).each do |t|
