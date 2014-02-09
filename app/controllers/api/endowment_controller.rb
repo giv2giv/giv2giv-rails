@@ -88,6 +88,7 @@ class Api::EndowmentController < Api::BaseController
 
     endowments = []
     charities = []
+    endowments_list = []
 
     #tags = Tag.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ])
     #tags.each do |tag|
@@ -100,7 +101,7 @@ class Api::EndowmentController < Api::BaseController
       #endowments << c.endowments
     #end
 
-    endowments_list = []
+    
 
     q = "%#{query}%"
     if q=="%%"
@@ -250,5 +251,33 @@ class Api::EndowmentController < Api::BaseController
     end
   end
 
+  def my_endowments
+    endowments = current_donor.endowments
+    endowments_list = []
+
+    endowments.each do |endowment|
+      endowment_hash = {
+        "id" => endowment.id,
+        "created_at" => endowment.created_at,
+        "updated_at" => endowment.updated_at,
+        "name" => endowment.name,
+        "description" => endowment.description,
+        "visibility" => endowment.visibility,
+        "minimum_donation_amount" => endowment.minimum_donation_amount,
+        "my_balances" => my_balances(endowment),
+        "global_balances" => global_balances(endowment),
+        "charities" => endowment.charities              
+      }
+      endowments_list << endowment_hash
+    end # endowment.each
+
+    respond_to do |format|
+      if endowments_list.present?
+        format.json { render json: { :endowments => endowments_list } }
+      else
+        format.json { render json: { :message => "Not found" }.to_json }
+      end
+    end
+  end
 
 end
