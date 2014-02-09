@@ -49,7 +49,7 @@ class Api::DonorsController < Api::BaseController
 
   def subscriptions
     last_donation_price = Share.last.donation_price rescue 0.0
-    subscriptions = current_donor.donor_subscriptions
+    subscriptions = current_donor.donor_subscriptions.where("canceled_at IS NULL OR canceled_at = ?", false)
     subscriptions ||= []
     subscriptions_list = []
     

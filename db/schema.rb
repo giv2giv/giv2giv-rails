@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140207031534) do
+ActiveRecord::Schema.define(:version => 20140209074257) do
 
   create_table "charities", :force => true do |t|
     t.string   "name",                :null => false
@@ -104,12 +104,13 @@ ActiveRecord::Schema.define(:version => 20140207031534) do
     t.datetime "created_at",             :null => false
     t.datetime "updated_at",             :null => false
     t.float    "gross_amount"
+    t.datetime "canceled_at"
   end
 
   create_table "donors", :force => true do |t|
-    t.string   "name",                  :null => false
-    t.string   "email",                 :null => false
-    t.string   "password",              :null => false
+    t.string   "name",                     :null => false
+    t.string   "email",                    :null => false
+    t.string   "password",                 :null => false
     t.string   "facebook_id"
     t.string   "address"
     t.string   "city"
@@ -117,12 +118,13 @@ ActiveRecord::Schema.define(:version => 20140207031534) do
     t.string   "zip"
     t.string   "country"
     t.string   "phone_number"
-    t.datetime "created_at",            :null => false
-    t.datetime "updated_at",            :null => false
+    t.datetime "created_at",               :null => false
+    t.datetime "updated_at",               :null => false
     t.string   "type_donor"
     t.string   "password_reset_token"
     t.datetime "expire_password_reset"
     t.string   "auth_token"
+    t.datetime "accepted_terms_timestamp"
     t.datetime "accepted_terms"
   end
 
@@ -202,13 +204,12 @@ ActiveRecord::Schema.define(:version => 20140207031534) do
   end
 
   create_table "tags", :force => true do |t|
-    t.string   "name",       :limit => 1024
-    t.datetime "created_at",                 :null => false
-    t.datetime "updated_at",                 :null => false
+    t.text     "name"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   add_index "tags", ["id"], :name => "index_tags_on_id"
-  add_index "tags", ["name"], :name => "index_tags_on_name", :length => {"name"=>255}
 
   create_table "wishes", :force => true do |t|
     t.integer  "donor_id"

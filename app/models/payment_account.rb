@@ -52,7 +52,8 @@ class PaymentAccount < ActiveRecord::Base
         begin
           cu = Stripe::Customer.retrieve(cust_id)
           cu.subscriptions.retrieve(subscription.stripe_subscription_id).delete()
-          subscription.destroy
+          subscription.canceled_at = DateTime.now
+          subscription.save!
           { :message => "Your subscription has been canceled" }.to_json
 
         rescue Stripe::Error => e
