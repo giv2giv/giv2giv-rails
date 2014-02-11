@@ -1,5 +1,6 @@
-Stripe.api_key = App.stripe["api_key"]
+#require 'lib/stripe_callbacks.rb'
 
+Stripe.api_key = App.stripe["api_key"]
 
 StripeEvent.configure do |events|
   Rails.logger.debug "configure"
