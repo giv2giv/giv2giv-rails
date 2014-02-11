@@ -138,7 +138,8 @@ class PaymentAccount < ActiveRecord::Base
        :endowment_id => endowment.id,
        :stripe_subscription_id => cust_charge.id,
        :type_subscription => "single_donation",
-       :gross_amount => amount
+       :gross_amount => amount,
+       :canceled_at => DateTime.now
        )
 
     rescue Stripe::CardError => e
