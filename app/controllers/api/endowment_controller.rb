@@ -15,22 +15,25 @@ class Api::EndowmentController < Api::BaseController
       "endowment_transaction_fees" => (endowment.donations.sum(:transaction_fees) * 10).ceil / 10.0,
       "endowment_fees" => (endowment.donor_grants.sum(:giv2giv_fee) * 10).ceil / 10.0,
       "endowment_grants" => (endowment.donor_grants.sum(:gross_amount) * 10).ceil / 10.0,
-      #"endowment_share_balance" => ((endowment.donations.sum(:shares_added) - endowment.donor_grants.sum(:shares_subtracted)) * 10).ceil / 10.0,
+      "endowment_share_balance" => ((endowment.donations.sum(:shares_added) - endowment.donor_grants.sum(:shares_subtracted)) * 10).ceil / 10.0,
       "endowment_balance" => (endowment_share_balance * last_donation_price * 10).ceil / 10.0
+
     }
   end
 
   def my_balances(endowment)
     if current_donor.present? && current_donor.id
       last_donation_price = Share.last.donation_price rescue 0.0
-      if my_subscription_row = current_donor.donor_subscriptions.find_by_endowment_id(endowment.id)
+      if my_subscription_row = current_donor.donor_subscriptions.find_by_endowment_id(endowment.id)#.order('canceled_at')
         my_subscription_id = my_subscription_row.id
         my_subscription_amount = my_subscription_row.gross_amount
         my_subscription_type = my_subscription_row.type_subscription
+        my_subscription_canceled_at = my_subscription_row.canceled_at
       else
         my_subscription_id = ""
         my_subscription_amount = ""
         my_subscription_type = ""
+        my_subscription_canceled_at = ""
       end
       my_donations = current_donor.donations.where("endowment_id = ?", endowment.id)
       my_grants = current_donor.donor_grants.where("endowment_id = ?", endowment.id)
@@ -59,6 +62,7 @@ class Api::EndowmentController < Api::BaseController
         "my_subscription_id" => my_subscription_id,
         "my_subscription_amount" => my_subscription_amount.to_f,
         "my_subscription_type" => my_subscription_type,
+        "my_subscription_canceled_at" => my_subscription_canceled_at,
 
         "my_donations_count" => my_donations_count,
         #"my_donations_shares" => my_donations_shares, # We should not expose shares to users -- too confusing

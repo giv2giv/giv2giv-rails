@@ -5,8 +5,13 @@ class Api::WishesController < Api::BaseController
   def create
 
     wish=Wish.new(params[:wish])
+      #:page = params[:page],
+      #:wish_text = params[:wish_text],
+      #:created_at = DateTime(now),
+      #:updated_at = DateTime(now)
+    #)
 
-    if current_donor
+    if current_donor.present? && current_donor.id
       wish.donor_id = current_donor.id
     end
 
@@ -14,6 +19,9 @@ class Api::WishesController < Api::BaseController
       if wish.save
         format.json { render json: wish, status: :created }
       else
+Rails.logger.debug 'hi'
+        Rails.logger.debug wish.to_json
+Rails.logger.debug 'hi'
         format.json { render json: wish.errors , status: :unprocessable_entity }
       end
     end
