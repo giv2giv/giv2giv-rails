@@ -24,7 +24,9 @@ class Api::EndowmentController < Api::BaseController
   def my_balances(endowment)
     if current_donor.present? && current_donor.id
       last_donation_price = Share.last.donation_price rescue 0.0
-      if my_subscription_row = current_donor.donor_subscriptions.where("endowment_id = ?", endowment.id).where("canceled_at IS NULL OR canceled_at = ?", false)
+      my_subscription_row = current_donor.donor_subscriptions.where("endowment_id = ?", endowment.id).where("canceled_at IS NULL OR canceled_at = ?", false)
+
+      if my_subscription_row.exists?
         my_subscription_id = my_subscription_row.id
         my_subscription_amount = my_subscription_row.gross_amount
         my_subscription_type = my_subscription_row.type_subscription
