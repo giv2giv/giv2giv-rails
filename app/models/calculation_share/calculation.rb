@@ -1,14 +1,13 @@
 require 'nokogiri'
 require 'stripe'
 require 'oauth'
+require 'bigdecimal'
 include OAuth::Helper
 include EtradeHelper
 include DwollaHelper
 
-GIV_FEE_AMOUNT = App.giv["giv_fee_percentage"].to_f
-GIV_GRANT_AMOUNT = App.giv["giv_grant_amount"]
 SHARE_PRECISION = App.giv["share_precision"]
-PIN_DWOLLA = App.dwolla["pin_account"]
+GIV_GRANT_AMOUNT = App.giv["giv_grant_amount"]
 
 module CalculationShare
   class Calculation
@@ -20,19 +19,21 @@ module CalculationShare
         etrade_balance = get_etrade_balance
         givbalance = stripe_balance + etrade_balance
       
-        date_yesterday = Date.yesterday.strftime('%Y%m%d')
+        last_share = Share.order("created_at DESC").last
 
+        share_total_beginning = last_share.share_total_end # share total at last calculation
+        
         # shares added by donation
-        shares_donated_yesterday = Donation.where("date_format(created_at, '%Y%m%d') = ?", date_yesterday).sum(:shares_added)
+        shares_added_by_donation = Donation.where("date_format(created_at, '%Y%m%d') > ?", last_share.created_at).sum(:shares_added)
 
         # shares removed by grant
-        shares_granted_yesterday = CharityGrant.where("status = ?", "sent").where("date_format(created_at, '%Y%m%d') = ?", date_yesterday).sum(:shares_subtracted)
-        donors_shares_total_beginning = Share.order("created_At DESC").last.share_total_end.to_f rescue 0.0
-        share_total_end = (BigDecimal("#{donors_shares_total_beginning}") + BigDecimal("#{shares_donated_yesterday}") - BigDecimal("#{shares_granted_yesterday}")).round(SHARE_PRECISION)
+        shares_subtracted_by_grants = CharityGrant.where("status = ?", "sent").where("date_format(created_at, '%Y%m%d') > ?", last_share.created_at).sum(:shares_subtracted)
+
+        share_total_end = (BigDecimal(share_total_beginning.to_s) + BigDecimal(shares_added_by_donation.to_s) - BigDecimal(shares_subtracted_by_grants.to_s)).round(SHARE_PRECISION)
 
         # get donation share price
         # givbalance / total_donor_shares_all_time
-        preliminary_share_price = (BigDecimal("#{givbalance}") / BigDecimal("#{share_total_end}")).to_f
+        preliminary_share_price = (BigDecimal(givbalance.to_s) / BigDecimal(share_total_end.to_s)).to_f
 
         preliminary_share_price = 100000.0 unless preliminary_share_price.finite?
         if preliminary_share_price.to_f.nan?
@@ -45,9 +46,9 @@ module CalculationShare
         new_record_share = Share.new(
                                      :stripe_balance => stripe_balance,
                                      :etrade_balance => etrade_balance,
-                                     :share_total_beginning => donors_shares_total_beginning,
-                                     :shares_added_by_donation => shares_donated_yesterday,
-                                     :shares_subtracted_by_grants => shares_granted_yesterday,
+                                     :share_total_beginning => share_total_beginning,
+                                     :shares_added_by_donation => shares_added_by_donation,
+                                     :shares_subtracted_by_grants => shares_subtracted_by_grants,
                                      :share_total_end => share_total_end,
                                      :donation_price => donation_share_price,
                                      :grant_price => grant_share_price
