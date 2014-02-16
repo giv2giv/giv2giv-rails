@@ -1,5 +1,5 @@
 class JobMailer < ActionMailer::Base
-  default :from => "no-reply@giv2giv.org"
+  default :from => App.giv['email_support']
   
   def success_compute(email, action)
     mail(:to => email, :subject => "[ Giv2Giv ] Success #{action}", content_type: "text/html", :body => "<h3>Calculation success in #{action}</h3><br /><hr />Date : #{DateTime.now}")

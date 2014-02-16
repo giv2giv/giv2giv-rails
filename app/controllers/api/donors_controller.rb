@@ -12,6 +12,7 @@ class Api::DonorsController < Api::BaseController
 
       respond_to do |format|
         if donor.save
+          DonorMailer.create_donor(donor.email).deliver
           format.json { render json: donor, status: :created }
         else
           format.json { render json: donor.errors, status: :unprocessable_entity }
@@ -23,6 +24,9 @@ class Api::DonorsController < Api::BaseController
         format.json { render json: { :message => "Must accept terms" }.to_json, status: :unprocessable_entity }
       end
     end
+
+    
+
   end
 
   def balance_information

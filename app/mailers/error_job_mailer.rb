@@ -1,5 +1,5 @@
 class ErrorJobMailer < ActionMailer::Base
-  default :from => "no-reply@giv2giv.org"
+  default :from => App.giv['email_support']
   
   def error_compute_share_price(email)
     mail(:to => email, :subject => "[ Giv2Giv ] Error Calculation error in compute_share_price", content_type: "text/html", :body => "<h3>Calculation error in compute_share_price</h3><br /><hr />Date : #{DateTime.now}")

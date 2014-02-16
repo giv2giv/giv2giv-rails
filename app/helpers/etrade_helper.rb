@@ -5,14 +5,20 @@ module EtradeHelper
 
   CUST_KEY = App.etrade["oauth_consumer_key"]
   CUST_SECRET = App.etrade["consumer_secret"]
-  REQUEST_SITE = App.etrade["etrade_site"]
+  ETRADE_SITE = App.etrade["etrade_site"]
+  SANDBOX_MODE = App.etrade["sandbox_mode"]
+  
   TOKEN = EtradeToken.last.token rescue ""
   SECRET = EtradeToken.last.secret rescue ""
 
   def get_accounts
-    consumer = OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {:site => REQUEST_SITE, :http_method => :get})
+    consumer = OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {:site => ETRADE_SITE, :http_method => :get})
     access_token = OAuth::Token.new(TOKEN, SECRET)
-    consumer.request(:get, "/accounts/rest/accountlist", access_token).body
+    if SANDBOX_MODE
+      consumer.request(:get, "/accounts/sandbox/rest/accountlist", access_token).body
+    else
+      consumer.request(:get, "/accounts/rest/accountlist", access_token).body
+    end
   end
 
   def get_net_account_value
@@ -28,9 +34,13 @@ module EtradeHelper
   end
 
   def get_detailed_account_balance(account_id)
-    consumer = OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {:site => REQUEST_SITE, :http_method => :get})
+    consumer = OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {:site => ETRADE_SITE, :http_method => :get})
     access_token = OAuth::Token.new(TOKEN, SECRET)
-    consumer.request(:get, "/accounts/rest/accountbalance/#{account_id}", access_token)
+    if SANDBOX_MODE
+      consumer.request(:get, "/accounts/sandbox/rest/accountbalance/#{account_id}", access_token)
+    else
+      consumer.request(:get, "/accounts/rest/accountbalance/#{account_id}", access_token)
+    end
   end
 
   def get_cash_available_for_withdrawal(account_id)
@@ -48,15 +58,19 @@ module EtradeHelper
   #Begin transactions
   def get_transaction_history(account_id)
   #last 30 days
-    consumer = OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {:site => REQUEST_SITE, :http_method => :get})
+    consumer = OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {:site => ETRADE_SITE, :http_method => :get})
     access_token = OAuth::Token.new(TOKEN, SECRET)
     consumer.request(:get, "/accounts/rest/#{account_id.to_s}/transactions", access_token).body
   end
 
   def get_fees(account_id)
-    consumer = OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {:site => REQUEST_SITE, :http_method => :get})
+    consumer = OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {:site => ETRADE_SITE, :http_method => :get})
     access_token = OAuth::Token.new(TOKEN, SECRET)
-    consumer.request(:get, "/accounts/rest/#{account_id}/transactions/WITHDRAWALS/fee", access_token).body
+    if SANDBOX_MODE
+      consumer.request(:get, "/accounts/sandbox/rest/#{account_id}/transactions/WITHDRAWALS/fee", access_token).body
+    else
+      consumer.request(:get, "/accounts/rest/#{account_id}/transactions/WITHDRAWALS/fee", access_token).body
+    end
   end
 
   def get_cumulative_fee_total(account_id)
@@ -107,7 +121,11 @@ module EtradeHelper
       }
     end
     xml = builder.to_xml
-    site = REQUEST_SITE+"/order/rest/previewequityorder"
+    if SANDBOX_MODE
+      site = ETRADE_SITE+"/order/sandbox/rest/previewequityorder"
+    else
+      site = ETRADE_SITE+"/order/rest/previewequityorder"
+    end
     return preview_reponse = Net::HTTP.post_form(URI.parse(site), xml)
   end
 
@@ -148,7 +166,13 @@ module EtradeHelper
     }
     end
     xml = builder.to_xml
-    site = REQUEST_SITE+"/order/rest/previewequityorder"
+    
+    if SANDBOX_MODE
+      site = ETRADE_SITE+"/order/sandbox/rest/previewequityorder"
+    else
+      site = ETRADE_SITE+"/order/rest/previewequityorder"
+    end
+      
     order_reponse = Net::HTTP.post_form(URI.parse(site), xml)
   end
 end

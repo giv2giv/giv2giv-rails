@@ -1,30 +1,39 @@
-# sample settings
+# Test settings
 
 force_ssl: true
 
-dwolla:
-  api_key            : api_key
-  api_secret         : api_secret
-  account_id         : account_id
-  pin_account        : pin_account
-  company_token      : company_token
-  dwolla_grant_source_account: dwolla_grant_source_account
-  dwolla_fee_destination_account: dwolla_fee_destination_account
-
-etrade:
-  oauth_consumer_key : oauth_consumer_key
-  consumer_secret    : consumer_secret
-  request_site       : https://etwssandbox.etrade.com
-  etrade_site        : https://etws.etrade.com
-  
-stripe:
-  api_key            : api_key
-  publishable_key    : publishable_key
-  fees               : 0.029
-  fees_cents         : 0.30
-  
 giv:
   giv_fee_percentage : 0.04
-  giv_grant_amount   : 0.0125
+  giv_grant_amount   : .0125
   share_precision    : 20
-  email_support      : info@giv2giv.org
+  email_support      : hello@yourdomain.org
+
+mailer:
+  enable_starttls_auto:   "true"
+  tls:                    "true"
+  address:                "smtpserver.yourdomain.org"
+  port:                   465
+  authentication:         "plain"
+  domain:                 "yourdomain.org"
+  user_name:              "hello@yourdomain.org"
+  password:               "long-password"
+
+stripe:
+  api_key:             sk_test_yb0dcOLvlXCEfaQTEFfMCGGZ #test
+  publishable_key:     pk_test_d678rStKUyF2lNTZ3MfuOoHy #test
+
+etrade:
+  sandbox_mode:        "true"
+  etrade_site:          https://etwssandbox.etrade.com
+  oauth_consumer_key:  4d2fd4cd312c1904069f2970c89899df  #sandbox
+  consumer_secret:     57ae0f198d4b8efb4e73d95d35cfcc3f  #sandbox
+
+
+dwolla:
+  api_key:        dwolla-api-key
+  api_secret:     dwolla-api-secret
+  account_id:     dwolla-account-id
+  pin_account:    dwolla-pin
+  company_token:  dwolla-token
+  dwolla_grant_source_account: dwolla-grant-source-account
+  dwolla_fee_destination_account: dwolla-grant-destination-account

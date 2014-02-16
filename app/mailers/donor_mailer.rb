@@ -1,8 +1,12 @@
 class DonorMailer < ActionMailer::Base
-  default :from => "no-reply@giv2giv.org"
+  default :from => App.giv['email_support']
   
   def charge_success(email, donation_amount)
     mail(:to => email, :subject => "[ giv2giv.org ] Thank you for your donation", content_type: "text/html", :body => "<h3>Charge Successful</h3><br /><hr />Thank you for your donation of #{donation_amount} to giv2giv.org. Want to see the breakdown by endowment or charity? Visit giv2giv.org<br><br>")
+  end
+
+  def create_donor(email)
+    mail(:to => 'kevin@giv2giv.org', :subject => "[ giv2giv.org ] Account created", content_type: "text/html", :body => "Hello Kevin. #{email} just created an account at giv2giv.org")
   end
 
   def endowment_grant_money(email, donor_name, grant_amount)

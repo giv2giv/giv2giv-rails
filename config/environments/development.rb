@@ -33,14 +33,14 @@ Giv2givRails::Application.configure do
   config.action_mailer.default_url_options = { :host => 'https://api.giv2giv.org' }
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    enable_starttls_auto: true,
-    tls: true,
-    address: "smtp.gmail.com",
-    port: 465,
-    authentication: "plain",
-    domain: "giv2giv.org",
-    user_name: "no-reply@giv2giv.org",
-    password: '9J5-dOptR3MJI-HY6dKWGdw'
+    enable_starttls_auto: App.mailer["enable_starttls_auto"],
+    tls: App.mailer["tls"],
+    address: App.mailer["address"],
+    port: App.mailer["port"],
+    authentication: App.mailer["authentication"],
+    domain: App.mailer["domain"],
+    user_name: App.mailer["user_name"],
+    password: App.mailer["password"]
   }
 
 end
