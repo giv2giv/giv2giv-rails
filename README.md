@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/giv2giv/giv2giv-rails.png?label=ready)](https://waffle.io/giv2giv/giv2giv-rails)
 ## Welcome to the giv2giv API
 
 This API provides simple REST endpoints for features shared by the front end applications (also located in this github account). It uses Ruby 1.9.3, Rails and MySQL.
