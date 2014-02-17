@@ -166,7 +166,7 @@ class Api::PaymentAccountsController < Api::BaseController
   def cancel_subscription
     if current_donor
       respond_to do |format|
-        cancel_subscription = PaymentAccount.cancel_subscription(params[:id])
+        cancel_subscription = PaymentAccount.cancel_subscription(current_donor, params[:id])
         format.json { render json: cancel_subscription }
       end
     else

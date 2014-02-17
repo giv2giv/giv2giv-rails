@@ -44,11 +44,12 @@ class PaymentAccount < ActiveRecord::Base
       customer.save
     end
 
-    def cancel_subscription(subscription_id)
+    def cancel_subscription(current_donor, subscription_id)
       begin
-        subscription = DonorSubscription.find(subscription_id)
-        cust_id = PaymentAccount.find(subscription.payment_account_id).stripe_cust_id
 
+        subscription = DonorSubscription.where(:id => subscription_id).where(:donor_id => current_donor.id).last
+        cust_id = PaymentAccount.find(subscription.payment_account_id).stripe_cust_id
+        
         begin
           cu = Stripe::Customer.retrieve(cust_id)
           cu.subscriptions.retrieve(subscription.stripe_subscription_id).delete()
@@ -62,9 +63,11 @@ class PaymentAccount < ActiveRecord::Base
           { :message => "#{err[:message]}" }.to_json
           return 
         end
+
       rescue
         { :message => "Failed! Subscription or payment account not found" }.to_json
       end
+
     end
 
     def cancel_all_subscription(current_donor)
