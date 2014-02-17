@@ -25,8 +25,7 @@ class Api::EndowmentController < Api::BaseController
     #charities.each do |c|
       #endowments << c.endowments
     #end
-
-    
+   
 
     q = "%#{query}%"
     if q=="%%"
@@ -48,7 +47,9 @@ class Api::EndowmentController < Api::BaseController
 
     endowments.each do |endowment|
       
-      my_balances = current_donor.my_balances(endowment.id) || ""
+      if current_donor && current_donor.id
+        my_balances = current_donor.my_balances(endowment.id)
+      end
       
       endowment_hash = {
         "id" => endowment.id,
@@ -58,7 +59,7 @@ class Api::EndowmentController < Api::BaseController
         "description" => endowment.description,
         "visibility" => endowment.visibility,
         "minimum_donation_amount" => endowment.minimum_donation_amount,
-        "my_balances" => my_balances,
+        "my_balances" => my_balances || "",
         "global_balances" => endowment.global_balances,
         "charities" => endowment.charities              
       }
@@ -101,7 +102,10 @@ class Api::EndowmentController < Api::BaseController
 
   def show
     endowment = Endowment.find_by_id(params[:id])
-    my_balances = current_donor.my_balances(endowment.id) || ""
+
+    if current_donor && current_donor.id
+      my_balances = current_donor.my_balances(endowment.id)
+    end
 
     endowment_hash = {
       "id" => endowment.id,
@@ -111,7 +115,7 @@ class Api::EndowmentController < Api::BaseController
       "description" => endowment.description,
       "visibility" => endowment.visibility,
       "minimum_donation_amount" => endowment.minimum_donation_amount,
-      "my_balances" => my_balances,
+      "my_balances" => my_balances || "",
       "global_balances" => endowment.global_balances,
       "charities" => endowment.charities
     }
