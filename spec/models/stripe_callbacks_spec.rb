@@ -1,11 +1,6 @@
 require 'spec_helper'
 
 describe StripeCallbacks do
-	describe "net_amount" do
-		it "accounts for stripe fees" do
-			subject.net_amount(1000).should == 1000-29.30
-		end
-	end
 
 	describe "process_recurring_payment" do
 		it "splits up the payment amongst endowments" do

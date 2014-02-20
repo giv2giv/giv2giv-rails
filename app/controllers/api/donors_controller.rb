@@ -1,31 +1,25 @@
 class Api::DonorsController < Api::BaseController
   skip_before_filter :require_authentication, :only => [:create, :forgot_password, :reset_password, :balance_information]
 
+
   def create
 
-    if (params[:donor][:accepted_terms])
-
-      donor = Donor.new(params[:donor])
-      donor.type_donor = "registered"
-      donor.password = secure_password(params[:donor][:password])
-      donor.accepted_terms = DateTime.now()
-
-      respond_to do |format|
-        if donor.save
-          DonorMailer.create_donor(donor.email).deliver
-          format.json { render json: donor, status: :created }
-        else
-          format.json { render json: donor.errors, status: :unprocessable_entity }
-        end
-      end
-
-    else
-      respond_to do |format|
-        format.json { render json: { :message => "Must accept terms" }.to_json, status: :unprocessable_entity }
-      end
+    donor = Donor.new(params[:donor])
+    donor.type_donor = "registered"
+    donor.password = secure_password(params[:donor][:password])
+    if params[:accepted_terms]
+      donor.accepted_terms = true
+      donor.accepted_terms_on = DateTime.now      
     end
 
-    
+    respond_to do |format|
+      if donor.save
+        #DonorMailer.create_donor(donor.email).deliver
+        format.json { render json: donor, status: :created }
+      else
+        format.json { render json: donor.errors, status: :unprocessable_entity }
+      end
+    end
 
   end
 

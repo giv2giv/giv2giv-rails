@@ -33,6 +33,14 @@ describe Donor do
       donor.should be_valid
     end
 
+    it "should be invalid without accepting terms and conditions" do
+      donor = build(:donor, accepted_terms: nil)
+      donor.should_not be_valid
+      donor.should have(1).error_on(:accepted_terms)
+      donor.accepted_terms = DateTime.now
+      donor.should be_valid
+    end
+
     it "should not allow duplicate email" do
       donor = create(:donor)
 

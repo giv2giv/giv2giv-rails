@@ -12,9 +12,10 @@ class Donor < ActiveRecord::Base
   :uniqueness => { :case_sensitive => false }
 
   with_options :presence => true do |donor|
-    donor.validates :password
-    donor.validates :accepted_terms
     donor.validates :name
+    donor.validates :password
+    donor.validates_inclusion_of :accepted_terms, :in => [true]
+    donor.validates :accepted_terms_on
     donor.validates :type_donor
   end
 
