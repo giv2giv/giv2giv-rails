@@ -124,20 +124,57 @@ class Api::DonorsController < Api::BaseController
   end
 
   def donations
-    respond_to do |format|
-      if params.has_key?(:start_date) and params.has_key?(:end_date) and params.has_key?(:endowment_id)
-        format.json { render json: { :timestamp => Time.new.to_i, :donations => current_donor.donations.where("endowment_id = ? AND DATE(donations.created_at) between ? AND ?", params[:endowment_id], params[:start_date], params[:end_date]), :total => current_donor.donations.where("endowment_id = ? AND DATE(donations.created_at) between ? AND ?", params[:endowment_id], params[:start_date], params[:end_date]).sum(:gross_amount) } }
-      elsif params.has_key?(:start_date)
-        format.json { render json: { :timestamp => Time.new.to_i, :donations => current_donor.donations.where("DATE(donations.created_at) > ?", params[:start_date]), :total => current_donor.donations.where("DATE(donations.created_at) > ?", params[:start_date]).sum(:gross_amount) } }
-      elsif params.has_key?(:start_date) and params.has_key?(:end_date)
-        format.json { render json: { :timestamp => Time.new.to_i, :donations => current_donor.donations.where("DATE(donations.created_at) between ? AND ?", params[:start_date], params[:end_date]), :total => current_donor.donations.where("DATE(donations.created_at) between ? AND ?", params[:start_date], params[:end_date]).sum(:gross_amount) } }
-      elsif params.has_key?(:endowment_id)
-        format.json { render json: { :timestamp => Time.new.to_i, :donations => current_donor.donations.where("endowment_id = ?", params[:endowment_id]), :total =>current_donor.donations.where("endowment_id = ?", params[:endowment_id]).sum(:gross_amount) } }
-      else
-        format.json { render json: { :timestamp => Time.new.to_i, :donations => current_donor.donations.all.order('donations.created_at asc'), :total => current_donor.donations.all.sum(:gross_amount) } }
-      end
-    end
-  end
+ 
+    donations ||= []
+    donations_list = []
 
+    if params.has_key?(:start_date) and params.has_key?(:end_date) and params.has_key?(:endowment_id)
+      donations = current_donor.donations.where("endowment_id = ? AND DATE(donations.created_at) between ? AND ?", params[:endowment_id], params[:start_date], params[:end_date])
+    elsif params.has_key?(:start_date)
+      donations = current_donor.donations.where("DATE(donations.created_at) > ?", params[:start_date])
+    elsif params.has_key?(:start_date) and params.has_key?(:end_date)
+      donations = current_donor.donations.where("DATE(donations.created_at) between ? AND ?", params[:start_date], params[:end_date])
+    elsif params.has_key?(:endowment_id)
+      donations = current_donor.donations.where("endowment_id = ?", params[:endowment_id])
+    else
+      donations = current_donor.donations.all.order('donations.created_at asc')
+    end
+
+      total = donations.sum(:gross_amount) || 0.0
+
+    donations.each do |donation|
+      donations_hash = {
+          "donation_id" => donation.id,
+          "donor_id" => donation.id,
+          "endowment_id" => donation.endowment_id,
+          "payment_account_id" => donation.payment_account_id,
+          "created_at" => donation.created_at,
+          "updated_at" => donation.updated_at,
+          "transaction_fees" => donation.transaction_fees,
+          "net_amount" => donation.net_amount
+      }
+      donations_list << donations_hash
+    end
+    render json: { :donations => donations_list, :total => total, :timestamp => Time.new.to_i, }
+  end
 end
 
+
+
+
+
+
+#    respond_to do |format|
+ #     if params.has_key?(:start_date) and params.has_key?(:end_date) and params.has_key?(:endowment_id)
+      
+  #      format.json { render json: { :timestamp => Time.new.to_i, :donations => current_donor.donations.where("endowment_id = ? AND DATE(donations.created_at) between ? AND ?", params[:endowment_id], params[:start_date], params[:end_date]), :total => current_donor.donations.where("endowment_id = ? AND DATE(donations.created_at) between ? AND ?", params[:endowment_id], params[:start_date], params[:end_date]).sum(:gross_amount) } }
+   #   elsif params.has_key?(:start_date)
+    #    format.json { render json: { :timestamp => Time.new.to_i, :donations => current_donor.donations.where("DATE(donations.created_at) > ?", params[:start_date]), :total => current_donor.donations.where("DATE(donations.created_at) > ?", params[:start_date]).sum(:gross_amount) } }
+     # elsif params.has_key?(:start_date) and params.has_key?(:end_date)
+      #  format.json { render json: { :timestamp => Time.new.to_i, :donations => current_donor.donations.where("DATE(donations.created_at) between ? AND ?", params[:start_date], params[:end_date]), :total => current_donor.donations.where("DATE(donations.created_at) between ? AND ?", params[:start_date], params[:end_date]).sum(:gross_amount) } }
+#      elsif params.has_key?(:endowment_id)
+        #format.json { render json: { :timestamp => Time.new.to_i, :donations => current_donor.donations.where("endowment_id = ?", params[:endowment_id]), :total =>current_donor.donations.where("endowment_id = ?", params[:endowment_id]).sum(:gross_amount) } }
+      #else
+        #format.json { render json: { :timestamp => Time.new.to_i, :donations => current_donor.donations.all.order('donations.created_at asc'), :total => current_donor.donations.all.sum(:gross_amount) } }
+      #end
+    #end
