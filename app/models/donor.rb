@@ -111,7 +111,7 @@ class Donor < ActiveRecord::Base
       #"my_endowment_share_balance" => my_endowment_share_balance,
 
       "my_investment_gainloss" => my_investment_gainloss.to_f || 0,
-      "my_investment_gailoss_percentage" => my_investment_gainloss_percentage || 0,
+      "my_investment_gainloss_percentage" => my_investment_gainloss_percentage || 0,
       "my_endowment_balance" => my_endowment_balance.to_f || 0
     }
   end
