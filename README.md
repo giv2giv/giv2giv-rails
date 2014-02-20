@@ -1,8 +1,8 @@
 [![Stories in Ready](https://badge.waffle.io/giv2giv/giv2giv-rails.png?label=ready)](https://waffle.io/giv2giv/giv2giv-rails)
 
-## Welcome to the giv2giv API
+## Welcome to the giv2giv.org API
 
-This API provides simple REST endpoints for features shared by the front end applications (also located in this github account). It uses Ruby 1.9.3, Rails and MySQL.
+This API provides endpoints for the giv2giv.org fund software. It uses Ruby 1.9.3, Rails and MySQL.
 
 ## Getting Started
 
@@ -10,7 +10,7 @@ This API provides simple REST endpoints for features shared by the front end app
 	apt-get install nodejs
 
 2. Install Ruby
-        # We use [rvm] (https://rvm.io/)
+        # We use [rvm](https://rvm.io/)
         rvm install ruby-1.9.3
 
 3. Install gems
