@@ -3,6 +3,8 @@ FactoryGirl.define do
     sequence(:email) {|n| "asdf#{n}@ltc.com"}
     name 'KM'
     password 'dreams'
+    accepted_terms true
+    accepted_terms_on DateTime.now
     type_donor 'registered'
 
     factory :donor_with_donation do

@@ -9,12 +9,13 @@ describe Api::DonorsController do
   describe "create" do
     it "should create donor on success" do
       Donor.should_receive(:new).and_return(@donor)
-      post :create, :format => :json, :donor => {:password => "passwerd", :accept_terms => "true"}
+      post :create, :format => :json, :donor => {:password => "passwerd", :accepted_terms => true, :accepted_terms_on => DateTime.now}
 
       response.status.should == 201
       resp = JSON.parse(response.body)["donor"]
       resp['email'].should == @donor.email
       resp['name'].should == @donor.name
+      resp['accept_terms'].should == true
     end
 
     it "should include errors on failure" do
@@ -25,19 +26,21 @@ describe Api::DonorsController do
       post :create, :format => :json, :donor => {:password => "passwerd"}
       response.should_not be_success
       resp = JSON.parse(response.body)
-      resp['email'].should_not be_blank
+      resp['name'].should_not be_blank
     end
 
     it "should work" do
       params = {:name => 'Kendal',
                 :password => 'welcome',
                 :email => 'dc@ltc.com',
-                :accept_terms => 'true'}
+                :accepted_terms => 'true',
+                :accepted_terms_on => DateTime.now}
       post :create, :format => :json, :donor => params
       response.status.should == 201
       resp = JSON.parse(response.body)["donor"]
       resp['email'].should == params[:email]
       resp['name'].should == params[:name]
+      resp['accepted_terms'].should == true
     end
   end # end create
 

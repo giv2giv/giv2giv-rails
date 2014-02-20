@@ -37,7 +37,15 @@ describe Donor do
       donor = build(:donor, accepted_terms: nil)
       donor.should_not be_valid
       donor.should have(1).error_on(:accepted_terms)
-      donor.accepted_terms = DateTime.now
+      donor.accepted_terms = true
+      donor.should be_valid
+    end
+
+    it "should be invalid without accepting terms and conditions datetime" do
+      donor = build(:donor, accepted_terms_on: nil)
+      donor.should_not be_valid
+      donor.should have(1).error_on(:accepted_terms_on)
+      donor.accepted_terms_on = DateTime.now
       donor.should be_valid
     end
 
@@ -57,16 +65,14 @@ describe Donor do
   describe "authentication" do
     it "should not store password in plaintext" do
       pass = 'passwerd'
-      accepted_terms = 'true'
-      donor = create(:donor, password: pass, accepted_terms: accepted_terms)
+      donor = create(:donor, password: pass)
       donor.reload
       donor.password.to_s.should_not equal pass
     end
 
     it "should compare password to hash" do
       pass = 'passwerd'
-      accepted_terms = 'true'
-      donor = create(:donor, password: pass, accepted_terms: accepted_terms)
+      donor = create(:donor, password: pass)
       donor.reload
       donor.password.to_s.should_not equal pass
       (donor.password == pass).should be true
@@ -76,8 +82,7 @@ describe Donor do
     it "should authenticate successfully" do
       email = 'nocoll@ltc.com'
       pass = 'passwerd'
-      accepted_terms = 'true'
-      donor = create(:donor, email: email, password: pass, accepted_terms: accepted_terms)
+      donor = create(:donor, email: email, password: pass)
 
       e = Donor.authenticate(email, pass)
       e.should be_an_instance_of Donor
