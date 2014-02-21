@@ -140,17 +140,18 @@ class Api::DonorsController < Api::BaseController
       donations = current_donor.donations.all.order('donations.created_at asc')
     end
 
-      total = donations.sum(:gross_amount) || 0.0
+    total = donations.sum(:gross_amount) || 0.0
 
     donations.each do |donation|
       donations_hash = {
           "donation_id" => donation.id,
           "donor_id" => donation.id,
           "endowment_id" => donation.endowment_id,
+          "endowment_name" => Endowment.find(donation.endowment_id).name,
           "payment_account_id" => donation.payment_account_id,
-          "created_at" => donation.created_at,
-          "updated_at" => donation.updated_at,
+          "created_at" => donation.created_at.to_i,
           "transaction_fees" => donation.transaction_fees,
+          "gross_amount" => donation.gross_amount,
           "net_amount" => donation.net_amount
       }
       donations_list << donations_hash
