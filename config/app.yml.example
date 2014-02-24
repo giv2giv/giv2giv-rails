@@ -7,6 +7,7 @@ giv:
   giv_grant_amount   : .0125
   share_precision    : 20
   email_support      : hello@yourdomain.org
+  cookie_key         : "really-long-SecureRandom-string" # Make sure this secret key is at least 30 characters and all random, no regular words or you'll be exposed to dictionary attacks.
 
 mailer:
   enable_starttls_auto:   "true"
