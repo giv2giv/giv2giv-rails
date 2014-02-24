@@ -14,7 +14,7 @@ class Api::DonorsController < Api::BaseController
 
     respond_to do |format|
       if donor.save
-        #DonorMailer.create_donor(donor.email).deliver
+        DonorMailer.create_donor(donor.email, donor.name).deliver
         format.json { render json: donor, status: :created }
       else
         format.json { render json: donor.errors, status: :unprocessable_entity }
