@@ -1,4 +1,3 @@
-require 'nokogiri'
 require 'stripe'
 require 'oauth'
 require 'bigdecimal'
@@ -20,7 +19,7 @@ module CalculationShare
 
         givbalance = stripe_balance + etrade_balance
       
-        last_share = Share.order("created_at DESC").last
+        last_share = Share.order("created_at DESC").first
 
         begin
           share_total_beginning = last_share.share_total_end # share total at last calculation
@@ -31,10 +30,10 @@ module CalculationShare
         end
 
         # shares added by donation
-        shares_added_by_donation = Donation.where("date_format(created_at, '%Y%m%d') > ?", last_share_created_at).sum(:shares_added)
+        shares_added_by_donation = Donation.where("created_at >= ?", last_share_created_at).sum(:shares_added)
 
         # shares removed by grant
-        shares_subtracted_by_grants = CharityGrant.where("status = ?", "sent").where("date_format(created_at, '%Y%m%d') > ?", last_share_created_at).sum(:shares_subtracted)
+        shares_subtracted_by_grants = CharityGrant.where("status = ?", "sent").where("created_at >= ?", last_share_created_at).sum(:shares_subtracted)
 
         share_total_end = (BigDecimal(share_total_beginning.to_s) + BigDecimal(shares_added_by_donation.to_s) - BigDecimal(shares_subtracted_by_grants.to_s)).round(SHARE_PRECISION)
 
