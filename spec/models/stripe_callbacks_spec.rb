@@ -4,6 +4,7 @@ describe StripeCallbacks do
 
 	describe "process_recurring_payment" do
 		it "splits up the payment amongst endowments" do
+			pending "payments not currently split, we use a separate stripe subscription per endowment"
 			invoice = double(Stripe::Invoice)
 			donor = create(:donor)
 			pa = create(:payment_account, donor: donor)
