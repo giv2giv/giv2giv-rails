@@ -17,6 +17,7 @@ module CalculationShare
       def compute_share_price
         stripe_balance = get_stripe_balance
         etrade_balance = get_etrade_balance
+
         givbalance = stripe_balance + etrade_balance
       
         last_share = Share.order("created_at DESC").last
@@ -34,8 +35,6 @@ module CalculationShare
 
         # shares removed by grant
         shares_subtracted_by_grants = CharityGrant.where("status = ?", "sent").where("date_format(created_at, '%Y%m%d') > ?", last_share_created_at).sum(:shares_subtracted)
-
-
 
         share_total_end = (BigDecimal(share_total_beginning.to_s) + BigDecimal(shares_added_by_donation.to_s) - BigDecimal(shares_subtracted_by_grants.to_s)).round(SHARE_PRECISION)
 
@@ -145,6 +144,8 @@ module CalculationShare
       def get_etrade_balance
         # just let return error message default from api
         etrade_balance = Etrade.get_net_account_value
+        raise "eTrade connection problem" if !etrade_balance
+
         etrade_balance = BigDecimal(etrade_balance.to_s) - 1000
         puts "Etrade Balance : #{etrade_balance}"
         return etrade_balance

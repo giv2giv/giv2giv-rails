@@ -14,6 +14,7 @@ group :development, :test do
   gem "factory_girl_rails"
   gem "pry"
   gem "pry-nav"
+  gem "awesome_print"
 end
 
 gem 'rails', '3.2.13'

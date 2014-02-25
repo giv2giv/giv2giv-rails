@@ -39,6 +39,7 @@ GEM
       multi_json (~> 1.0)
     addressable (2.3.5)
     arel (3.0.3)
+    awesome_print (1.2.0)
     builder (3.0.4)
     capybara (2.2.1)
       mime-types (>= 1.16)
@@ -181,6 +182,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  awesome_print
   capybara
   debugger
   dwolla-ruby

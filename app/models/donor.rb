@@ -87,6 +87,7 @@ class Donor < ActiveRecord::Base
     my_endowment_share_balance = my_donations_shares - my_grants_shares
 
     my_endowment_balance = (my_endowment_share_balance * last_donation_price * 10).ceil / 10.0
+    
     my_investment_gainloss = (my_endowment_balance - my_balance_pre_investment * 10).ceil / 10.0
 
     if defined?(:my_donations_count) && my_donations_count > 0

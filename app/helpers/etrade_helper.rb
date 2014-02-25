@@ -1,6 +1,5 @@
 module EtradeHelper
   require 'oauth'
-  require 'nokogiri'
   include OAuth::Helper
 
   CUST_KEY = App.etrade["oauth_consumer_key"]
@@ -8,9 +7,28 @@ module EtradeHelper
   ETRADE_SITE = App.etrade["etrade_site"]
   SANDBOX_MODE = App.etrade["sandbox_mode"]
   
-  TOKEN = EtradeToken.last.token rescue ""
-  SECRET = EtradeToken.last.secret rescue ""
+  TOKEN = EtradeToken.last.token rescue nil
+  SECRET = EtradeToken.last.secret rescue nil
 
+  def get_accounts
+    return false if TOKEN.nil?
+    consumer =  OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {
+                  :site => ETRADE_SITE,
+                  :http_method => :get
+                })
+
+    access_token = OAuth::Token.new(TOKEN, SECRET)
+    JSON.parse(consumer.request(:get, "/accounts/rest/accountlist.json", access_token).body)
+  end
+
+  def get_net_account_value
+    self.get_accounts["json.accountListResponse"]["response"][0]["netAccountValue"]
+  end
+  
+end
+
+
+=begin
   def get_accounts
     consumer = OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {:site => ETRADE_SITE, :http_method => :get})
     access_token = OAuth::Token.new(TOKEN, SECRET)
@@ -176,3 +194,5 @@ module EtradeHelper
     order_reponse = Net::HTTP.post_form(URI.parse(site), xml)
   end
 end
+
+=end
