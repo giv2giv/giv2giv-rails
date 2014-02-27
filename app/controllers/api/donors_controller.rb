@@ -29,20 +29,40 @@ class Api::DonorsController < Api::BaseController
     if defined? current_donor.id
       share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.donor_grants.sum(:shares_subtracted)}")
       donor_current_balance = ((BigDecimal("#{share_balance}") * BigDecimal("#{last_donation_price}")) * 10).ceil / 10.0
-      donor_total_donations = current_donor.donations.sum(:gross_amount)
-      donor_total_grants = current_donor.donor_grants.where("status = ?", 'sent').sum(:gross_amount).to_f
+      donor_total_amount_of_donations = current_donor.donations.sum(:gross_amount)
+      donor_total_amount_of_grants = current_donor.donor_grants.where("status = ?", 'sent').sum(:gross_amount).to_f
     else
       donor_current_balance = 0.0
-      donor_total_donations = 0.0
-      donor_total_grants = 0.0
+      donor_total_amount_of_donations = 0.0
+      donor_total_amount_of_grants = 0.0
     end
 
     giv2giv_share_balance = BigDecimal("#{Donation.sum(:shares_added)}") - BigDecimal("#{CharityGrant.sum(:shares_subtracted)}")
-    giv2giv_current_balance = ((BigDecimal("#{giv2giv_share_balance}") * BigDecimal("#{last_donation_price}")) * 10).ceil / 10.0
-    giv2giv_total_donations = Donation.sum(:gross_amount)
-    giv2giv_total_grants = CharityGrant.where("status = ?", 'sent').sum(:gross_amount)
+    current_fund_balance_all_donors = ((BigDecimal("#{giv2giv_share_balance}") * BigDecimal("#{last_donation_price}")) * 10).ceil / 10.0
 
-    render json: { :donor_current_balance => donor_current_balance, :donor_total_donations => donor_total_donations, :donor_total_grants => donor_total_grants, :giv2giv_current_balance => giv2giv_current_balance, :giv2giv_total_donations => giv2giv_total_donations, :giv2giv_total_grants => giv2giv_total_grants }.to_json
+    total_number_of_donors = Donation.count('donor_id', :distinct => true)
+
+    total_number_of_donations = Donation.count
+    total_amount_of_donations = Donation.sum(:gross_amount)
+
+    total_number_of_grants = CharityGrant.where("status = ?", 'sent').count
+    total_amount_of_grants = CharityGrant.where("status = ?", 'sent').sum(:gross_amount)
+
+    total_number_of_endowments = Endowment.count
+    total_active_subscriptions = DonorSubscription.where("canceled_at IS NULL OR canceled_at = ?", false).count
+
+    render json: {  :donor_current_balance => donor_current_balance,
+                    :donor_total_amount_of_donations => donor_total_amount_of_donations,
+                    :donor_total_amount_of_grants => donor_total_amount_of_grants,
+                    :total_number_of_donors => total_number_of_donors,
+                    :current_fund_balance_all_donors => current_fund_balance_all_donors,
+                    :total_number_of_donations => total_number_of_donations,
+                    :total_amount_of_donations => total_amount_of_donations,
+                    :total_number_of_grants => total_number_of_grants,
+                    :total_amount_of_grants => total_amount_of_grants,
+                    :total_number_of_endowments => total_number_of_endowments,
+                    :total_active_subscriptions => total_active_subscriptions
+                  }.to_json
   end
 
   def subscriptions
