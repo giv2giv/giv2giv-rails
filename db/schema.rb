@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140220104044) do
+ActiveRecord::Schema.define(:version => 20140302012408) do
 
   create_table "charities", :force => true do |t|
     t.string   "name",                :null => false
@@ -136,7 +136,10 @@ ActiveRecord::Schema.define(:version => 20140220104044) do
     t.datetime "updated_at",              :null => false
     t.integer  "donor_id"
     t.string   "visibility"
+    t.string   "slug"
   end
+
+  add_index "endowments", ["slug"], :name => "index_endowments_on_slug", :unique => true
 
   create_table "etrade_tokens", :force => true do |t|
     t.string   "token"

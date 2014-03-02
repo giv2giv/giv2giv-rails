@@ -11,6 +11,9 @@ class Endowment < ActiveRecord::Base
   validates :minimum_donation_amount, :presence => true, :format => { :with => /^\d+??(?:\.\d{0,2})?$/ }, :numericality => {:greater_than => 0}
   validates :visibility, :presence => true, :inclusion => { :in => VALID_TYPE }
 
+  extend FriendlyId
+  friendly_id :name, use: :slugged
+
   def as_json(options = {})
     super( :include => [:charities => { :only => [:id, :name, :active] }] )
   end

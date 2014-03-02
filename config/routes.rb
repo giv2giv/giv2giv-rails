@@ -32,6 +32,7 @@ Giv2givRails::Application.routes.draw do
         delete 'remove_charity', :on => :member
         post 'rename_endowment', :on => :member
         get 'my_endowments', :on=>:collection
+        get 'find_by_slug', :on=> :collection
       end
 
       resources :charity, :except => [:new, :edit, :destroy, :update, :create] do

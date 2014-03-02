@@ -2,7 +2,7 @@ require 'will_paginate/array'
 
 class Api::EndowmentController < Api::BaseController
 
-  skip_before_filter :require_authentication, :only => [:index, :show]
+  skip_before_filter :require_authentication, :only => [:index, :show, :find_by_slug]
 
   def index
     page = params[:page] || 1
@@ -36,9 +36,9 @@ class Api::EndowmentController < Api::BaseController
       end
     else
       if current_donor.present? && current_donor.id
-        endowments = Endowment.where("name LIKE ? AND (visibility = ? OR donor_id = ?)", "%#{query}%", "public", current_donor.id).order("RAND()").limit(perpage)
+        endowments = Endowment.where("name LIKE ? AND (visibility = ? OR donor_id = ?)", q, "public", current_donor.id).order("RAND()").limit(perpage)
       else
-        endowments = Endowment.where("name LIKE ? AND visibility = ?", "%#{query}%", "public").order("RAND()").limit(perpage)
+        endowments = Endowment.where("name LIKE ? AND visibility = ?", q, "public").order("RAND()").limit(perpage)
       end
     end
 
@@ -127,6 +127,30 @@ class Api::EndowmentController < Api::BaseController
         format.json { head :not_found }
       end
     end
+  end
+
+  def find_by_slug
+
+    endowment_slug = params[:slug]
+
+    if endowment_slug == ""
+      render json: { :message => "Missing parameter slug" }
+    else
+      if current_donor.present? && current_donor.id
+        endowment = Endowment.where("slug = ? AND (visibility = ? OR donor_id = ?)", endowment_slug, "public", current_donor.id).last
+      else
+        endowment = Endowment.where("slug = ? AND visibility = ?", endowment_slug, "public").last
+      end
+    end
+
+    respond_to do |format|
+      if endowment
+        format.json { render json: endowment }
+      else
+        format.json { head :not_found }
+      end
+    end
+
   end
 
   def rename_endowment

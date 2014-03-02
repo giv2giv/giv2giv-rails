@@ -40,5 +40,8 @@ gem 'spreadsheet'
 # A little pagination
 gem 'will_paginate', '~> 3.0'
 
+# friendly-id for nice SEO endowment URLs
+gem "friendly_id", "~> 4.0.10"
+
 # Stripe events hooks
 gem 'stripe_event', :git => 'git://github.com/integrallis/stripe_event.git'
