@@ -15,7 +15,7 @@ describe Api::DonorsController do
       resp = JSON.parse(response.body)["donor"]
       resp['email'].should == @donor.email
       resp['name'].should == @donor.name
-      resp['accept_terms'].should == true
+      resp['accepted_terms'].should == true
     end
 
     it "should include errors on failure" do
@@ -26,7 +26,7 @@ describe Api::DonorsController do
       post :create, :format => :json, :donor => {:password => "passwerd"}
       response.should_not be_success
       resp = JSON.parse(response.body)
-      resp['name'].should_not be_blank
+      resp['email'].should_not be_blank
     end
 
     it "should work" do
@@ -61,7 +61,7 @@ describe Api::DonorsController do
       put :update, :format => :json
       response.status.should == 422
       resp = JSON.parse(response.body)
-      resp['name'].should_not be_blank
+      resp['email'].should_not be_blank
     end
 
     it "should be successful" do
