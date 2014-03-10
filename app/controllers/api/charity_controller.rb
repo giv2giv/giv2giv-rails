@@ -3,7 +3,7 @@ require 'will_paginate/array'
 
 class Api::CharityController < Api::BaseController
 
-  skip_before_filter :require_authentication, :only => [:index, :show]
+  skip_before_filter :require_authentication, :only => [:index, :show, :show_endowments]
 
   def index
     page = params[:page] || 1
@@ -59,5 +59,17 @@ class Api::CharityController < Api::BaseController
       end
     end
   end
+
+  def show_endowments
+    charity = Charity.find(params[:id])
+    respond_to do |format|
+      if charity
+        format.json { render json: charity.endowments}
+      else
+        format.json { head :not_found }
+      end
+    end
+  end
+
 end
 
