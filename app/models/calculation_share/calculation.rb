@@ -47,8 +47,8 @@ module CalculationShare
         end
 
         donation_share_price = preliminary_share_price.ceil2(2)
-        grant_share_price = grant_share_price.floor2(2)
-          
+        grant_share_price = preliminary_share_price.floor2(2)
+
 
         new_record_share = Share.new(
                                      :stripe_balance => stripe_balance,
