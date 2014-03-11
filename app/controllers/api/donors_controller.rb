@@ -28,7 +28,7 @@ class Api::DonorsController < Api::BaseController
 
     if current_donor && current_donor.id
       share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.donor_grants.sum(:shares_subtracted)}")
-      donor_current_balance = ((BigDecimal("#{share_balance}") * BigDecimal("#{last_donation_price}")) * 10).ceil / 10.0
+      donor_current_balance = (BigDecimal("#{share_balance}") * BigDecimal("#{last_donation_price}")).floor2(2)
       donor_total_amount_of_donations = current_donor.donations.sum(:gross_amount)
       donor_total_amount_of_grants = current_donor.donor_grants.where("status = ?", 'sent').sum(:gross_amount).to_f
     else
@@ -38,7 +38,7 @@ class Api::DonorsController < Api::BaseController
     end
 
     giv2giv_share_balance = BigDecimal("#{Donation.sum(:shares_added)}") - BigDecimal("#{CharityGrant.sum(:shares_subtracted)}")
-    current_fund_balance_all_donors = ((BigDecimal("#{giv2giv_share_balance}") * BigDecimal("#{last_donation_price}")) * 10).ceil / 10.0
+    current_fund_balance_all_donors = (BigDecimal("#{giv2giv_share_balance}") * BigDecimal("#{last_donation_price}")).floor2(2)
 
     total_number_of_donors = Donation.count('donor_id', :distinct => true)
 

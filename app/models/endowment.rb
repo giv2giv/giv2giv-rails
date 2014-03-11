@@ -37,12 +37,11 @@ class Endowment < ActiveRecord::Base
     global_balances = {
       "endowment_donor_count" => self.donations.count('donor_id', :distinct => true),
       "endowment_donations_count" => self.donations.count('id', :distinct => true),
-      "endowment_donations" => (self.donations.sum(:gross_amount) * 10).ceil / 10.0,
-      "endowment_transaction_fees" => (self.donations.sum(:transaction_fees) * 10).ceil / 10.0,
-      "endowment_fees" => (self.donor_grants.sum(:giv2giv_fee) * 10).ceil / 10.0,
-      "endowment_grants" => (self.donor_grants.sum(:gross_amount) * 10).ceil / 10.0,
-      #"endowment_share_balance" => ((self.donations.sum(:shares_added) - endowment.donor_grants.sum(:shares_subtracted)) * 10).ceil / 10.0,
-      "endowment_balance" => (share_balance * last_donation_price * 10).ceil / 10.0
+      "endowment_donations" => self.donations.sum(:gross_amount).floor2(2),
+      "endowment_transaction_fees" => self.donations.sum(:transaction_fees).floor2(2),
+      "endowment_fees" => self.donor_grants.sum(:giv2giv_fee).floor2(2),
+      "endowment_grants" => self.donor_grants.sum(:gross_amount).floor2(2),
+      "endowment_balance" => share_balance * last_donation_price.floor(2)
     }
   end
 

@@ -42,8 +42,8 @@ class Api::BalancesController < Api::BaseController
     last_grant_price = Share.last_grant_price
 
     total_grant_shares = DonorGrant.where("status = ?", "pending").sum(:shares_subtracted)
-    total_grant_amount = ((BigDecimal("#{total_grant_shares}") * BigDecimal("#{last_grant_price}")).to_f * 10).ceil / 10.0
-    total_giv2giv_fee = (total_grant_amount * 10).ceil / 10.0
+    total_grant_amount = (BigDecimal("#{total_grant_shares}") * BigDecimal("#{last_grant_price}")).floor2(2)
+    total_giv2giv_fee = (total_grant_amount).floor2(2)
     results = []
 
 
@@ -61,8 +61,8 @@ class Api::BalancesController < Api::BaseController
 
       charity = Charity.find(donor_grant_share.id)
 
-      gross_amount = ((BigDecimal("#{donor_grant_share.shares_subtracted}") * BigDecimal("#{last_grant_price}")).to_f * 10).ceil / 10.0
-      giv2giv_fee = (gross_amount * GIV_FEE_AMOUNT * 10).ceil / 10.0
+      gross_amount = (BigDecimal("#{donor_grant_share.shares_subtracted}") * BigDecimal("#{last_grant_price}")).floor2(2)
+      giv2giv_fee = (gross_amount * GIV_FEE_AMOUNT).floor2(2)
       net_amount = gross_amount - giv2giv_fee
 
       # set text message to charity email
