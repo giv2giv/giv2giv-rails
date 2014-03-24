@@ -30,20 +30,65 @@ class Endowment < ActiveRecord::Base
     endowment.charities.delete(charity)
   end
 
-  def global_balances()
-    last_donation_price = Share.last.donation_price rescue 0.0
-    share_balance = BigDecimal("#{self.donations.sum(:shares_added)}") - BigDecimal("#{self.donor_grants.sum(:shares_subtracted)}")
+  def share_balance
+    BigDecimal("#{self.donations.sum(:shares_added)}") - BigDecimal("#{self.donor_grants.sum(:shares_subtracted)}")
+  end
 
-    global_balances = {
+  def last_donation_price
+    Share.last.donation_price.floor2(2) rescue 0.0
+  end
+
+  def global_balances
+    endowment_balance = share_balance * last_donation_price
+    monthly_addition = DonorSubscription.where("endowment_id = ? AND canceled_at IS NULL OR canceled_at = ?", self.id, false).sum(:gross_amount) || 0.0
+    {
       "endowment_donor_count" => self.donations.count('donor_id', :distinct => true),
       "endowment_donations_count" => self.donations.count('id', :distinct => true),
-      "endowment_donations" => self.donations.sum(:gross_amount).floor2(2),
+      "endowment_total_donations" => self.donations.sum(:gross_amount).floor2(2),
+      "endowment_monthly_donations" => monthly_addition.floor2(2),
       "endowment_transaction_fees" => self.donations.sum(:transaction_fees).floor2(2),
       "endowment_fees" => self.donor_grants.sum(:giv2giv_fee).floor2(2),
       "endowment_grants" => self.donor_grants.sum(:gross_amount).floor2(2),
-      "endowment_balance" => share_balance * last_donation_price.floor(2)
+      "endowment_balance" => share_balance * last_donation_price,
+      "projected_balance" => project_amount( endowment_balance, monthly_addition, 25, 0.06 )
     }
   end
 
+  def project_amount ( principal, monthly_addition, years, return_rate )
+    amount_array = []
+    total_donations = 0.0
+    total_grants = 0.0
+    total_fees = 0.0
+
+    month = 1
+    while month <= years * 12 do
+      month = month + 1
+      total_donations += monthly_addition
+      principal += monthly_addition
+      principal += principal * (return_rate / 12) 
+      if month % 4 == 0
+        grant_amount = principal * App.giv["giv_grant_amount"]
+        total_grants += grant_amount
+        fee_amount = principal * App.giv["giv_fee_amount"]
+        total_fees += fee_amount
+        principal -= grant_amount
+        principal -= fee_amount
+      end
+      if month % 12 == 0
+        amount_hash = {
+          "date" => Date.today + month.months,
+          "total_donations" => total_donations.floor2(2),
+          "principal" => principal.floor2(2),
+          "total_grants" => total_grants.floor2(2),
+          "total_fees" => total_fees.floor2(2)
+        }
+        amount_array << amount_hash
+      end
+
+    end
+
+    amount_array
+
+  end
 
 end

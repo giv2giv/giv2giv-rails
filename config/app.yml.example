@@ -3,7 +3,7 @@
 force_ssl: true
 
 giv:
-  giv_fee_percentage : 0.04
+  giv_fee_amount     : .00125
   giv_grant_amount   : .0125
   share_precision    : 20
   email_support      : hello@yourdomain.org

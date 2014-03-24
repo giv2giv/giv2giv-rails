@@ -2,7 +2,7 @@ class Api::BalancesController < Api::BaseController
   before_filter :require_authentication
   include DwollaHelper
   
-  GIV_FEE_AMOUNT = App.giv["giv_fee_percentage"].to_f
+  GIV_FEE_AMOUNT = App.giv["giv_fee_amount"].to_f
   GIV_GRANT_AMOUNT = App.giv["giv_grant_amount"]
   SHARE_PRECISION = App.giv["share_precision"]
   PIN_DWOLLA = App.dwolla["pin_account"]
