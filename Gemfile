@@ -19,7 +19,7 @@ group :development, :test do
 
 end
 
-gem 'rails', '3.2.13'
+gem 'rails', '3.2.17'
 gem "oauth", "~> 0.4.7" # for eTrade API
 gem "mysql2"
 
