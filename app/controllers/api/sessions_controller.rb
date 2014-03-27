@@ -16,6 +16,15 @@ class Api::SessionsController < Api::BaseController
     end
   end
 
+  def omnicreate
+    if current_session
+        auth = request.env["omniauth.auth"]
+        ExternalAccount.find_by_provider_and_uid(auth["provider"], auth["uid"]) || ExternalAccount.create_with_omniauth(auth)
+    end
+  end
+
+  end
+
   def ping
     if current_session
       respond_to do |format|

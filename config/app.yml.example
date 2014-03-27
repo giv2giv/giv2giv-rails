@@ -29,6 +29,10 @@ etrade:
   oauth_consumer_key:  4d2fd4cd312c1904069f2970c89899df  #sandbox
   consumer_secret:     57ae0f198d4b8efb4e73d95d35cfcc3f  #sandbox
 
+facebook:
+  app_id:               "your-facebook-app-id"
+  app_secret:               "your-facebook-secret"
+
 
 dwolla:
   api_key:        dwolla-api-key

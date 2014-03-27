@@ -9,6 +9,7 @@ Giv2givRails::Application.routes.draw do
       post 'sessions/destroy' => 'sessions#destroy'
       post 'sessions/create' => 'sessions#create'
       post 'sessions/ping' => 'sessions#ping'
+      post 'sessions/:provider/callback' => 'sessions#omnicreate'
 
       resource :donors, :except => [:new, :edit, :destroy] do
         get 'balance_information', :on => :member
@@ -17,7 +18,7 @@ Giv2givRails::Application.routes.draw do
         post 'forgot_password', :on => :member
         get "reset_password", :on => :member
         
-        resources :payment_accounts, :except => [:new, :edit] do
+        resources :payment_accounts, :except => [:new, :edit] do        
           post 'donate_subscription', :on => :member
           get 'donation_list', :on => :member
           get 'all_donation_list', :on => :collection

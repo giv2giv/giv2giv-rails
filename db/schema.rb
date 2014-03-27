@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140302012408) do
+ActiveRecord::Schema.define(:version => 20140327035757) do
 
   create_table "charities", :force => true do |t|
     t.string   "name",                :null => false
@@ -105,6 +105,7 @@ ActiveRecord::Schema.define(:version => 20140302012408) do
     t.datetime "updated_at",             :null => false
     t.float    "gross_amount"
     t.datetime "canceled_at"
+    t.date     "next_charge_date"
   end
 
   create_table "donors", :force => true do |t|
@@ -156,6 +157,16 @@ ActiveRecord::Schema.define(:version => 20140302012408) do
     t.float    "fees"
   end
 
+  create_table "external_accounts", :force => true do |t|
+    t.string   "provider"
+    t.string   "uid"
+    t.string   "name"
+    t.string   "oauth_token"
+    t.datetime "oauth_expires_at"
+    t.datetime "created_at",       :null => false
+    t.datetime "updated_at",       :null => false
+  end
+
   create_table "giv_payments", :force => true do |t|
     t.float    "amount"
     t.datetime "created_at",                            :null => false
@@ -187,16 +198,16 @@ ActiveRecord::Schema.define(:version => 20140302012408) do
   add_index "sessions", ["updated_at"], :name => "index_sessions_on_updated_at"
 
   create_table "shares", :force => true do |t|
-    t.float    "stripe_balance"
-    t.decimal  "etrade_balance",              :precision => 30, :scale => 20
     t.decimal  "share_total_beginning",       :precision => 30, :scale => 20
     t.decimal  "shares_added_by_donation",    :precision => 30, :scale => 20
     t.decimal  "shares_subtracted_by_grants", :precision => 30, :scale => 20
     t.decimal  "share_total_end",             :precision => 30, :scale => 20
-    t.float    "donation_price"
     t.datetime "created_at",                                                  :null => false
     t.datetime "updated_at",                                                  :null => false
-    t.float    "grant_price"
+    t.decimal  "stripe_balance",              :precision => 10, :scale => 2
+    t.decimal  "etrade_balance",              :precision => 10, :scale => 2
+    t.decimal  "donation_price",              :precision => 10, :scale => 2
+    t.decimal  "grant_price",                 :precision => 10, :scale => 2
   end
 
   create_table "stripe_logs", :force => true do |t|
