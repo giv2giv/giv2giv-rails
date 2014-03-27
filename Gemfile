@@ -16,11 +16,15 @@ group :development, :test do
   gem "pry"
   gem "pry-nav"
   gem "awesome_print"
+
 end
 
 gem 'rails', '3.2.13'
-gem "oauth", "~> 0.4.7"
+gem "oauth", "~> 0.4.7" # for eTrade API
 gem "mysql2"
+
+gem "omniauth"
+gem "omniauth-facebook"
 
 # CORS support
 gem 'rack-cors', :require => 'rack/cors'
@@ -30,7 +34,9 @@ gem 'rufus-scheduler'
 
 # Gems used to interact with payment processors
 gem 'dwolla-ruby'
+gem 'ice_cube' # recurring billing
 gem 'stripe'
+
 gem 'httparty'
 
 # Gems used for the charity import
