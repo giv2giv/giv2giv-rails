@@ -1,6 +1,6 @@
 class Api::SessionsController < Api::BaseController
 
-  skip_before_filter :require_authentication, :only => [:create, :destroy]
+  skip_before_filter :require_authentication, :only => [:create, :destroy, :callback]
 
   def create
     password_hash = secure_password(params[:password].to_s)
@@ -16,13 +16,10 @@ class Api::SessionsController < Api::BaseController
     end
   end
 
-  def omnicreate
-    if current_session
-        auth = request.env["omniauth.auth"]
-        ExternalAccount.find_by_provider_and_uid(auth["provider"], auth["uid"]) || ExternalAccount.create_with_omniauth(auth)
-    end
-  end
-
+  def callback
+    auth = request.env["omniauth.auth"]
+    Rails.logger.debug request.env['omniauth.params'] 
+    ExternalAccount.find_by_provider_and_uid(auth["provider"], auth["uid"]) || ExternalAccount.create_with_omniauth(auth)
   end
 
   def ping
