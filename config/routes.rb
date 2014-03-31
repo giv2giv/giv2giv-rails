@@ -2,14 +2,16 @@ Giv2givRails::Application.routes.draw do
 
   mount StripeEvent::Engine => '/stripe'
   match '/dwolla' => 'dwolla#receive_hook', :via => :post
+  
+  get '/auth/:provider/callback' => 'api/sessions#omniauth_callback'
 
   scope :format => true, :constraints => { :format => /json/ } do
+
     namespace :api do
 
       post 'sessions/destroy' => 'sessions#destroy'
       post 'sessions/create' => 'sessions#create'
       post 'sessions/ping' => 'sessions#ping'
-      post 'sessions/:provider/callback' => 'sessions#omnicreate'
 
       resource :donors, :except => [:new, :edit, :destroy] do
         get 'balance_information', :on => :member

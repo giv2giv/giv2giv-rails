@@ -1,6 +1,6 @@
 class Api::SessionsController < Api::BaseController
 
-  skip_before_filter :require_authentication, :only => [:create, :destroy]
+  skip_before_filter :require_authentication, :only => [:create, :destroy, :omniauth_callback]
 
   def create
     password_hash = secure_password(params[:password].to_s)
@@ -16,15 +16,22 @@ class Api::SessionsController < Api::BaseController
     end
   end
 
-  def omnicreate
-    if current_session
-        auth = request.env["omniauth.auth"]
-        donor_id = request.env["omniauth.params"]["donor_id"]
-        if donor_id # Can we make this an encrypted/hashed donor_id
-          ExternalAccount.find_by_provider_and_uid(auth["provider"], auth["uid"]) || ExternalAccount.create_with_omniauth(auth, donor_id)
-    end
-  end
+  def omniauth_callback
 
+    auth = request.env["omniauth.auth"]
+
+    # donor_id = request.env["omniauth.params"]["donor_id"] # if original /auth/facebook called with ?donor_id=1234
+    # How do we secure this to prevent forgery?
+    #ExternalAccount.find_by_provider_and_uid(auth["provider"], auth["uid"]) || ExternalAccount.create_with_omniauth(auth)
+    Rails.logger.debug 'got here'
+    
+    account = ExternalAccount.create_with_omniauth(auth)
+    respond_to do |format|
+      if account
+        format.json { render json: {account: account}, status: :created }
+      end
+    end
+    
   end
 
   def ping
