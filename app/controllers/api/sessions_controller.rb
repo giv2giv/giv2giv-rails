@@ -23,14 +23,17 @@ class Api::SessionsController < Api::BaseController
     # donor_id = request.env["omniauth.params"]["donor_id"] # if original /auth/facebook called with ?donor_id=1234
     # How do we secure this to prevent forgery?
     #ExternalAccount.find_by_provider_and_uid(auth["provider"], auth["uid"]) || ExternalAccount.create_with_omniauth(auth)
-    Rails.logger.debug 'got here'
     
-    account = ExternalAccount.create_with_omniauth(auth)
+    donor_id = request.env["omniauth.params"]["donor_id"] # if original /auth/facebook called with ?donor_id=1234
+
+    external_account = ExternalAccount.create_with_omniauth(auth, donor_id)
+
     respond_to do |format|
-      if account
-        format.json { render json: {account: account}, status: :created }
-      end
+        format.html { render json: external_account, status: :created }
     end
+
+      #end
+    #end
     
   end
 
