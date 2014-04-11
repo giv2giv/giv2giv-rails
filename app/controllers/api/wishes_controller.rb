@@ -19,9 +19,6 @@ class Api::WishesController < Api::BaseController
       if wish.save
         format.json { render json: wish, status: :created }
       else
-Rails.logger.debug 'hi'
-        Rails.logger.debug wish.to_json
-Rails.logger.debug 'hi'
         format.json { render json: wish.errors , status: :unprocessable_entity }
       end
     end
