@@ -46,7 +46,8 @@ gem 'typhoeus', :require => false
 gem 'spreadsheet'
 
 # A little pagination
-gem 'will_paginate', '~> 3.0'
+#gem 'will_paginate', '~> 3.0'
+gem 'kaminari'
 
 # friendly-id for nice SEO endowment URLs
 gem "friendly_id", "~> 4.0.10"

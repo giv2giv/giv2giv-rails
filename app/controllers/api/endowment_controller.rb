@@ -1,11 +1,9 @@
-require 'will_paginate/array'
-
 class Api::EndowmentController < Api::BaseController
 
   skip_before_filter :require_authentication, :only => [:index, :show, :find_by_slug]
 
   def index
-    page = params[:page] || 1
+    pagenum = params[:page] || 1
     perpage = params[:per_page] || 10
     query = params[:query] || ""
 
@@ -26,24 +24,25 @@ class Api::EndowmentController < Api::BaseController
       #endowments << c.endowments
     #end
    
-
     q = "%#{query}%"
     if q=="%%"
       if current_donor.present? && current_donor.id
-  	    endowments = Endowment.where("(visibility = ? OR donor_id = ?)", "public", current_donor.id).order("RAND()").limit(perpage)
+  	    endowments = Endowment.where("(visibility = ? OR donor_id = ?)", "public", current_donor.id).order("RAND()")
       else
-        endowments = Endowment.where("visibility = ?", "public").order("RAND()").limit(perpage)
+        endowments = Endowment.where("visibility = ?", "public").order("RAND()")
       end
     else
       if current_donor.present? && current_donor.id
-        endowments = Endowment.where("name LIKE ? AND (visibility = ? OR donor_id = ?)", q, "public", current_donor.id).order("RAND()").limit(perpage)
+        endowments = Endowment.where("name LIKE ? AND (visibility = ? OR donor_id = ?)", q, "public", current_donor.id).order("RAND()")
       else
-        endowments = Endowment.where("name LIKE ? AND visibility = ?", q, "public").order("RAND()").limit(perpage)
+        endowments = Endowment.where("name LIKE ? AND visibility = ?", q, "public").order("RAND()")
       end
     end
 
 
-    endowments = endowments.compact.flatten.uniq.paginate(:page => page, :per_page => perpage)
+    endowments = endowments.page(pagenum).per(perpage)
+
+#    endowments = endowments.compact.flatten.uniq.paginate(:page => page, :per_page => perpage)
 
     endowments.each do |endowment|
       

@@ -1,15 +1,12 @@
-require 'will_paginate'
-require 'will_paginate/array'
-
 class Api::CharityController < Api::BaseController
 
   skip_before_filter :require_authentication, :only => [:index, :show, :show_endowments]
 
   def index
-    page = params[:page] || 1
+    pagenum = params[:page] || 1
     perpage = params[:per_page] || 10
     perpage = 50 if perpage.to_i > 50
-    offset_count = (page.to_i-1)*perpage.to_i
+#    offset_count = (page.to_i-1)*perpage.to_i
 
     query = params[:query] || ""
     city = params[:city]
@@ -23,10 +20,11 @@ class Api::CharityController < Api::BaseController
     #q = q.gsub!(' ','%')
     
 
-    if cityq
-      charities_with_matching_name = Charity.where("name LIKE ?", nameq).where("city LIKE ?", cityq).limit(perpage).offset(offset_count)
+
+    if cityq == "%%"
+      charities_with_matching_name = Charity.where("name LIKE ?", nameq)
     else
-      charities_with_matching_name = Charity.where("name LIKE ?", nameq).limit(perpage).offset(offset_count)
+      charities_with_matching_name = Charity.where("name LIKE ? AND city LIKE ?", nameq, cityq)
     end
 
 
@@ -36,8 +34,9 @@ class Api::CharityController < Api::BaseController
     #    charities_with_matching_tags << t.charities
     #end
 
-    charities = charities_with_matching_name + charities_with_matching_tags
-    results = charities.compact.uniq.paginate(:page => page, :per_page => perpage, :total_entries => charities.count)
+#    charities = charities_with_matching_name + charities_with_matching_tags
+#    results = charities.compact.uniq.paginate(:page => page, :per_page => perpage, :total_entries => charities.count)
+    results = charities_with_matching_name.page(pagenum).per(perpage)
 
     respond_to do |format|
       if !results.empty?
