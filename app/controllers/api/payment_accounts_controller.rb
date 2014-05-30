@@ -123,7 +123,7 @@ class Api::PaymentAccountsController < Api::BaseController
     respond_to do |format|
       if current_donor_id && donation = current_donor_id.one_time_payment(params[:amount], params[:endowment_id], params[:id])
         format.json { render json: donation }
-      else
+       else
         format.json { head :not_found }
       end
     end

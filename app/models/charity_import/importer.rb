@@ -15,13 +15,13 @@ module CharityImport
     @@verbose_with_misses = false
 
     class << self
+
       def run(verbose = true, with_misses = false, skip_downloading = false)
         @@verbose = verbose
         @@verbose_with_misses = with_misses
         files = nil
 
-
-        giv2giv = Charity.new(
+        giv2giv = Charity.where(
           name:         'giv2giv.org',
           ein:          '45-5634144',
           address:      'P.O. Box 721',
@@ -32,8 +32,7 @@ module CharityImport
           website:      'https://www.giv2giv.org',
           email:        'hello@giv2giv.org',
           active:       'true'
-          )
-        giv2giv.save!
+          ).first_or_create
 
 
         if skip_downloading
@@ -49,7 +48,7 @@ module CharityImport
 
       def import_single_file(file_name, skip_downloading = true)
 
-        giv2giv = Charity.new(
+        giv2giv = Charity.where(
           name:         'giv2giv.org',
           ein:          '45-5634144',
           address:      'P.O. Box 721',
@@ -60,8 +59,7 @@ module CharityImport
           website:      'https://www.giv2giv.org',
           email:        'hello@giv2giv.org',
           active:       'true'
-          )
-        giv2giv.save!
+          ).first_or_create
         
         if !skip_downloading
           create_excel_dir_if_needed
@@ -210,18 +208,19 @@ module CharityImport
               active = 'false'
           end
 
-          options = { :ein => ein,
-                        :name => name,
-                        :address => row[3].to_s.strip,
-                        :city => row[4].to_s.strip,
-                        :state => row[5].to_s.strip,
-                        :zip => row[6].to_s.strip,
-                        :ntee_code => row[30].to_s.strip,
-                        :subsection_code => row[8].to_s.strip,
-                        :classification_code => row[10].to_s.strip,
-                        :activity_code => row[14].to_s.strip,
-                        :active => active
-                      }
+          options = {
+              :ein => ein,
+              :name => name,
+              :address => row[3].to_s.strip,
+              :city => row[4].to_s.strip,
+              :state => row[5].to_s.strip,
+              :zip => row[6].to_s.strip,
+              :ntee_code => row[30].to_s.strip,
+              :subsection_code => row[8].to_s.strip,
+              :classification_code => row[10].to_s.strip,
+              :activity_code => row[14].to_s.strip,
+              :active => active
+              }
 
             puts "---Creating Charity with #{options.inspect}" if @@verbose_with_misses
             charity = Charity.create_or_update(options)

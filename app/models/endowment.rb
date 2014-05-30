@@ -49,10 +49,36 @@ class Endowment < ActiveRecord::Base
       "endowment_transaction_fees" => self.donations.sum(:transaction_fees).floor2(2),
       "endowment_fees" => self.donor_grants.sum(:giv2giv_fee).floor2(2),
       "endowment_grants" => self.donor_grants.sum(:gross_amount).floor2(2),
-      "endowment_balance" => share_balance * last_donation_price,
+      "endowment_balance" => (share_balance * last_donation_price).floor2(2),
       "projected_balance" => project_amount( endowment_balance, monthly_addition, 25, 0.06 )
     }
   end
+
+  def anonymous_donation (accepted_terms, stripeToken, endowment_id, amount)
+    
+      anonymous_donor = Donor.new(
+          :name => 'Anonymous Donor',
+          :email=> 'anonymous_donor@' + SecureRandom.uuid + '.com',
+          :password => SecureRandom.urlsafe_base64,
+          :accepted_terms => accepted_terms
+        )
+
+      anonymous_donor.type_donor = "anonymous"
+
+      if accepted_terms=='true'
+        anonymous_donor.accepted_terms = true
+        anonymous_donor.accepted_terms_on = DateTime.now      
+      end
+
+      anonymous_donor.save!
+
+      payment = PaymentAccount.new_account(stripeToken, anonymous_donor.id, {:donor => anonymous_donor})
+
+      donation = PaymentAccount.one_time_payment(amount, endowment_id, payment.id)
+
+  end
+
+
 
   def project_amount ( principal, monthly_addition, years, return_rate )
     amount_array = []

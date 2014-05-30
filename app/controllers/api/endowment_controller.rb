@@ -152,6 +152,19 @@ class Api::EndowmentController < Api::BaseController
 
   end
 
+  def anonymous_donation
+    endowment = Endowment.find_by_id(params[:id])
+    if endowment && params[:accepted_terms] && params[:stripeToken] && params[:amount]
+      respond_to do |format|
+        if donation = endowment.anonymous_donation(params[:accepted_terms], params[:stripeToken], params[:endowment_id], params[:amount])
+          format.json { render json: donation }
+        else
+          format.json { head :not_found }
+        end
+      end
+    end
+  end
+
   def rename_endowment
     endowment = Endowment.find_by_id(params[:id])
     if (endowment.donor_id.to_s.eql?(current_session.donor_id))

@@ -7,7 +7,7 @@ class Api::DonorsController < Api::BaseController
     donor = Donor.new(params[:donor])
     donor.type_donor = "registered"
     donor.password = secure_password(params[:donor][:password])
-    if params[:accepted_terms]
+    if params[:accepted_terms]=='true'
       donor.accepted_terms = true
       donor.accepted_terms_on = DateTime.now      
     end

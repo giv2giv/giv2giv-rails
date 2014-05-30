@@ -23,7 +23,9 @@ class PaymentAccount < ActiveRecord::Base
   class << self
 
     def new_account(stripeToken, donor_id, options = {})
+      
       check_donor = Donor.find(donor_id)
+      
       if !check_donor
         return { :message => "Wrong donor id" }.to_json
       end
@@ -95,7 +97,6 @@ class PaymentAccount < ActiveRecord::Base
 
       end
     end
-
   end # end class self
 
   def one_time_payment(amount, endowment_id, paymentaccount_id)
@@ -158,7 +159,6 @@ class PaymentAccount < ActiveRecord::Base
       { :message => "Error" }.to_json
     end # end subscription.save
   end # end one_time_payment
-
 
   def donate_subscription(amount, endowment_id, paymentaccount_id)
 

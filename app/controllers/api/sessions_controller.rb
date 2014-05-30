@@ -1,6 +1,6 @@
 class Api::SessionsController < Api::BaseController
 
-  skip_before_filter :require_authentication, :only => [:create, :destroy, :omniauth_callback]
+  skip_before_filter :require_authentication, :only => [:create, :destroy, :omniauth_callback, :dwolla_start, :dwolla_finish]
 
   def create
     password_hash = secure_password(params[:password].to_s)
@@ -16,24 +16,50 @@ class Api::SessionsController < Api::BaseController
     end
   end
 
+  def dwolla_start
+    Dwolla::api_key = App.dwolla['api_key']
+    Dwolla::api_secret = App.dwolla['api_secret']
+    
+    authUrl = Dwolla::OAuth.get_auth_url("https://apitest.giv2giv.org/dwolla/finish?donor_token=fun")
+
+    respond_to do |format|
+      format.html { render json: { url: authUrl } }
+    end
+  end
+
+  def dwolla_finish
+    Dwolla::api_key = App.dwolla['api_key']
+    Dwolla::api_secret = App.dwolla['api_secret']
+   
+    token = Dwolla::OAuth.get_token(params['code'], "https://apitest.giv2giv.org/dwolla/finish?donor_token=fun")
+
+    Dwolla::token = token
+
+    Rails.logger.debug Dwolla::Users.get
+
+
+    # create external account, payment account, etc using dwolla info
+
+  end
+
+
   def omniauth_callback
 
     auth = request.env["omniauth.auth"]
 
-    # donor_id = request.env["omniauth.params"]["donor_id"] # if original /auth/facebook called with ?donor_id=1234
-    # How do we secure this to prevent forgery?
-    #ExternalAccount.find_by_provider_and_uid(auth["provider"], auth["uid"]) || ExternalAccount.create_with_omniauth(auth)
-    
-    donor_id = request.env["omniauth.params"]["donor_id"] # if original /auth/facebook called with ?donor_id=1234
+Rails.logger.debug(auth)
 
-    external_account = ExternalAccount.create_with_omniauth(auth, donor_id)
+   Rail.logger.debug request.env["omniauth.params"]["donor_token"]
+
+    donor_id = Session.find_by_token(request.env["omniauth.params"]["donor_token"]).donor_id
+
+    if donor_id
+      external_account = ExternalAccount.create_with_omniauth(auth, donor_id)
+    end
 
     respond_to do |format|
         format.html { render json: external_account, status: :created }
     end
-
-      #end
-    #end
     
   end
 

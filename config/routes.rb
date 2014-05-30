@@ -4,6 +4,8 @@ Giv2givRails::Application.routes.draw do
   match '/dwolla' => 'dwolla#receive_hook', :via => :post
   
   get '/auth/:provider/callback' => 'api/sessions#omniauth_callback'
+  get '/dwolla/start' => 'api/sessions#dwolla_start'
+  get '/dwolla/finish' => 'api/sessions#dwolla_finish'
 
   scope :format => true, :constraints => { :format => /json/ } do
 
@@ -23,9 +25,9 @@ Giv2givRails::Application.routes.draw do
         resources :payment_accounts, :except => [:new, :edit] do        
           post 'donate_subscription', :on => :member
           get 'donation_list', :on => :member
-          get 'all_donation_list', :on => :collection
           post 'one_time_payment', :on => :member
           get 'cancel_subscription', :on => :member
+          get 'all_donation_list', :on => :collection
           #get 'cancel_all_subscription', :on => :collection #development stage
         end
       end
@@ -34,6 +36,7 @@ Giv2givRails::Application.routes.draw do
         post 'add_charity', :on => :member
         delete 'remove_charity', :on => :member
         post 'rename_endowment', :on => :member
+        post 'anonymous_donation', :on => :member
         get 'my_endowments', :on=>:collection
         get 'find_by_slug', :on=> :collection
       end

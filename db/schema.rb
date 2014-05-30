@@ -105,7 +105,6 @@ ActiveRecord::Schema.define(:version => 20140409194606) do
     t.datetime "updated_at",             :null => false
     t.float    "gross_amount"
     t.datetime "canceled_at"
-    t.date     "next_charge_date"
   end
 
   create_table "donors", :force => true do |t|

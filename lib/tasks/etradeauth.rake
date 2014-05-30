@@ -25,11 +25,4 @@ namespace :etradeauth do
     end
   end
 
-  # bundle exec rake etradeauth:updatebalance account_id=account_id
-  task :updatebalance => :environment do
-    account_id = ENV['account_id']
-    raise ArgumentError, 'Must specify account id' if account_id.nil?
-    CalculationShare::Calculation.cumulative_etrade_balance(account_id)
-  end
-
 end

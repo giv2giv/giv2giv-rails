@@ -3,6 +3,8 @@
 module CharityImport
   module Classification
 
+
+
     # CLASSIFICATION[:subsection_code][:classification_code]
     CLASSIFICATION = { '01' => { '1' => 'Government Instrumentality' },
                        '02' => { '1' => 'Title-Holding Corporation' },

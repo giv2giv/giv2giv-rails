@@ -69,40 +69,45 @@ module CalculationShare
       end
 
       def grant_step_1
-        stripe_balance = get_stripe_balance
-        etrade_balance = get_etrade_balance
-        givbalance = stripe_balance + etrade_balance
         
         endowments = Endowment.all
 
+        #endowment_share_balance = BigDecimal("#{endowment.donations.sum(:shares_added)}") - BigDecimal("#{endowment.donor_grants.sum(:shares_subtracted)}")
+        #endowment_grant_shares = (BigDecimal("#{endowment_share_balance}") * BigDecimal("#{GIV_GRANT_AMOUNT}")).round(SHARE_PRECISION)
+
         endowments.each do |endowment|
 
-          endowment_share_balance = BigDecimal("#{endowment.donations.sum(:shares_added)}") - BigDecimal("#{endowment.donor_grants.sum(:shares_subtracted)}")
-          endowment_grant_shares = (BigDecimal("#{endowment_share_balance}") * BigDecimal("#{GIV_GRANT_AMOUNT}")).round(SHARE_PRECISION)
-          charity_grant_shares = (BigDecimal("#{endowment_grant_shares}") / BigDecimal("#{endowment.charities.count}")).round(SHARE_PRECISION)
+          charities = endowment.charities.where("active = ?", "true")
 
-          endowment_donors = endowment.donations
-          charities = endowment.charities
+          donated_shares = endowment.donations.group(:donor_id).sum(:shares_added)
 
-          charities.each do |charity|
-            if charity.active.eql?("true")
-              endowment_donors.each do |endowment_donor|
-                grant_record = DonorGrant.new(
-                                        :donor_id => endowment_donor.donor.id,
+          donated_shares.each do |donor_id, shares_donor_donated|
+
+            shares_donor_granted = endowment.donor_grants.where("donor_id = ? AND endowment_id = ? AND status = ?", donor_id, endowment.id, "sent").sum(:shares_subtracted)
+
+            donor_share_balance = shares_donor_donated - shares_donor_granted # is BigDecimal - BigDecimal, so precision OK
+
+            next if donor_share_balance <= 0
+
+            shares_per_charity = (donor_share_balance * BigDecimal("#{GIV_GRANT_AMOUNT}") / BigDecimal("#{charities.count}")).round(SHARE_PRECISION)
+
+            charities.each do |charity|
+              grant_record = DonorGrant.new(
+                                        :donor_id => donor_id,
                                         :endowment_id => endowment.id,
                                         :charity_id => charity.id,
                                         :date => Date.today,
-                                        :shares_subtracted => charity_grant_shares,
+                                        :shares_subtracted => shares_per_charity,
                                         :status => 'pending'
                                         )
-                grant_record.save
-                JobMailer.success_compute(App.giv["email_support"], "grantcalculation_step1").deliver
-              end # end .each do |donor|
-            end # charity.status = active
-          end # end charities.each do |charity|
-        end # end endowments.each do |endowment|
+              grant_record.save
+            end
+
+          end # donor_shares.each
+        end # endowments.each
         puts "Grant share has been updated"
-      end
+        JobMailer.success_compute(App.giv["email_support"], "grantcalculation_step1").deliver
+      end # def grant_step_1
 
       def charity_ignores_grant
         charity_grants = CharityGrant.where("status = ?", "sent")
@@ -116,9 +121,6 @@ module CalculationShare
         end # end each charity_grants
       end
 
-      def cumulative_etrade_balance(account_id)
-        Etrade.update_balance(account_id)
-      end
 
     private
 
