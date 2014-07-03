@@ -50,9 +50,8 @@ Giv2givRails::Application.routes.draw do
       end
 
       resources :balances, :except => [:new, :edit, :destroy, :create, :update, :show, :index] do
-        #get 'show_grants', :on => :collection #admin-only
-        #post 'approve_donor_grants', :on => :collection #admin-only
-        #post 'deny_grant', :on => :member #admin-only
+        get 'show_grants', :on => :collection #admin-only
+        post 'deny_grant', :on => :member #admin-only        
       end
 
     end # end namespace api

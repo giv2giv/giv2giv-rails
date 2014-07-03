@@ -21,21 +21,7 @@ module CharityImport
         @@verbose_with_misses = with_misses
         files = nil
 
-        giv2giv = Charity.where(
-          name:         'giv2giv.org',
-          ein:          '45-5634144',
-          address:      'P.O. Box 721',
-          city:         'Churchville',
-          state:        'VA',
-          zip:          '24421',
-          description:  'giv2giv Incorporated is the non-profit sponsorsoring organization and fiduciary for the giv2giv.org Donor Advised Fund.',
-          website:      'https://www.giv2giv.org',
-          email:        'hello@giv2giv.org',
-          active:       'true'
-          ).first_or_create
-
-
-        if skip_downloading
+g        if skip_downloading
           files = files_from_dir
         else
           files = select_eo_links(get_irs_page)
@@ -48,19 +34,6 @@ module CharityImport
 
       def import_single_file(file_name, skip_downloading = true)
 
-        giv2giv = Charity.where(
-          name:         'giv2giv.org',
-          ein:          '45-5634144',
-          address:      'P.O. Box 721',
-          city:         'Churchville',
-          state:        'VA',
-          zip:          '24421',
-          description:  'giv2giv Incorporated is the non-profit sponsorsoring organization and fiduciary for the giv2giv.org Donor Advised Fund.',
-          website:      'https://www.giv2giv.org',
-          email:        'hello@giv2giv.org',
-          active:       'true'
-          ).first_or_create
-        
         if !skip_downloading
           create_excel_dir_if_needed
           download_eo_file(file_name)

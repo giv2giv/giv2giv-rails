@@ -18,13 +18,14 @@ module EtradeHelper
                 })
 
     access_token = OAuth::Token.new(TOKEN, SECRET)
-    JSON.parse(consumer.request(:get, "/accounts/rest/accountlist.json", access_token).body)
+    request_uri = "/accounts/#{SANDBOX_MODE ? 'sandbox/' : ''}rest/accountlist.json"
+    
+    JSON.parse(consumer.request(:get, request_uri, access_token).body)
   end
 
   def get_net_account_value
     self.get_accounts["json.accountListResponse"]["response"][0]["netAccountValue"]
   end
-  
 end
 
 
@@ -38,6 +39,7 @@ end
       consumer.request(:get, "/accounts/rest/accountlist", access_token).body
     end
   end
+
 
   def get_net_account_value
     get_accounts = self.get_accounts

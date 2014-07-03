@@ -1,5 +1,5 @@
-module DwollaHelper
-  require 'nokogiri'
+class DwollaLibs
+  
   require 'dwolla'
 
   API_KEY = App.dwolla["api_key"]
@@ -42,10 +42,10 @@ module DwollaHelper
 
   def dwolla_send(email, notes = "", amount=nil)
     begin
-      transactionId = Dwolla::Transactions.send({:destinationId => ACC_ID, :pin => PIN, :destinationType => email, :amount => amount, :notes => notes})
+      transactionId = Dwolla::Transactions.send({:destinationId => email, :pin => PIN, :destinationType => 'email', :amount => amount, :notes => notes})
       return transactionId
     rescue Dwolla::APIError => error
-      return nil
+      return error
     end
   end
 

@@ -2,7 +2,7 @@ class Donor < ActiveRecord::Base
   has_many :donations
   has_many :payment_accounts, dependent: :destroy
   has_many :external_accounts, dependent: :destroy
-  has_many :donor_grants
+  has_many :grants
   has_many :donor_subscriptions, dependent: :destroy
   has_many :endowments
 
@@ -75,13 +75,13 @@ class Donor < ActiveRecord::Base
     end
 
     my_donations = self.donations.where("endowment_id = ?", endowment_id)
-    my_grants = self.donor_grants.where("endowment_id = ?", endowment_id)
+    my_grants = self.grants.where("endowment_id = ?", endowment_id)
 
     my_donations_count = my_donations.count('id', :distinct => true)
     my_donations_amount = my_donations.sum(:gross_amount)
     my_donations_shares = my_donations.sum(:shares_added)
 
-    my_grants_amount = my_grants.sum(:gross_amount)
+    my_grants_amount = my_grants.sum(:grant_amount)
     my_grants_shares = my_grants.sum(:shares_subtracted)
 
     my_balance_pre_investment = my_donations_amount - my_grants_amount

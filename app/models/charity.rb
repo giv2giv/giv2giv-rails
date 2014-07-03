@@ -2,7 +2,7 @@ class Charity < ActiveRecord::Base
 
   has_and_belongs_to_many :endowments
   has_and_belongs_to_many :tags
-  has_many :charity_grants, dependent: :destroy
+  has_many :grants
 
   validates :ein, :presence => true, :uniqueness => true
   validates :name, :presence => true

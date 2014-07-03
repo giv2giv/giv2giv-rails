@@ -1,4 +1,3 @@
-#require 'lib/stripe_callbacks.rb'
 
 Stripe.api_key = App.stripe["api_key"]
 

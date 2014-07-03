@@ -22,9 +22,9 @@ class Api::CharityController < Api::BaseController
 
 
     if cityq == "%%"
-      charities_with_matching_name = Charity.where("name LIKE ?", nameq)
+      charities_with_matching_name = Charity.where("name LIKE ? AND active = 'true'", nameq)
     else
-      charities_with_matching_name = Charity.where("name LIKE ? AND city LIKE ?", nameq, cityq)
+      charities_with_matching_name = Charity.where("name LIKE ? AND city LIKE ? AND active='true'", nameq, cityq)
     end
 
 

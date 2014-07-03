@@ -3,7 +3,7 @@ class Endowment < ActiveRecord::Base
   VALID_TYPE = %w(public private)
 
   has_many :donations, dependent: :destroy
-  has_many :donor_grants, dependent: :destroy
+  has_many :grants
   belongs_to :donor
   has_and_belongs_to_many :charities
 
@@ -31,7 +31,7 @@ class Endowment < ActiveRecord::Base
   end
 
   def share_balance
-    BigDecimal("#{self.donations.sum(:shares_added)}") - BigDecimal("#{self.donor_grants.sum(:shares_subtracted)}")
+    BigDecimal("#{self.donations.sum(:shares_added)}") - BigDecimal("#{self.grants.sum(:shares_subtracted)}")
   end
 
   def last_donation_price
@@ -47,10 +47,10 @@ class Endowment < ActiveRecord::Base
       "endowment_total_donations" => self.donations.sum(:gross_amount).floor2(2),
       "endowment_monthly_donations" => monthly_addition.floor2(2),
       "endowment_transaction_fees" => self.donations.sum(:transaction_fees).floor2(2),
-      "endowment_fees" => self.donor_grants.sum(:giv2giv_fee).floor2(2),
-      "endowment_grants" => self.donor_grants.sum(:gross_amount).floor2(2),
-      "endowment_balance" => (share_balance * last_donation_price).floor2(2),
-      "projected_balance" => project_amount( endowment_balance, monthly_addition, 25, 0.06 )
+      "endowment_fees" => self.grants.sum(:giv2giv_fee).floor2(2),
+      "endowment_grants" => self.grants.sum(:grant_amount).floor2(2),
+      "endowment_balance" => (share_balance * last_donation_price).floor2(2)#,
+      #"projected_balance" => project_amount( endowment_balance, monthly_addition, 25, 0.06 )
     }
   end
 

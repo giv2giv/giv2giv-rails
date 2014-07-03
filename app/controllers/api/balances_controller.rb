@@ -1,6 +1,6 @@
 class Api::BalancesController < Api::BaseController
   before_filter :require_authentication
-  include DwollaHelper
+  
   
   GIV_FEE_AMOUNT = App.giv["giv_fee_amount"].to_f
   GIV_GRANT_AMOUNT = App.giv["giv_grant_amount"]
@@ -10,13 +10,13 @@ class Api::BalancesController < Api::BaseController
   DWOLLA_FEE_DESTINATION_ACCOUNT = App.dwolla["dwolla_fee_destination_account"]
 
   def show_grants
-    donor_grants = DonorGrant.where("status = ?",'pending')
+    grants = Grant.where("status = ?",'pending')
 
-    show_grants = donor_grants.group(:charity_id).map do |charity|
+    show_grants = grants.group(:charity_id).map do |grant|
       {
-        'charity_id' => charity.charity_id,
-        'charity_email' => charity.charity.email,
-        'grant_amount' => (BigDecimal("#{DonorGrant.where("charity_id = ?", charity.charity_id).sum(:shares_subtracted)}") * BigDecimal("#{Share.last.grant_price}")).round(SHARE_PRECISION)
+        'charity_id' => grant.charity_id,
+        'charity_email' => grant.charity.email,
+        'grant_amount' => grants.where("charity_id = ?", grant.charity_id).sum(:grant_amount) #TODO there must be a way to include sum in the mapped hash
       }
     end
     respond_to do |format|
@@ -26,37 +26,27 @@ class Api::BalancesController < Api::BaseController
 
   def deny_grant
     charity_id = params[:id]
-    denied_grants = DonorGrant.where("status = ? AND charity_id = ?", "pending", charity_id)
-    denied_grants.each do |deny_grant|
-      deny_grant.update_attributes(:status => 'denied')
+
+    if charity_id && params[:password] == App.giv['giv_grant_password']
+      denied_grants = Grant.where("status = ? AND charity_id = ?", "pending", charity_id)
+      denied_grants.each do |deny_grant|
+        deny_grant.update_attributes(:status => 'denied')
+      end
+      message = 'Successfully denied charity'
+    else
+      message = 'Authorization denied'
     end
-    
+
     respond_to do |format|
-      format.json { render json: {:message => "Successfully denied charity"}.to_json }
+      format.json { render json: {:message => message}.to_json }
     end
 
-  end 
+  end
 
-  def approve_donor_grants
+=begin
 
-    last_grant_price = Share.last_grant_price
+    donor_grant_shares_by_charity = Grant.select("charity_id AS charity_id, SUM(shares_subtracted) AS shares_subtracted").where("status = ?", "pending").group("charity_id")
 
-    total_grant_shares = DonorGrant.where("status = ?", "pending").sum(:shares_subtracted)
-    total_grant_amount = (BigDecimal("#{total_grant_shares}") * BigDecimal("#{last_grant_price}")).floor2(2)
-    total_giv2giv_fee = (total_grant_amount).floor2(2)
-    results = []
-
-
-# TODO delayed_job
-    donor_grant_shares_by_donor = DonorGrant.select("donor_id as id").where("status = ?", "pending").distinct
-    donor_grant_shares_by_donor.each do |donor_grant_share|
-      donor = Donor.find(donor_grant_share.id)
-      DonorMailer.endowment_grant_money(donor.email, donor.name, total_grant_amount).deliver
-    end
-
-
-
-    donor_grant_shares_by_charity = DonorGrant.select("charity_id as charity_id, sum(shares_subtracted) as shares_subtracted").where("status = ?", "pending").group("charity_id")
     donor_grant_shares_by_charity.each do |donor_grant_share|
 
       charity = Charity.find(donor_grant_share.id)
@@ -64,6 +54,21 @@ class Api::BalancesController < Api::BaseController
       gross_amount = (BigDecimal("#{donor_grant_share.shares_subtracted}") * BigDecimal("#{last_grant_price}")).floor2(2)
       giv2giv_fee = (gross_amount * GIV_FEE_AMOUNT).floor2(2)
       net_amount = gross_amount - giv2giv_fee
+    end
+
+  
+
+# TODO delayed_job
+    total_grant_amount = total_grants.sum(:grant_amount)
+    donor_grant_shares_by_donor = Grant.select("donor_id as id").where("status = ?", "pending").distinct
+    donor_grant_shares_by_donor.each do |donor_grant_share|
+      donor = Donor.find(donor_grant_share.id)
+      DonorMailer.endowment_grant_money(donor.email, donor.name, total_grant_amount).deliver
+    end
+
+#TODO down to here, the rest is garbage
+
+
 
       # set text message to charity email
       text_note = "$#{net_amount} is being sent to you via Dwolla. Please accept this anonymous, unrestricted grant from donors at www.giv2giv.org. Contact info@giv2giv.org with any questions. Do good. Be well."
@@ -139,5 +144,5 @@ class Api::BalancesController < Api::BaseController
       format.json { render json: {:message => "Successfully approved grants", :results => results, :fee => save_withdraw }.to_json }
     end
   end
-
+=end
 end

@@ -26,6 +26,7 @@ gem "mysql2"
 gem "omniauth"
 gem "omniauth-facebook"
 gem "omniauth-dwolla"
+gem "twitter"
 
 # CORS support
 gem 'rack-cors', :require => 'rack/cors'

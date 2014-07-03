@@ -3,7 +3,6 @@ require 'oauth'
 require 'bigdecimal'
 include OAuth::Helper
 include EtradeHelper
-include DwollaHelper
 
 SHARE_PRECISION = App.giv["share_precision"]
 GIV_GRANT_AMOUNT = App.giv["giv_grant_amount"]
@@ -33,7 +32,7 @@ module CalculationShare
         shares_added_by_donation = Donation.where("created_at >= ?", last_share_created_at).sum(:shares_added)
 
         # shares removed by grant
-        shares_subtracted_by_grants = CharityGrant.where("status = ?", "sent").where("created_at >= ?", last_share_created_at).sum(:shares_subtracted)
+        shares_subtracted_by_grants = Grant.where("status = ?", "sent").where("created_at >= ?", last_share_created_at).sum(:shares_subtracted)
 
         share_total_end = (BigDecimal(share_total_beginning.to_s) + BigDecimal(shares_added_by_donation.to_s) - BigDecimal(shares_subtracted_by_grants.to_s)).round(SHARE_PRECISION)
 
@@ -69,56 +68,96 @@ module CalculationShare
       end
 
       def grant_step_1
-        
+                
         endowments = Endowment.all
 
         #endowment_share_balance = BigDecimal("#{endowment.donations.sum(:shares_added)}") - BigDecimal("#{endowment.donor_grants.sum(:shares_subtracted)}")
         #endowment_grant_shares = (BigDecimal("#{endowment_share_balance}") * BigDecimal("#{GIV_GRANT_AMOUNT}")).round(SHARE_PRECISION)
 
+        grant_share_price = Share.last.grant_price
+
         endowments.each do |endowment|
 
           charities = endowment.charities.where("active = ?", "true")
+
+          next if charities.count < 1
 
           donated_shares = endowment.donations.group(:donor_id).sum(:shares_added)
 
           donated_shares.each do |donor_id, shares_donor_donated|
 
-            shares_donor_granted = endowment.donor_grants.where("donor_id = ? AND endowment_id = ? AND status = ?", donor_id, endowment.id, "sent").sum(:shares_subtracted)
+            amount_per_charity = 0
+            shares_per_charity = 0
+
+            shares_donor_granted = endowment.grants.where("donor_id = ? AND endowment_id = ? AND status != ?", donor_id, endowment.id, "pending").sum(:shares_subtracted)
 
             donor_share_balance = shares_donor_donated - shares_donor_granted # is BigDecimal - BigDecimal, so precision OK
 
             next if donor_share_balance <= 0
 
-            shares_per_charity = (donor_share_balance * BigDecimal("#{GIV_GRANT_AMOUNT}") / BigDecimal("#{charities.count}")).round(SHARE_PRECISION)
+            preliminary_shares_per_charity = (donor_share_balance * BigDecimal("#{GIV_GRANT_AMOUNT}") / BigDecimal("#{charities.count}")).round(SHARE_PRECISION)
+            
+            amount_per_charity = (preliminary_shares_per_charity * grant_share_price).floor2(2) # convert to dollars and cents
+            shares_per_charity = amount_per_charity / grant_share_price # calculate shares subtracted
 
             charities.each do |charity|
-              grant_record = DonorGrant.new(
+              grant_record = Grant.new(
                                         :donor_id => donor_id,
                                         :endowment_id => endowment.id,
                                         :charity_id => charity.id,
-                                        :date => Date.today,
                                         :shares_subtracted => shares_per_charity,
+                                        :grant_amount => amount_per_charity,
                                         :status => 'pending'
                                         )
               grant_record.save
             end
 
           end # donor_shares.each
-        end # endowments.each
-        puts "Grant share has been updated"
+        end # endowments.each       
+
         JobMailer.success_compute(App.giv["email_support"], "grantcalculation_step1").deliver
       end # def grant_step_1
 
       def charity_ignores_grant
-        charity_grants = CharityGrant.where("status = ?", "sent")
+        grants = Grant.where("status = ?", "sent")
 
-        charity_grants.each do |charity_grant|
-          modify_date = (charity_grant.created_at + 60.days).to_date  
+        grants.each do |grant|
+          modify_date = (grant.created_at + 60.days).to_date  
           if Date.today > modify_date
-            charity_grant.update_attributes(:status => 'uncollected')
-            puts "Charity grant : #{charity_grant.transaction_id} status is uncollected"
+            grant.update_attributes(:status => 'uncollected')
+            puts "Grant : #{grant.transaction_id} status is uncollected"
           end
-        end # end each charity_grants
+        end # end each grants
+      end
+
+
+      def approve_pending_grants
+
+        #if params[:password] == App.giv['giv_grant_password']
+
+        total_grants = 0
+
+        grants = Grant.select("charity_id AS charity_id, SUM(grant_amount) AS amount").where("status = ?", "pending").group("charity_id")
+        
+        grants.each do |grant|
+          charity = Charity.find(grant.charity_id)
+
+          text = "Please accept this anonymous, unrestricted grant from donors at www.giv2giv.org. Contact info@giv2giv.org with any questions. Do good. Be well."
+
+          total_grants = total_grants + grant.amount
+
+          transaction_id = DwollaLibs.new.dwolla_send('reflector@dwolla.com', text, grant.amount)
+          if transaction_id.is_a? Integer
+            Grant.where("status = ?", "pending").where("charity_id = ?", grant.charity_id).update_all(:transaction_id => transaction_id, :status => 'sent')
+          else
+            ap transaction_id
+          end
+        end
+
+        #client.update("This is the first test of the automated giv2giv tweeter. We're preparing to grant $" << total_grants.to_s)
+
+        puts "Total amount sent: " << total_grants.to_s
+
       end
 
 
@@ -148,7 +187,7 @@ module CalculationShare
         etrade_balance = Etrade.get_net_account_value
         raise "eTrade connection problem" if !etrade_balance
 
-        etrade_balance = BigDecimal(etrade_balance.to_s) - 1000
+        etrade_balance = BigDecimal(etrade_balance.to_s) - 1000 #1000 initial deposit by giv2giv
         puts "Etrade Balance : #{etrade_balance}"
         return etrade_balance
         

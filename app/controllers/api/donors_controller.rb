@@ -7,7 +7,7 @@ class Api::DonorsController < Api::BaseController
     donor = Donor.new(params[:donor])
     donor.type_donor = "registered"
     donor.password = secure_password(params[:donor][:password])
-    if params[:accepted_terms]=='true'
+    if params[:accepted_terms]==true
       donor.accepted_terms = true
       donor.accepted_terms_on = DateTime.now      
     end
@@ -27,17 +27,17 @@ class Api::DonorsController < Api::BaseController
     last_donation_price = Share.last.donation_price rescue 0.0
 
     if current_donor && current_donor.id
-      share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.donor_grants.sum(:shares_subtracted)}")
+      share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.grants.sum(:shares_subtracted)}")
       donor_current_balance = (BigDecimal("#{share_balance}") * BigDecimal("#{last_donation_price}")).floor2(2)
       donor_total_amount_of_donations = current_donor.donations.sum(:gross_amount)
-      donor_total_amount_of_grants = current_donor.donor_grants.where("status = ?", 'sent').sum(:gross_amount).to_f
+      donor_total_amount_of_grants = current_donor.grants.where("status = ?", 'sent').sum(:grant_amount).to_f
     else
       donor_current_balance = 0.0
       donor_total_amount_of_donations = 0.0
       donor_total_amount_of_grants = 0.0
     end
 
-    giv2giv_share_balance = BigDecimal("#{Donation.sum(:shares_added)}") - BigDecimal("#{CharityGrant.sum(:shares_subtracted)}")
+    giv2giv_share_balance = BigDecimal("#{Donation.sum(:shares_added)}") - BigDecimal("#{Grant.sum(:shares_subtracted)}")
     current_fund_balance_all_donors = (BigDecimal("#{giv2giv_share_balance}") * BigDecimal("#{last_donation_price}")).floor2(2)
 
     total_number_of_donors = Donation.count('donor_id', :distinct => true)
@@ -45,8 +45,8 @@ class Api::DonorsController < Api::BaseController
     total_number_of_donations = Donation.count
     total_amount_of_donations = Donation.sum(:gross_amount)
 
-    total_number_of_grants = CharityGrant.where("status = ?", 'sent').count
-    total_amount_of_grants = CharityGrant.where("status = ?", 'sent').sum(:gross_amount)
+    total_number_of_grants = Grant.where("status = ?", 'sent').count
+    total_amount_of_grants = Grant.where("status = ?", 'sent').sum(:grant_amount)
 
     total_number_of_endowments = Endowment.count
     total_active_subscriptions = DonorSubscription.where("canceled_at IS NULL OR canceled_at = ?", false).count
@@ -181,21 +181,3 @@ class Api::DonorsController < Api::BaseController
 end
 
 
-
-
-
-
-#    respond_to do |format|
- #     if params.has_key?(:start_date) and params.has_key?(:end_date) and params.has_key?(:endowment_id)
-      
-  #      format.json { render json: { :timestamp => Time.new.to_i, :donations => current_donor.donations.where("endowment_id = ? AND DATE(donations.created_at) between ? AND ?", params[:endowment_id], params[:start_date], params[:end_date]), :total => current_donor.donations.where("endowment_id = ? AND DATE(donations.created_at) between ? AND ?", params[:endowment_id], params[:start_date], params[:end_date]).sum(:gross_amount) } }
-   #   elsif params.has_key?(:start_date)
-    #    format.json { render json: { :timestamp => Time.new.to_i, :donations => current_donor.donations.where("DATE(donations.created_at) > ?", params[:start_date]), :total => current_donor.donations.where("DATE(donations.created_at) > ?", params[:start_date]).sum(:gross_amount) } }
-     # elsif params.has_key?(:start_date) and params.has_key?(:end_date)
-      #  format.json { render json: { :timestamp => Time.new.to_i, :donations => current_donor.donations.where("DATE(donations.created_at) between ? AND ?", params[:start_date], params[:end_date]), :total => current_donor.donations.where("DATE(donations.created_at) between ? AND ?", params[:start_date], params[:end_date]).sum(:gross_amount) } }
-#      elsif params.has_key?(:endowment_id)
-        #format.json { render json: { :timestamp => Time.new.to_i, :donations => current_donor.donations.where("endowment_id = ?", params[:endowment_id]), :total =>current_donor.donations.where("endowment_id = ?", params[:endowment_id]).sum(:gross_amount) } }
-      #else
-        #format.json { render json: { :timestamp => Time.new.to_i, :donations => current_donor.donations.all.order('donations.created_at asc'), :total => current_donor.donations.all.sum(:gross_amount) } }
-      #end
-    #end

@@ -1,3 +1,12 @@
+subscriptions should be listed
+
+donor grants: sent vs. accepted - can't have both?
+
+PW to deny grant
+PW to approve grants
+
+
+
 #### CURL EXAMPLES
 #### THESE ARE HTTP *ONLY* FOR LOCAL DEV   { http://localhost:3000 }
 #### PRODUCTION WILL *ONLY* SUPPORT HTTPS  { https://api.giv2giv.org }
@@ -527,25 +536,19 @@ Arguments : none
    Examples Response:
    [{"charity_id":1,"charity_email":null,"grant_amount":"0.05"},{"charity_id":3,"charity_email":null,"grant_amount":"0.05"},{"charity_id":4,"charity_email":null,"grant_amount":"0.05"},{"charity_id":6,"charity_email":null,"grant_amount":"0.05"},{"charity_id":24,"charity_email":null,"grant_amount":"0.05"}]
 
-2. Deny grants
+2. Deny pending grant to a single charity
 
    Authorization token in Header *required*. See session #authenticate
 
    Arguments :
 
    charity_id : { CHARITY_ID }
+   password   : { giv.grant_password set in config/app.yml on server }
    
    http://localhost:3000//api/balances/CHARITY_ID/deny_grant.json
 
-   curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' -d '' http://localhost:3000//api/balances/1/deny_grant.json
+   curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' -d '{"password":"ReallyLongPasswordFromApp.yml"' http://localhost:3000//api/balances/1/deny_grant.json
 
    Examples Response:
    {"message":"Successfully denied charity"}
    
-3. Approve Charity
-
-   Authorization token in Header *required*. See session #authenticate
-
-   curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=Yl_E4JYFadTW_8chAohGQw' -d '' http://localhost:3000/api/balances/approve_donor_grants.json
-
-   Examples Response:

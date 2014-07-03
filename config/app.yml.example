@@ -5,6 +5,7 @@ force_ssl: true
 giv:
   giv_fee_amount     : .00125
   giv_grant_amount   : .0125
+  giv_grant_password : reallyLongUnguessablePassword!!
   share_precision    : 20
   email_support      : hello@yourdomain.org
   cookie_key         : "really-long-SecureRandom-string" # Make sure this secret key is at least 30 characters and all random, no regular words or you'll be exposed to dictionary attacks.
@@ -30,8 +31,12 @@ etrade:
   consumer_secret:     57ae0f198d4b8efb4e73d95d35cfcc3f  #sandbox
 
 facebook:
-  app_id:               "your-facebook-app-id"
-  app_secret:               "your-facebook-secret"
+  app_id:               your-facebook-app-id
+  app_secret:           your-facebook-secret
+
+twitter:
+  api_key:              your-twitter-api-key
+  api_secret:           your-twitter-api-secret
 
 
 dwolla:

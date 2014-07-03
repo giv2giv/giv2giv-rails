@@ -30,12 +30,12 @@ class DwollaController < ApplicationController
             if check_dwolla_to_giv2giv_transaction.blank?
 
               # set charity grant collected if condition is not check_giv_payment
-              charity_grant = CharityGrant.find(body["Transaction"]["Id"])
+              grant = Grant.find(body["Transaction"]["Id"])
               status_transaction = Dwolla::Transactions.get(body["Transaction"]["Id"])
               if status_transaction["Status"].eql("processed")
-                charity_grant.update_attributes(:status => "collected")
+                grant.update_attributes(:status => "collected")
               else
-                charity_grant.update_attributes(:status => status_transaction["Status"])
+                grant.update_attributes(:status => status_transaction["Status"])
               end
 
             else
