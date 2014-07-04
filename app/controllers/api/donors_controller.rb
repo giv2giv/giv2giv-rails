@@ -47,6 +47,12 @@ class Api::DonorsController < Api::BaseController
 
     total_number_of_grants = Grant.where("status = ?", 'sent').count
     total_amount_of_grants = Grant.where("status = ?", 'sent').sum(:grant_amount)
+    if total_amount_of_grants==0.0
+      total_amount_of_grants=0
+    end
+    #total_amount_of_grants==0.0? total_amount_of_grants=0
+
+
 
     total_number_of_endowments = Endowment.count
     total_active_subscriptions = DonorSubscription.where("canceled_at IS NULL OR canceled_at = ?", false).count
@@ -82,7 +88,7 @@ class Api::DonorsController < Api::BaseController
         "updated_at" => endowment.updated_at,
         "name" => endowment.name,
         "description" => endowment.description,
-        "minimum_donation_amount" => subscription.gross_amount,
+        "minimum_donation_amount" => subscription.gross_amount.to_f,
         "my_balances" => current_donor.my_balances(endowment.id),
         "global_balances" => endowment.global_balances,
         "charities" => endowment.charities
