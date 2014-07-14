@@ -30,7 +30,7 @@ class Api::DonorsController < Api::BaseController
       share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.grants.sum(:shares_subtracted)}")
       donor_current_balance = (BigDecimal("#{share_balance}") * BigDecimal("#{last_donation_price}")).floor2(2)
       donor_total_amount_of_donations = current_donor.donations.sum(:gross_amount)
-      donor_total_amount_of_grants = current_donor.grants.where("status = ?", 'sent').sum(:grant_amount).to_f
+      donor_total_amount_of_grants = current_donor.grants.where("status != ?", 'denied').sum(:grant_amount).to_f
     else
       donor_current_balance = 0.0
       donor_total_amount_of_donations = 0.0
@@ -45,8 +45,8 @@ class Api::DonorsController < Api::BaseController
     total_number_of_donations = Donation.count
     total_amount_of_donations = Donation.sum(:gross_amount)
 
-    total_number_of_grants = Grant.where("status = ?", 'sent').count
-    total_amount_of_grants = Grant.where("status = ?", 'sent').sum(:grant_amount)
+    total_number_of_grants = Grant.where("status != ?", 'denied').count
+    total_amount_of_grants = Grant.where("status != ?", 'denied').sum(:grant_amount).to_f
     if total_amount_of_grants==0.0
       total_amount_of_grants=0
     end

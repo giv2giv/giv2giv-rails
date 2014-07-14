@@ -21,7 +21,7 @@ module CharityImport
         @@verbose_with_misses = with_misses
         files = nil
 
-g        if skip_downloading
+        if skip_downloading
           files = files_from_dir
         else
           files = select_eo_links(get_irs_page)

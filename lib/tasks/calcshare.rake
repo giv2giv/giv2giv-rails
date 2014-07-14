@@ -11,10 +11,16 @@ namespace :calcshare do
     CalculationShare::Calculation.grant_step_1
   end
 
-# bundle exec rake calcshare:approvependinggrants
+# bundle exec rake calcshare:approve_pending_grants
   desc 'Approve Pending Grants'
-  task :approvependinggrants => :environment do
+  task :approve_pending_grants => :environment do
     CalculationShare::Calculation.approve_pending_grants
+  end
+
+# bundle exec rake calcshare:update_grant_status
+  desc 'Update Grant Status'
+  task :update_grant_status => :environment do
+    CalculationShare::Calculation.update_grant_status
   end
 
 end
