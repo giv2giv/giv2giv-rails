@@ -32,9 +32,16 @@ class DwollaLibs
     Dwolla::Users.get
   end
 
-  def get_transactions_last_30_days
-    Dwolla::Transactions.get({:sinceDate =>(Date.today - 30.days).to_s, :types => 'money_sent', :limit => 200})
-    #TODO page if .count=200 (200 is max)
+  def get_transactions_last_60_days
+    transaction_hash = []
+    transactions = Dwolla::Transactions.get({:sinceDate =>(Date.today - 30.days).to_s, :types => 'money_sent', :limit => 200})
+    transaction_hash << transactions
+    while transactions.count == 200 do
+      i += 1
+      transactions = Dwolla::Transactions.get({:sinceDate =>(Date.today - 30.days).to_s, :types => 'money_sent', :limit => 200, :skip => (i * 200)})
+      transaction_hash << transactions
+    end      
+    transaction_hash
   end
 
   def get_all_transaction

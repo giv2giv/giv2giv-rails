@@ -119,7 +119,7 @@ module CalculationShare
       end # def grant_step_1
 
       def update_grant_status
-        sent_grants = DwollaLibs.new.get_transactions_last_30_days
+        sent_grants = DwollaLibs.new.get_transactions_last_60_days
 
         sent_grants.each do |dwolla_grant|
           ap dwolla_grant          
@@ -133,11 +133,20 @@ module CalculationShare
           else
             grant_status = dwolla_grant["Status"]
           end
+
           giv2giv_grants = Grant.where("transaction_id = ?", dwolla_grant["Id"])
           giv2giv_grants.each do |giv2giv_grant|
             ap giv2giv_grant.charity.name
             ap giv2giv_grant.status
             giv2giv_grant.update_attributes(:status => grant_status)
+
+            if grant_status='reclaimed' # Save the grant for the next cycle
+              rollover_grant = giv2giv_grant.dup
+              rollover_grant.transaction_id = nil
+              rollover_grant.status='pending_approval'
+              rollover_grant.save!
+            end
+
           end
         end
       end

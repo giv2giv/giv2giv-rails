@@ -65,17 +65,16 @@ Giv2givRails::Application.configure do
   # Send deprecation notices to registered listeners
   config.active_support.deprecation = :notify
 
-  config.action_mailer.default_url_options = { :host => 'https://api.giv2giv.org' }
+  config.action_mailer.default_url_options = { :host => App.mailer["domain"] }
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    enable_starttls_auto: App.mailer["enable_starttls_auto"],
-    tls: App.mailer["tls"],
-    address: App.mailer["address"],
-    port: App.mailer["port"],
-    authentication: App.mailer["authentication"],
-    domain: App.mailer["domain"],
-    user_name: App.mailer["user_name"],
-    password: App.mailer["password"]
+    :address   => App.mailer["address"],
+    :port      => App.mailer["port"], # ports 587 and 2525 are also supported with STARTTLS
+    :enable_starttls_auto => App.mailer["port"], # detects and uses STARTTLS
+    :user_name => App.mailer["user_name"],
+    :password  => App.mailer["password"], # SMTP password is any valid API key
+    :authentication => App.mailer["authentication"], # Mandrill supports 'plain' or 'login'
+    :domain => App.mailer["domain"], # your domain to identify your server when connecting
   }
 
 end

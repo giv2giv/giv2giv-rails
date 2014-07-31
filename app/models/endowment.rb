@@ -14,6 +14,10 @@ class Endowment < ActiveRecord::Base
   extend FriendlyId
   friendly_id :name, use: :slugged
 
+  def should_generate_new_friendly_id?
+    slug.blank? || name_changed?
+  end
+
   def as_json(options = {})
     super( :include => [:charities => { :only => [:id, :name, :active] }] )
   end
@@ -54,18 +58,22 @@ class Endowment < ActiveRecord::Base
     }
   end
 
-  def anonymous_donation (accepted_terms, stripeToken, endowment_id, amount)
+  def anonymous_donation (accepted_terms, stripeToken, endowment_id, amount, email)
     
+      if email.nil
+        email = 'anonymous_donor@' + SecureRandom.uuid + '.com'
+      end
+
       anonymous_donor = Donor.new(
           :name => 'Anonymous Donor',
-          :email=> 'anonymous_donor@' + SecureRandom.uuid + '.com',
+          :email=> email,
           :password => SecureRandom.urlsafe_base64,
           :accepted_terms => accepted_terms
         )
 
       anonymous_donor.type_donor = "anonymous"
 
-      if accepted_terms=='true'
+      if accepted_terms==true
         anonymous_donor.accepted_terms = true
         anonymous_donor.accepted_terms_on = DateTime.now      
       end

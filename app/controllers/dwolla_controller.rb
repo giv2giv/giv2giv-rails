@@ -2,6 +2,9 @@ class DwollaController < ApplicationController
   require 'json'
   include DwollaHelper
   
+
+#This code is unused
+
   PIN_DWOLLA = App.dwolla["pin_account"]
   DWOLLA_GRANT_SOURCE_ACCOUNT = App.dwolla["dwolla_grant_source_account"]
   DWOLLA_FEE_DESTINATION_ACCOUNT = App.dwolla["dwolla_fee_destination_account"]
@@ -56,9 +59,9 @@ class DwollaController < ApplicationController
                         :status => 'from_dwolla_to_giv2giv'
                         )
 
-            if save_withdraw.save
-              DonorMailer.grant_transfer_requested(App.giv["email_support"], from_dwolla_to_giv2giv_transaction_id, check_giv_payment.from_etrade_to_dwolla_transaction_id, check_giv_payment.amount).deliver
-            end
+            #if save_withdraw.save
+              #DonorMailer.grant_transfer_requested(App.giv["email_support"], from_dwolla_to_giv2giv_transaction_id, check_giv_payment.from_etrade_to_dwolla_transaction_id, check_giv_payment.amount).deliver
+            #end
 
           end # check_giv_payment
         end # end status processed

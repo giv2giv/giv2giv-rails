@@ -1,7 +1,6 @@
 class Api::DonorsController < Api::BaseController
   skip_before_filter :require_authentication, :only => [:create, :forgot_password, :reset_password, :balance_information]
 
-
   def create
 
     donor = Donor.new(params[:donor])
@@ -14,7 +13,11 @@ class Api::DonorsController < Api::BaseController
 
     respond_to do |format|
       if donor.save
-        DonorMailer.create_donor(donor.email, donor.name).deliver
+        DonorMailer.create_donor(donor.email, donor.name)
+        require 'gibbon'
+        gb = Gibbon::API.new(App.mailer['mailchimp_key'])
+        gb.lists.subscribe({:id => App.mailer['mailchimp_list_id'], :email => {:email => donor.email}, :merge_vars => {:FNAME => donor.name}, :double_optin => false})
+
         format.json { render json: donor, status: :created }
       else
         format.json { render json: donor.errors, status: :unprocessable_entity }

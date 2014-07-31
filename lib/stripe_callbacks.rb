@@ -25,7 +25,7 @@ class StripeCallbacks
     end
 
     donor = Donor.find(subscription.donor_id)
-    DonorMailer.charge_success(donor.email, charge_amount).deliver
+    DonorMailer.charge_success(donor, charge_amount).deliver
 
   end
 

@@ -19,9 +19,9 @@ class SchedulerPrice
           job.scheduler.in '5m', self
         else
           # if success do charity ignore grants
-          system 'bundle exec rake calcshare:charity_ignores_grant'
-          JobMailer.success_job_scheduler(App.giv["email_support"], "compute_share_price").deliver
-          puts "Finished running task at #{DateTime.now}"
+          #system 'bundle exec rake calcshare:charity_ignores_grant'
+          #JobMailer.success_job_scheduler(App.giv["email_support"], "compute_share_price").deliver
+          #puts "Finished running task at #{DateTime.now}"
         end
       rescue Exception => e
         puts "Request failed - recheduling: #{e}"
@@ -29,7 +29,7 @@ class SchedulerPrice
       end
     else
       # do charity ignore grants before send email error calculation shareprice
-      system 'bundle exec rake calcshare:charity_ignores_grant'
+      #system 'bundle exec rake calcshare:charity_ignores_grant'
       
       ErrorJobMailer.error_compute_share_price(App.giv["email_support"]).deliver
       puts "Email notification has been sent"

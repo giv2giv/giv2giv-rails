@@ -23,6 +23,9 @@ gem 'rails', '3.2.17'
 gem "oauth", "~> 0.4.7" # for eTrade API
 gem "mysql2"
 
+gem 'gibbon'
+gem 'mandrill-api'
+
 gem "omniauth"
 gem "omniauth-facebook"
 gem "omniauth-dwolla"

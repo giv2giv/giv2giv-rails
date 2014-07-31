@@ -78,9 +78,9 @@ class Api::EndowmentController < Api::BaseController
 
     respond_to do |format|
 
-      if params[:minimum_donation_amount].to_f < 2.0
-        format.json { render json: { :message => "Minimum donation at giv2giv is $2" }.to_json }
-      end
+      #if params[:minimum_donation_amount].to_f < 2.0
+        #format.json { render json: { :message => "Minimum donation at giv2giv is $2" }.to_json }
+      #end
 
       endowment = Endowment.new(params[:endowment])
 
@@ -154,7 +154,7 @@ class Api::EndowmentController < Api::BaseController
     endowment = Endowment.find_by_id(params[:id])
     if endowment && params[:accepted_terms] && params[:stripeToken] && params[:amount]
       respond_to do |format|
-        if donation = endowment.anonymous_donation(params[:accepted_terms], params[:stripeToken], params[:endowment_id], params[:amount])
+        if donation = endowment.anonymous_donation(params[:accepted_terms], params[:stripeToken], params[:endowment_id], params[:amount], params[:email])
           format.json { render json: donation }
         else
           format.json { head :not_found }

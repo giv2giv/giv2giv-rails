@@ -6,6 +6,7 @@ class PaymentAccount < ActiveRecord::Base
   PER_SHARE_DEFAULT = 100000
   SHARE_TOTAL_DEFAULT = 0
   SHARE_PRECISION = App.giv["share_precision"]
+  MINIMUM_DONATION = App.giv["minimum_donation_amount"]
 
   belongs_to :donor
   has_many :donations
@@ -107,7 +108,12 @@ class PaymentAccount < ActiveRecord::Base
     endowment = Endowment.find_by_id(endowment_id)
     num_of_charity = endowment.charities.count
     current_donor = Donor.find(self.donor_id)
-    amount = amount.to_i
+
+    if amount.to_f < MINIMUM_DONATION
+      return { :message => "Minimum donation is $#{MINIMUM_DONATION}" }.to_json
+    end
+
+    amount = amount.round(2)
     amount_cents = amount * 100 # convert to cents
 
     if endowment.visibility.eql?("private") && self.donor_id != endowment.donor_id
@@ -118,9 +124,9 @@ class PaymentAccount < ActiveRecord::Base
       return { :message => "No charities in this endowment" }.to_json
     end
 
-    if amount < endowment.minimum_donation_amount.to_i
-      return { :message => "Minimum amount for create donation $#{endowment.minimum_donation_amount}" }.to_json
-    end
+    #if amount < endowment.minimum_donation_amount.to_i
+      #return { :message => "Minimum amount for create donation $#{endowment.minimum_donation_amount}" }.to_json
+    #end
 
     if !current_donor
       return { :message => "Wrong donor id" }.to_json
@@ -169,7 +175,12 @@ class PaymentAccount < ActiveRecord::Base
     endowment = Endowment.find_by_id(endowment_id)
     num_of_charity = endowment.charities.count
     check_donor = Donor.find(payment_donor.donor_id)
-    amount = amount.to_i
+
+    if amount.to_f < MINIMUM_DONATION
+      return { :message => "Minimum donation is $#{MINIMUM_DONATION}" }.to_json
+    end
+
+    amount = amount.round(2)
     amount_cents = amount * 100 # convert to cents
 
 
@@ -179,10 +190,6 @@ class PaymentAccount < ActiveRecord::Base
 
     if num_of_charity < 1
       return { :message => "No charities in this endowment" }.to_json
-    end
-
-    if amount < endowment.minimum_donation_amount.to_i
-      return { :message => "Minimum amount for create donation $#{endowment.minimum_donation_amount}" }.to_json
     end
 
     if !check_donor
