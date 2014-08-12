@@ -23,12 +23,13 @@ gem 'rails', '3.2.17'
 gem "oauth", "~> 0.4.7" # for eTrade API
 gem "mysql2"
 
-gem 'gibbon'
+gem 'mailchimp-api'
 gem 'mandrill-api'
 
 gem "omniauth"
 gem "omniauth-facebook"
 gem "omniauth-dwolla"
+gem "omniauth-google-oauth2", "~> 0.2.1"
 gem "twitter"
 
 # CORS support

@@ -2,8 +2,11 @@ Giv2givRails::Application.routes.draw do
 
   mount StripeEvent::Engine => '/stripe'
   #match '/dwolla' => 'dwolla#receive_hook', :via => :post
-  
+    
   get '/auth/:provider/callback' => 'api/sessions#omniauth_callback'
+  get '/signout', to: 'sessions#destroy', as: 'signout'
+  get '/auth/failure', to: redirect('/')
+  
   get '/dwolla/start' => 'api/sessions#dwolla_start'
   get '/dwolla/finish' => 'api/sessions#dwolla_finish'
 

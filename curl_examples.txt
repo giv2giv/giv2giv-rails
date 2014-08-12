@@ -89,8 +89,6 @@
     Examples Response:
     {"donations":[{"donation_id":1,"donor_id":1,"endowment_id":1,"endowment_name":"sdf","payment_account_id":1,"created_at":1392877698,"transaction_fees":1.0,"gross_amount":30.0,"net_amount":29.0}],"total":30.0,"timestamp":1392978890}
     
-
-
 7. Forgot Password
 
     Arguments : 
@@ -101,21 +99,21 @@
 
     Examples Response:
 
-    { "message":"Email sent with password reset instructions" }
+    { "message":"Password reset instructions have been sent to your email" }
 
 8. Reset Password
 
     Arguments : 
 
     reset_token : required
+    password : required
 
-    curl -X GET -H "Content-Type: application/json" -d '{"reset_token":"9YRr01DshTS9E_wenaqg0w"}' http://localhost:3000/api/donors/reset_password.json
+    curl -X GET -H "Content-Type: application/json" -d '{"reset_token":"9YRr01DshTS9E_wenaqg0w","password":"myNewPassword"}' http://localhost:3000/api/donors/reset_password.json
 
     Examples Response:
 
-    { "message":"Your new password has been sent to your email" }
+    { "message":"Password successfully reset" }
     
-
 
 ** SESSION MANAGEMENT **
 
@@ -161,7 +159,7 @@
     Arguments :
 
     page     : optional "default 1" << Page number
-    per page : optional "default 10" << Limit Per Page
+    per_page : optional "default 10" << Limit Per Page
     query    : optional "" << Returns the closest matching charities.
 
     curl -X GET -H "Content-Type: application/json" -d '{"page":"1", "per_page":"10", "query":"Veterans"}' http://localhost:3000/api/charity.json
@@ -194,14 +192,12 @@
 
     Arguments :
 
-    name          : required, uniq
-    minimum_donation_amount : required
-    visibility : required, { 'public' or 'private' }
-
+    name            : required, must be unique
+    visibility      : required, { 'public' or 'private' }
     description     : optional
-    charity_id      : optional, separated by comma
+    charity_id      : optional, json array
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=4pv0edzz5Bq142wVahy9zw' -d '{"name":"Build Houses","visibility":"public", "description":"Your description","minimum_donation_amount":"1","charities":[{"id":1},{"id":2},{"id":3}]}' http://localhost:3000/api/endowment.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=4pv0edzz5Bq142wVahy9zw' -d '{"name":"Build Houses","visibility":"public", "description":"Your description","charities":[{"id":1},{"id":2},{"id":3}]}' http://localhost:3000/api/endowment.json
 
     Examples Response:
 
@@ -250,13 +246,13 @@
 
     Arguments :
 
-    name, description, minimum_donation_amount : optional
+    name, description
 
     {ENDOWMENT_ID} : required
 
     http://localhost:3000/api/endowment/{ENDOWMENT_ID}/rename_endowment.json
 
-    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=4pv0edzz5Bq142wVahy9zw' -d '{"name":"Giv2Giv Build House","description":"My Description","minimum_donation_amount":"3"}' http://localhost:3000/api/endowment/1/rename_endowment.json
+    curl -X POST -H "Content-Type: application/json" -H 'Authorization: Token token=4pv0edzz5Bq142wVahy9zw' -d '{"name":"Giv2Giv Build House","description":"My Description"}' http://localhost:3000/api/endowment/1/rename_endowment.json
 
     Examples Response:
 
@@ -267,7 +263,7 @@
     Arguments :
 
     page     : optional "default 1" << Page number
-    per page : optional "default 10" << Limit Per Page
+    per_page : optional "default 10" << Limit Per Page
     query    : optional "" << Limit the result set to the best matching endowment name, tag name, or associated charity name
 
     curl -X GET -H "Content-Type: application/json" -d '{"page":"1", "per_page":"10", "query":"Rescue"}' http://localhost:3000/api/endowment.json
@@ -421,7 +417,7 @@ P.S : FOR NOW ONLY SUPPORT STRIPE
 
 
 
-** CHARITY GROUP SUBSCRIPTION MANAGEMENT **
+** ENDOWMENT SUBSCRIPTION MANAGEMENT **
 
 P.S : FOR NOW ONLY SUPPORT STRIPE
 
