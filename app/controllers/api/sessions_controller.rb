@@ -79,9 +79,9 @@ class Api::SessionsController < Api::BaseController
 
     respond_to do |format|
       if sess
-        format.json { render json: {session: sess, donor: donor}, status: :created }
+        format.html { render text: {session: sess.to_json, donor: donor.to_json}, status: :created }
       else
-        format.json { render :json => {:message => "unauthorized"}.to_json, :status => :unauthorized }
+        format.html { render text: {:message => "unauthorized"}.to_json, status: :unauthorized }      
       end
     end
   end

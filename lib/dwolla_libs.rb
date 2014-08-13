@@ -34,14 +34,15 @@ class DwollaLibs
 
   def get_transactions_last_60_days
     transaction_hash = []
-    transactions = Dwolla::Transactions.get({:sinceDate =>(Date.today - 30.days).to_s, :types => 'money_sent', :limit => 200})
+    transactions = Dwolla::Transactions.get({:sinceDate =>(Date.today - 60.days).to_s, :types => 'money_sent', :limit => 200})
     transaction_hash << transactions
-    while transactions.count == 200 do
+    
+    while transactions.count.to_i == 200 do
       i += 1
-      transactions = Dwolla::Transactions.get({:sinceDate =>(Date.today - 30.days).to_s, :types => 'money_sent', :limit => 200, :skip => (i * 200)})
+      transactions = Dwolla::Transactions.get({:sinceDate =>(Date.today - 60.days).to_s, :types => 'money_sent', :limit => 200, :skip => (i * 200)})
       transaction_hash << transactions
-    end      
-    transaction_hash
+    end
+    transaction_hash[0]
   end
 
   def get_all_transaction

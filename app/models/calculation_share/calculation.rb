@@ -118,13 +118,14 @@ module CalculationShare
         JobMailer.success_compute(App.giv["email_support"], "grantcalculation_step1").deliver
       end # def grant_step_1
 
+
       def update_grant_status
         sent_grants = DwollaLibs.new.get_transactions_last_60_days
 
         sent_grants.each do |dwolla_grant|
-          ap dwolla_grant          
+
           grant_status=nil
-          
+
           case dwolla_grant["Status"]
           when 'processed'
             grant_status = "accepted"
@@ -135,12 +136,12 @@ module CalculationShare
           end
 
           giv2giv_grants = Grant.where("transaction_id = ?", dwolla_grant["Id"])
+
           giv2giv_grants.each do |giv2giv_grant|
-            ap giv2giv_grant.charity.name
-            ap giv2giv_grant.status
+            
             giv2giv_grant.update_attributes(:status => grant_status)
 
-            if grant_status='reclaimed' # Save the grant for the next cycle
+            if grant_status == 'reclaimed' # Save the grant for the next cycle
               rollover_grant = giv2giv_grant.dup
               rollover_grant.transaction_id = nil
               rollover_grant.status='pending_approval'
