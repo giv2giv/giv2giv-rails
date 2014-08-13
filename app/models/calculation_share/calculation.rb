@@ -32,7 +32,7 @@ module CalculationShare
         shares_added_by_donation = Donation.where("created_at >= ?", last_share_created_at).sum(:shares_added)
 
         # shares removed by grant
-        shares_subtracted_by_grants = Grant.where("status != ?", "denied").where("created_at >= ?", last_share_created_at).sum(:shares_subtracted)
+        shares_subtracted_by_grants = Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').where("created_at >= ?", last_share_created_at).sum(:shares_subtracted)
 
         share_total_end = (BigDecimal(share_total_beginning.to_s) + BigDecimal(shares_added_by_donation.to_s) - BigDecimal(shares_subtracted_by_grants.to_s)).round(SHARE_PRECISION)
 
@@ -89,7 +89,7 @@ module CalculationShare
             amount_per_charity = 0
             shares_per_charity = 0
 
-            shares_donor_granted = endowment.grants.where("donor_id = ? AND endowment_id = ? AND status != ?", donor_id, endowment.id, "pending_approval").sum(:shares_subtracted)
+            shares_donor_granted = endowment.grants.where("donor_id = ? AND endowment_id = ? AND (status = ? OR status = ?)", donor_id, endowment.id, "accepted", "pending_acceptance").sum(:shares_subtracted)
 
             donor_share_balance = shares_donor_donated - shares_donor_granted # is BigDecimal - BigDecimal, so precision OK
 

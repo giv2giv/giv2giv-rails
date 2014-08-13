@@ -75,7 +75,7 @@ class Donor < ActiveRecord::Base
     end
 
     my_donations = self.donations.where("endowment_id = ?", endowment_id)
-    my_grants = self.grants.where("endowment_id = ?", endowment_id)
+    my_grants = self.grants.where("endowment_id = ? AND status !='reclaimed'", endowment_id)
 
     my_donations_count = my_donations.count('id', :distinct => true)
     my_donations_amount = my_donations.sum(:gross_amount)

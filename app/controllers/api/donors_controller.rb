@@ -30,7 +30,7 @@ class Api::DonorsController < Api::BaseController
     last_donation_price = Share.last.donation_price rescue 0.0
 
     if current_donor && current_donor.id
-      share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.grants.sum(:shares_subtracted)}")
+      share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.grants.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:shares_subtracted)}")
       donor_current_balance = (BigDecimal("#{share_balance}") * BigDecimal("#{last_donation_price}")).floor2(2)
       donor_total_amount_of_donations = current_donor.donations.sum(:gross_amount)
       donor_total_amount_of_grants = current_donor.grants.where("status != ?", 'denied').sum(:grant_amount).to_f
@@ -40,7 +40,7 @@ class Api::DonorsController < Api::BaseController
       donor_total_amount_of_grants = 0.0
     end
 
-    giv2giv_share_balance = BigDecimal("#{Donation.sum(:shares_added)}") - BigDecimal("#{Grant.sum(:shares_subtracted)}")
+    giv2giv_share_balance = BigDecimal("#{Donation.sum(:shares_added)}") - BigDecimal("#{Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:shares_subtracted)}")
     current_fund_balance_all_donors = (BigDecimal("#{giv2giv_share_balance}") * BigDecimal("#{last_donation_price}")).floor2(2)
 
     total_number_of_donors = Donation.count('donor_id', :distinct => true)
@@ -48,15 +48,13 @@ class Api::DonorsController < Api::BaseController
     total_number_of_donations = Donation.count
     total_amount_of_donations = Donation.sum(:gross_amount)
 
-    total_number_of_grants = Grant.where("status != ?", 'denied').count
-    total_amount_of_grants = Grant.where("status != ?", 'denied').sum(:grant_amount).to_f
+    total_number_of_grants = Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').count
+    total_amount_of_grants = Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:grant_amount).to_f
+
     if total_amount_of_grants==0.0
       total_amount_of_grants=0
     end
-    #total_amount_of_grants==0.0? total_amount_of_grants=0
-
-
-
+    
     total_number_of_endowments = Endowment.count
     total_active_subscriptions = DonorSubscription.where("canceled_at IS NULL OR canceled_at = ?", false).count
 
