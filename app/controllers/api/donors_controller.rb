@@ -32,12 +32,16 @@ class Api::DonorsController < Api::BaseController
     if current_donor && current_donor.id
       share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.grants.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:shares_subtracted)}")
       donor_current_balance = (BigDecimal("#{share_balance}") * BigDecimal("#{last_donation_price}")).floor2(2)
-      donor_total_amount_of_donations = current_donor.donations.sum(:gross_amount)
-      donor_total_amount_of_grants = current_donor.grants.where("status != ?", 'denied').sum(:grant_amount).to_f
+      donor_total_amount_of_donations = current_donor.donations.sum(:gross_amount).to_f
+      donor_total_amount_of_grants = current_donor.grants.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:grant_amount).to_f
+      donor_total_amount_of_pending_grants = current_donor.grants.where("(status = ? OR status = ?)", 'pending_acceptance', 'pending_approval').sum(:grant_amount).to_f
+      donor_total_number_of_pending_grants = current_donor.grants.where("(status = ? OR status = ?)", 'pending_acceptance', 'pending_approval').count
     else
       donor_current_balance = 0.0
       donor_total_amount_of_donations = 0.0
       donor_total_amount_of_grants = 0.0
+      donor_total_number_of_pending_grants = 0.0
+      donor_total_amount_of_pending_grants = 0.0
     end
 
     giv2giv_share_balance = BigDecimal("#{Donation.sum(:shares_added)}") - BigDecimal("#{Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:shares_subtracted)}")
@@ -50,6 +54,8 @@ class Api::DonorsController < Api::BaseController
 
     total_number_of_grants = Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').count
     total_amount_of_grants = Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:grant_amount).to_f
+    total_number_of_pending_grants = Grant.where("(status = ? OR status = ?)", 'pending_acceptance', 'pending_approval').count
+    total_number_of_pending_grants = Grant.where("(status = ? OR status = ?)", 'pending_acceptance', 'pending_approval').sum(:grant_amount).to_f
 
     if total_amount_of_grants==0.0
       total_amount_of_grants=0
@@ -61,12 +67,16 @@ class Api::DonorsController < Api::BaseController
     render json: {  :donor_current_balance => donor_current_balance,
                     :donor_total_amount_of_donations => donor_total_amount_of_donations,
                     :donor_total_amount_of_grants => donor_total_amount_of_grants,
+                    :donor_total_number_of_pending_grants => donor_total_number_of_pending_grants,
+                    :donor_total_amount_of_pending_grants => donor_total_amount_of_pending_grants,
                     :total_number_of_donors => total_number_of_donors,
                     :current_fund_balance_all_donors => current_fund_balance_all_donors,
                     :total_number_of_donations => total_number_of_donations,
                     :total_amount_of_donations => total_amount_of_donations,
                     :total_number_of_grants => total_number_of_grants,
                     :total_amount_of_grants => total_amount_of_grants,
+                    :total_number_of_pending_grants => total_number_of_pending_grants,
+                    :total_amount_of_pending_grants => total_amount_of_pending_grants,
                     :total_number_of_endowments => total_number_of_endowments,
                     :total_active_subscriptions => total_active_subscriptions
                   }.to_json
