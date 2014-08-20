@@ -57,9 +57,19 @@ class Donor < ActiveRecord::Base
     super(:except => [:password])
   end
 
+  def first_donation_date(endowment_id)
+    self.donations.where("endowment_id = ?", endowment_id).order("created_at ASC").first.created_at.to_date
+  end
+
+  def endowment_balance_on(endowment_id, date)
+    (self.donations.where("endowment_id = ? AND created_at <= ?", endowment_id, date).sum(:net_amount) - self.grants.where("endowment_id = ? AND created_at <= ? AND (status = ? OR status = ?)", endowment_id, date, 'accepted', 'pending_acceptance').sum(:grant_amount)).floor2(2)
+  end
+
   def my_balances(endowment_id)
 
     last_donation_price = Share.last.donation_price rescue 0.0
+
+    my_balance_history = (first_donation_date(endowment_id)..Date.today).select {|d| (d.day % 7) == 0}.map { |date| {date => self.endowment_balance_on(endowment_id, date)} }
 
     is_subscribed = false
 
@@ -81,8 +91,8 @@ class Donor < ActiveRecord::Base
     my_donations_amount = my_donations.sum(:gross_amount)
     my_donations_shares = my_donations.sum(:shares_added)
 
-    my_grants_amount = my_grants.sum(:grant_amount)
-    my_grants_shares = my_grants.sum(:shares_subtracted)
+    my_grants_amount = my_grants.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:grant_amount)
+    my_grants_shares = my_grants.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:shares_subtracted)
 
     my_balance_pre_investment = my_donations_amount - my_grants_amount
     my_endowment_share_balance = my_donations_shares - my_grants_shares
@@ -109,6 +119,7 @@ class Donor < ActiveRecord::Base
       "my_donations_amount" => my_donations_amount.to_f || 0,
       #"my_grants_shares" => my_grants_shares,
       "my_grants_amount" => my_grants_amount.to_f || 0,
+      "my_balance_history" => my_balance_history || 0,
 
       "my_balance_pre_investment" => my_balance_pre_investment.to_f || 0,
       #"my_endowment_share_balance" => my_endowment_share_balance,

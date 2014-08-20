@@ -43,7 +43,7 @@ class Api::DonorsController < Api::BaseController
       donor_total_number_of_pending_grants = 0.0
       donor_total_amount_of_pending_grants = 0.0
     end
-Rails.logger.debug 'hi'
+
     giv2giv_share_balance = BigDecimal("#{Donation.sum(:shares_added)}") - BigDecimal("#{Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:shares_subtracted)}")
     current_fund_balance_all_donors = (BigDecimal("#{giv2giv_share_balance}") * BigDecimal("#{last_donation_price}")).floor2(2)
 
@@ -187,7 +187,7 @@ Rails.logger.debug 'hi'
           "endowment_name" => Endowment.find(donation.endowment_id).name,
           "payment_account_id" => donation.payment_account_id,
           "created_at" => donation.created_at.to_i,
-          "transaction_fees" => donation.transaction_fees,
+          "transaction_fee" => donation.transaction_fee,
           "gross_amount" => donation.gross_amount,
           "net_amount" => donation.net_amount
       }

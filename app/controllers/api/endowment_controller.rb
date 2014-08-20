@@ -1,6 +1,6 @@
 class Api::EndowmentController < Api::BaseController
 
-  skip_before_filter :require_authentication, :only => [:index, :show, :find_by_slug]
+  skip_before_filter :require_authentication, :only => [:index, :show, :find_by_slug, :trending]
 
   def index
     pagenum = params[:page] || 1
@@ -258,5 +258,23 @@ class Api::EndowmentController < Api::BaseController
       end
     end
   end
+
+  def trending
+    donations = Donation.where('created_at >= ?', 1.month.ago)
+
+    endowments = donations.group(:endowment_id).map do |donation|
+      {
+        'id' => donation.endowment_id,
+        'name' => Endowment.find(donation.endowment_id).name,
+        'since_date' => 1.month.ago.to_i,
+        'donations' => donations.where("created_at >= ? AND endowment_id = ?", 1.month.ago, donation.endowment_id).sum(:gross_amount) #TODO there must be a way to include sum in the mapped hash
+      }
+    end
+
+    respond_to do |format|
+      format.json { render json: { :endowments => endowments.sort_by { |id, name, since_date, donations | donations }.reverse! } }
+    end
+  end
+  
 
 end

@@ -2,7 +2,7 @@ class Endowment < ActiveRecord::Base
 
   VALID_TYPE = %w(public private)
 
-  has_many :donations, dependent: :destroy
+  has_many :donations
   has_many :grants
   belongs_to :donor
   has_and_belongs_to_many :charities
@@ -42,17 +42,30 @@ class Endowment < ActiveRecord::Base
     Share.last.donation_price.floor2(2) rescue 0.0
   end
 
+  def first_donation_date
+    self.donations.order("created_at ASC").first.created_at.to_date
+  end
+
+  def balance_on(date)
+    (self.donations.where("created_at <= ?", date).sum(:net_amount) - self.grants.where("created_at <= ? AND (status = ? OR status = ?)", date, 'accepted', 'pending_acceptance').sum(:grant_amount)).floor2(2)
+  end
+
   def global_balances
+
+    balance_history = (first_donation_date..Date.today).select {|d| (d.day % 7) == 0}.map { |date| {date => self.balance_on(date)} }
+
     endowment_balance = share_balance * last_donation_price
+
     monthly_addition = DonorSubscription.where("endowment_id = ? AND canceled_at IS NULL OR canceled_at = ?", self.id, false).sum(:gross_amount) || 0.0
     {
       "endowment_donor_count" => self.donations.count('donor_id', :distinct => true),
       "endowment_donations_count" => self.donations.count('id', :distinct => true),
       "endowment_total_donations" => self.donations.sum(:gross_amount).floor2(2),
       "endowment_monthly_donations" => monthly_addition.floor2(2),
-      "endowment_transaction_fees" => self.donations.sum(:transaction_fees).floor2(2),
+      "endowment_transaction_fees" => self.donations.sum(:transaction_fee).floor2(2),
       "endowment_fees" => self.grants.sum(:giv2giv_fee).floor2(2),
-      "endowment_grants" => self.grants.sum(:grant_amount).floor2(2),
+      "endowment_grants" => self.grants.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:grant_amount).floor2(2),
+      "endowment_balance_history" => balance_history,
       "endowment_balance" => (share_balance * last_donation_price).floor2(2)#,
       #"projected_balance" => project_amount( endowment_balance, monthly_addition, 25, 0.06 )
     }

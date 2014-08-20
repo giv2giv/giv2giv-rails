@@ -9,7 +9,7 @@ class Donation < ActiveRecord::Base
 
   class << self
     
-    def add_donation(subscription_id, gross_amount, transaction_fees, net_amount)
+    def add_donation(subscription_id, gross_amount, transaction_fee, net_amount)
       
       share_price = Share.last.donation_price
 
@@ -21,7 +21,7 @@ class Donation < ActiveRecord::Base
                              :endowment_id => donor_subscription.endowment_id,
                              :payment_account_id => donor_subscription.payment_account_id,
                              :gross_amount => gross_amount,
-                             :transaction_fees => transaction_fees,
+                             :transaction_fee => transaction_fee,
                              :net_amount => net_amount,
                              :shares_added => buy_shares
                              )

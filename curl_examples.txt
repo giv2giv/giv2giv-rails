@@ -296,14 +296,27 @@
 
     Arguments : none
 
-    curl -X DELETE -H "Content-Type: application/json" -H 'Authorization: Token token=4pv0edzz5Bq142wVahy9zw' -d '' http://localhost:3000/api/endowment/my_endowments.json
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=4pv0edzz5Bq142wVahy9zw' -d '' http://localhost:3000/api/endowment/my_endowments.json
 
     Examples Response:
 
     {"endowments":[{"id":1,"created_at":"2014-01-10T07:50:58Z","updated_at":"2014-01-10T07:50:58Z","name":"Build Houses","description":"Your description","visibility":"public","minimum_donation_amount":1.0,"my_balances":{"my_subscription_id":"","my_subscription_amount":0.0,"my_subscription_type":"","my_donations_count":0,"my_donations_amount":0.0,"my_grants_amount":0.0,"my_balance_pre_investment":0.0,"my_investment_gainloss":0.0,"my_investment_gailoss_percentage":0.0,"my_endowment_balance":0.0},"global_balances":{"endowment_donor_count":0,"endowment_donations_count":0,"endowment_donations":0.0,"endowment_transaction_fees":0.0,"endowment_fees":0.0,"endowment_grants":0.0,"endowment_balance":0.0},"charities":[]},{"id":2,"created_at":"2014-01-10T08:22:03Z","updated_at":"2014-01-10T08:22:03Z","name":"Build Hou2ses","description":"Your description","visibility":"public","minimum_donation_amount":1.0,"my_balances":{"my_subscription_id":"","my_subscription_amount":0.0,"my_subscription_type":"","my_donations_count":0,"my_donations_amount":0.0,"my_grants_amount":0.0,"my_balance_pre_investment":0.0,"my_investment_gainloss":0.0,"my_investment_gailoss_percentage":0.0,"my_endowment_balance":0.0},"global_balances":{"endowment_donor_count":0,"endowment_donations_count":0,"endowment_donations":0.0,"endowment_transaction_fees":0.0,"endowment_fees":0.0,"endowment_grants":0.0,"endowment_balance":0.0},"charities":[]},{"id":3,"created_at":"2014-01-10T08:22:46Z","updated_at":"2014-01-10T08:22:46Z","name":"Build H1ou2ses","description":"Your description","visibility":"public","minimum_donation_amount":1.0,"my_balances":{"my_subscription_id":"","my_subscription_amount":0.0,"my_subscription_type":"","my_donations_count":0,"my_donations_amount":0.0,"my_grants_amount":0.0,"my_balance_pre_investment":0.0,"my_investment_gainloss":0.0,"my_investment_gailoss_percentage":0.0,"my_endowment_balance":0.0},"global_balances":{"endowment_donor_count":0,"endowment_donations_count":0,"endowment_donations":0.0,"endowment_transaction_fees":0.0,"endowment_fees":0.0,"endowment_grants":0.0,"endowment_balance":0.0},"charities":[{"charity":{"active":"true","activity_code":"0.0","address":"1103 N MARKET ST","city":"WILMINGTON","classification_code":"1.0","created_at":"2014-01-10T07:52:37Z","description":null,"ein":"202783473","email":null,"id":1,"name":"1103 MARKET STREET FOUNDATION","ntee_code":"A80","state":"DE","subsection_code":"3.0","updated_at":"2014-01-10T07:52:37Z","website":null,"zip":"19801-1223"}},{"charity":{"active":"true","activity_code":"573000000.0","address":"2700 N WASHINGTON ST","city":"WILMINGTON","classification_code":"1.0","created_at":"2014-01-10T07:52:37Z","description":null,"ein":"516020500","email":null,"id":2,"name":"1212 CORPORATION","ntee_code":"","state":"DE","subsection_code":"3.0","updated_at":"2014-01-10T07:52:37Z","website":null,"zip":"19802-3536"}},{"charity":{"active":"false","activity_code":"0.0","address":"PO BOX 115","city":"MONTCHANIN","classification_code":"1.0","created_at":"2014-01-10T07:52:38Z","description":null,"ein":"273330508","email":null,"id":3,"name":"1916 FOUNDATION","ntee_code":"T20","state":"DE","subsection_code":"3.0","updated_at":"2014-01-10T07:52:38Z","website":null,"zip":"19710-0115"}}]},{"id":5,"created_at":"2014-02-09T12:14:05Z","updated_at":"2014-02-09T12:14:05Z","name":"Build Hous2es","description":"Your description","visibility":"public","minimum_donation_amount":4.0,"my_balances":{"my_subscription_id":"","my_subscription_amount":0.0,"my_subscription_type":"","my_donations_count":0,"my_donations_amount":0.0,"my_grants_amount":0.0,"my_balance_pre_investment":0.0,"my_investment_gainloss":0.0,"my_investment_gailoss_percentage":0.0,"my_endowment_balance":0.0},"global_balances":{"endowment_donor_count":0,"endowment_donations_count":0,"endowment_donations":0.0,"endowment_transaction_fees":0.0,"endowment_fees":0.0,"endowment_grants":0.0,"endowment_balance":0.0},"charities":[{"charity":{"active":"true","activity_code":"0.0","address":"1103 N MARKET ST","city":"WILMINGTON","classification_code":"1.0","created_at":"2014-01-10T07:52:37Z","description":null,"ein":"202783473","email":null,"id":1,"name":"1103 MARKET STREET FOUNDATION","ntee_code":"A80","state":"DE","subsection_code":"3.0","updated_at":"2014-01-10T07:52:37Z","website":null,"zip":"19801-1223"}},{"charity":{"active":"true","activity_code":"573000000.0","address":"2700 N WASHINGTON ST","city":"WILMINGTON","classification_code":"1.0","created_at":"2014-01-10T07:52:37Z","description":null,"ein":"516020500","email":null,"id":2,"name":"1212 CORPORATION","ntee_code":"","state":"DE","subsection_code":"3.0","updated_at":"2014-01-10T07:52:37Z","website":null,"zip":"19802-3536"}},{"charity":{"active":"false","activity_code":"0.0","address":"PO BOX 115","city":"MONTCHANIN","classification_code":"1.0","created_at":"2014-01-10T07:52:38Z","description":null,"ein":"273330508","email":null,"id":3,"name":"1916 FOUNDATION","ntee_code":"T20","state":"DE","subsection_code":"3.0","updated_at":"2014-01-10T07:52:38Z","website":null,"zip":"19710-0115"}}]}]}
 
+8. Show trending endowments
 
-8. Find by slug (human-readable name)
+    Arguments :
+
+    none
+
+    Header Authorization Token : optional
+    e.g : 
+    curl -X GET -H "Content-Type: application/json" -H 'Authorization: Token token=seQQzOwBCkfAA4TtuE7DvA' http://localhost:3000/api/endowment/trending.json
+
+    Examples Response
+
+    {"endowments":[{"id":29,"name":"Staunton Creative Community Fund","since_date":1405825750,"donations":"25.0"},{"id":26,"name":"Emmett's Endowment","since_date":1405825750,"donations":"25.0"},{"id":20,"name":"Lewis Family Endowment","since_date":1405825750,"donations":"17.0"},{"id":13,"name":"Endangered Animals Fund by Kian","since_date":1405825750,"donations":"5.0"}]}
+
+9. Find by slug (human-readable name)
 
     Arguments :
 
@@ -317,7 +330,7 @@
 
     {"endowment":{"created_at":"2014-02-20T11:30:22Z","description":"sdf","donor_id":4,"id":1,"minimum_donation_amount":3.0,"name":"my endowment's name","slug":"my-endowment-s-name","updated_at":"2014-03-02T01:28:02Z","visibility":"public","charities":[{"active":null,"id":4,"name":"Test charity 4"}]}}
 
-9. Anonymous donation
+10. Anonymous donation
 
     Arguments :
     { acceptedTerms }  :required

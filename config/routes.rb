@@ -41,6 +41,7 @@ Giv2givRails::Application.routes.draw do
         post 'rename_endowment', :on => :member
         post 'anonymous_donation', :on => :member
         get 'my_endowments', :on=>:collection
+        get 'trending', :on=>:collection
         get 'find_by_slug', :on=> :collection
       end
 
