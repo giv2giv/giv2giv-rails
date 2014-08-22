@@ -25,29 +25,28 @@ class Api::EndowmentController < Api::BaseController
     #end
    
     q = "%#{query}%"
+
     if q=="%%"
       if current_donor.present? && current_donor.id
-  	    endowments = Endowment.where("(visibility = ? OR donor_id = ?)", "public", current_donor.id).order("RAND()").limit(perpage)
+  	    endowments = Endowment.where("(visibility = ? OR donor_id = ?)", "public", current_donor.id).order("RAND()")
       else
-        endowments = Endowment.where("visibility = ?", "public").order("RAND()").limit(perpage)
+        endowments = Endowment.where("visibility = ?", "public").order("RAND()")
       end
     else
       if current_donor.present? && current_donor.id
-        endowments = Endowment.where("name LIKE ? AND (visibility = ? OR donor_id = ?)", q, "public", current_donor.id).order("RAND()").limit(perpage)
+        endowments = Endowment.where("name LIKE ? AND (visibility = ? OR donor_id = ?)", q, "public", current_donor.id).order("RAND()")
       else
-        endowments = Endowment.where("name LIKE ? AND visibility = ?", q, "public").order("RAND()").limit(perpage)
+        endowments = Endowment.where("name LIKE ? AND visibility = ?", q, "public").order("RAND()")
       end
     end
 
-#    endowments = endowments.page(pagenum).per(perpage)
-#    endowments = endowments.compact.flatten.uniq.paginate(:page => page, :per_page => perpage)
 
     endowments.each do |endowment|
-      
+
       if current_donor && current_donor.id
         my_balances = current_donor.my_balances(endowment.id)
       end
-      
+
       endowment_hash = {
         "id" => endowment.id,
         "created_at" => endowment.created_at,
@@ -260,6 +259,7 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def trending
+
     donations = Donation.where('created_at >= ?', 1.month.ago)
 
     endowments = donations.group(:endowment_id).map do |donation|
@@ -267,12 +267,12 @@ class Api::EndowmentController < Api::BaseController
         'id' => donation.endowment_id,
         'name' => Endowment.find(donation.endowment_id).name,
         'since_date' => 1.month.ago.to_i,
-        'donations' => donations.where("created_at >= ? AND endowment_id = ?", 1.month.ago, donation.endowment_id).sum(:gross_amount) #TODO there must be a way to include sum in the mapped hash
+        'donations' => Donation.where("created_at >= ? AND endowment_id = ?", 1.month.ago, donation.endowment_id).sum(:gross_amount) #TODO there must be a way to include sum in the mapped hash
       }
     end
 
     respond_to do |format|
-      format.json { render json: { :endowments => endowments.sort_by { |id, name, since_date, donations | donations }.reverse! } }
+      format.json { render json: { :endowments => endowments.sort_by { |id, name, since_date, donations| donations }.reverse! } }
     end
   end
   

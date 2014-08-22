@@ -58,7 +58,7 @@ class Donor < ActiveRecord::Base
   end
 
   def first_donation_date(endowment_id)
-    self.donations.where("endowment_id = ?", endowment_id).order("created_at ASC").first.created_at.to_date
+    self.donations.where("endowment_id = ?", endowment_id).order("created_at ASC").first.created_at.to_date rescue Date.today
   end
 
   def endowment_balance_on(endowment_id, date)

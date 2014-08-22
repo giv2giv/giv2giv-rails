@@ -22,8 +22,10 @@ private
   def current_session
     # we should have session already except in sessions/destroy case
     return @session if @session
+    if request.authorization.to_s != 'Token token='
+      token, options = ActionController::HttpAuthentication::Token.token_and_options(request)
+    end
 
-    token, options = ActionController::HttpAuthentication::Token.token_and_options(request)
     @session = token ? Session.find_by_token(token) : nil
   end
 

@@ -43,7 +43,7 @@ class Endowment < ActiveRecord::Base
   end
 
   def first_donation_date
-    self.donations.order("created_at ASC").first.created_at.to_date
+    self.donations.order("created_at ASC").first.created_at.to_date rescue Date.today
   end
 
   def balance_on(date)
@@ -66,8 +66,8 @@ class Endowment < ActiveRecord::Base
       "endowment_fees" => self.grants.sum(:giv2giv_fee).floor2(2),
       "endowment_grants" => self.grants.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:grant_amount).floor2(2),
       "endowment_balance_history" => balance_history,
-      "endowment_balance" => (share_balance * last_donation_price).floor2(2)#,
-      #"projected_balance" => project_amount( endowment_balance, monthly_addition, 25, 0.06 )
+      "endowment_balance" => (share_balance * last_donation_price).floor2(2),
+      "projected_balance" => CalculationShare::Calculation.project_amount( {:principal=>endowment_balance.floor(2),:monthly_addition=>monthly_addition.floor2(2)} )
     }
   end
 
@@ -98,44 +98,6 @@ class Endowment < ActiveRecord::Base
       donation = PaymentAccount.one_time_payment(amount, endowment_id, payment.id)
 
   end
-
-
-
-  def project_amount ( principal, monthly_addition, years, return_rate )
-    amount_array = []
-    total_donations = 0.0
-    total_grants = 0.0
-    total_fees = 0.0
-
-    month = 1
-    while month <= years * 12 do
-      month = month + 1
-      total_donations += monthly_addition
-      principal += monthly_addition
-      principal += principal * (return_rate / 12) 
-      if month % 4 == 0
-        grant_amount = principal * App.giv["giv_grant_amount"]
-        total_grants += grant_amount
-        fee_amount = principal * App.giv["giv_fee_amount"]
-        total_fees += fee_amount
-        principal -= grant_amount
-        principal -= fee_amount
-      end
-      if month % 12 == 0
-        amount_hash = {
-          "date" => Date.today + month.months,
-          "total_donations" => total_donations.floor2(2),
-          "principal" => principal.floor2(2),
-          "total_grants" => total_grants.floor2(2),
-          "total_fees" => total_fees.floor2(2)
-        }
-        amount_array << amount_hash
-      end
-
-    end
-
-    amount_array
-
-  end
+ 
 
 end

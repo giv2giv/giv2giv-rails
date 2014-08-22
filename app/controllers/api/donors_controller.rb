@@ -44,13 +44,19 @@ class Api::DonorsController < Api::BaseController
       donor_total_amount_of_pending_grants = 0.0
     end
 
-    giv2giv_share_balance = BigDecimal("#{Donation.sum(:shares_added)}") - BigDecimal("#{Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:shares_subtracted)}")
-    current_fund_balance_all_donors = (BigDecimal("#{giv2giv_share_balance}") * BigDecimal("#{last_donation_price}")).floor2(2)
+
+    current_fund_balance_all_donors = balance_on(Date.today)
 
     total_number_of_donors = Donation.count('donor_id', :distinct => true)
+    total_number_of_endowments = Endowment.count
+
+    total_active_subscriptions = DonorSubscription.where("canceled_at IS NULL OR canceled_at = ?", false).count    
+    total_monthly_donations = DonorSubscription.where("canceled_at IS NULL OR canceled_at = ?", false).sum(:gross_amount).floor2(2)
 
     total_number_of_donations = Donation.count
-    total_amount_of_donations = Donation.sum(:gross_amount)
+    total_amount_of_donations = Donation.sum(:gross_amount).to_f
+    
+    global_balance_history = (first_donation_date..Date.today).select {|d| (d.day % 7) == 0}.map { |date| {date => balance_on(date)} }
 
     total_number_of_grants = Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').count
     total_amount_of_grants = Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:grant_amount).to_f
@@ -60,16 +66,16 @@ class Api::DonorsController < Api::BaseController
     if total_amount_of_grants==0.0
       total_amount_of_grants=0
     end
-    
-    total_number_of_endowments = Endowment.count
-    total_active_subscriptions = DonorSubscription.where("canceled_at IS NULL OR canceled_at = ?", false).count
 
     render json: {  :donor_current_balance => donor_current_balance,
+                    :total_active_subscriptions => total_active_subscriptions,
+                    :total_monthly_donations => total_monthly_donations,
                     :donor_total_amount_of_donations => donor_total_amount_of_donations,
                     :donor_total_amount_of_grants => donor_total_amount_of_grants,
                     :donor_total_number_of_pending_grants => donor_total_number_of_pending_grants,
                     :donor_total_amount_of_pending_grants => donor_total_amount_of_pending_grants,
                     :total_number_of_donors => total_number_of_donors,
+                    :total_number_of_endowments => total_number_of_endowments,
                     :current_fund_balance_all_donors => current_fund_balance_all_donors,
                     :total_number_of_donations => total_number_of_donations,
                     :total_amount_of_donations => total_amount_of_donations,
@@ -77,8 +83,8 @@ class Api::DonorsController < Api::BaseController
                     :total_amount_of_grants => total_amount_of_grants,
                     :total_number_of_pending_grants => total_number_of_pending_grants,
                     :total_amount_of_pending_grants => total_amount_of_pending_grants,
-                    :total_number_of_endowments => total_number_of_endowments,
-                    :total_active_subscriptions => total_active_subscriptions
+                    :global_balance_history => global_balance_history || 0,
+                    :projected_balance => CalculationShare::Calculation.project_amount( {:principal=>current_fund_balance_all_donors,:monthly_addition=>total_monthly_donations} )
                   }.to_json
   end
 
@@ -165,16 +171,16 @@ class Api::DonorsController < Api::BaseController
     donations ||= []
     donations_list = []
 
-    if params.has_key?(:start_date) and params.has_key?(:end_date) and params.has_key?(:endowment_id)
+    if params.has_key?(:start_date) && params.has_key?(:end_date) && params.has_key?(:endowment_id)
       donations = current_donor.donations.where("endowment_id = ? AND DATE(donations.created_at) between ? AND ?", params[:endowment_id], params[:start_date], params[:end_date])
+    elsif params.has_key?(:start_date) && params.has_key?(:end_date)
+      donations = current_donor.donations.where("DATE(donations.created_at) between ? AND ?", params[:start_date], params[:end_date])
     elsif params.has_key?(:start_date)
       donations = current_donor.donations.where("DATE(donations.created_at) > ?", params[:start_date])
-    elsif params.has_key?(:start_date) and params.has_key?(:end_date)
-      donations = current_donor.donations.where("DATE(donations.created_at) between ? AND ?", params[:start_date], params[:end_date])
     elsif params.has_key?(:endowment_id)
       donations = current_donor.donations.where("endowment_id = ?", params[:endowment_id])
     else
-      donations = current_donor.donations.all.order('donations.created_at asc')
+      donations = current_donor.donations.order("created_at ASC")
     end
 
     total = donations.sum(:gross_amount) || 0.0
@@ -197,4 +203,12 @@ class Api::DonorsController < Api::BaseController
   end
 end
 
+def first_donation_date
+  Donation.order("created_at ASC").first.created_at.to_date
+end
 
+def balance_on(date)
+  last_donation_price = Share.last.donation_price rescue 0.0
+  
+  (last_donation_price * (Donation.where("created_at <= ?", date).sum(:shares_added) - Grant.where("created_at <= ? AND (status = ? OR status = ?)", date, 'accepted', 'pending_acceptance').sum(:shares_subtracted))).floor2(2)
+end
