@@ -40,7 +40,7 @@ gem 'rufus-scheduler'
 
 # Gems used to interact with payment processors
 gem 'dwolla-ruby'
-gem 'ice_cube' # recurring billing
+#gem 'ice_cube' # recurring billing
 gem 'stripe'
 
 gem 'httparty'
@@ -50,8 +50,7 @@ gem 'nokogiri', :require => false
 gem 'typhoeus', :require => false
 gem 'spreadsheet'
 
-# A little pagination
-#gem 'will_paginate', '~> 3.0'
+# pagination
 gem 'kaminari'
 
 # friendly-id for nice SEO endowment URLs
