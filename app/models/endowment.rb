@@ -52,7 +52,7 @@ class Endowment < ActiveRecord::Base
 
   def global_balances
 
-    balance_history = (first_donation_date..Date.today).select {|d| (d.day % 7) == 0}.map { |date| {date => self.balance_on(date)} }
+    balance_history = (first_donation_date..Date.today).select {|d| (d.day % 7) == 0}.map { |date| {"date"=> date, "balance"=> self.balance_on(date)} }
 
     endowment_balance = share_balance * last_donation_price
 

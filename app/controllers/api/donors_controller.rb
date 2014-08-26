@@ -36,7 +36,7 @@ class Api::DonorsController < Api::BaseController
       donor_total_amount_of_grants = current_donor.grants.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:grant_amount).to_f
       donor_total_amount_of_pending_grants = current_donor.grants.where("(status = ? OR status = ?)", 'pending_acceptance', 'pending_approval').sum(:grant_amount).to_f
       donor_total_number_of_pending_grants = current_donor.grants.where("(status = ? OR status = ?)", 'pending_acceptance', 'pending_approval').count
-      donor_balance_history = (donor_first_donation_date..Date.today).select {|d| (d.day % 7) == 0}.map { |date| {date => donor_balance_on(date)} }
+      donor_balance_history = (donor_first_donation_date..Date.today).select {|d| (d.day % 7) == 0}.map { |date| {"date"=>date, "balance"=>donor_balance_on(date)} }
       donor_active_subscriptions = current_donor.donor_subscriptions.where("canceled_at IS NULL OR canceled_at = ?", false).sum(:gross_amount).floor2(2)
     else
       donor_current_balance = 0.0
@@ -60,7 +60,7 @@ class Api::DonorsController < Api::BaseController
     total_number_of_donations = Donation.count
     total_amount_of_donations = Donation.sum(:gross_amount).to_f
     
-    global_balance_history = (global_first_donation_date..Date.today).select {|d| (d.day % 7) == 0}.map { |date| {date => global_balance_on(date)} }
+    global_balance_history = (global_first_donation_date..Date.today).select {|d| (d.day % 7) == 0}.map { |date| {"date"=>date, "balance"=> global_balance_on(date)} }
 
     
     total_number_of_grants = Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').count
@@ -98,7 +98,7 @@ class Api::DonorsController < Api::BaseController
 
   def subscriptions
     last_donation_price = Share.last.donation_price rescue 0.0
-    subscriptions = current_donor.donor_subscriptions.where("canceled_at IS NULL OR canceled_at = ?", false)
+    subscriptions = current_donor.donor_subscriptions
     subscriptions ||= []
     subscriptions_list = []
     
@@ -111,9 +111,9 @@ class Api::DonorsController < Api::BaseController
         "endowment_id" => endowment.id,
         "created_at" => endowment.created_at,
         "updated_at" => endowment.updated_at,
+        "canceled_at" => subscription.canceled_at,
         "name" => endowment.name,
         "description" => endowment.description,
-        "minimum_donation_amount" => subscription.gross_amount.to_f,
         "my_balances" => current_donor.my_balances(endowment.id),
         "global_balances" => endowment.global_balances,
         "charities" => endowment.charities

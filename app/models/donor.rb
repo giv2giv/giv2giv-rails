@@ -69,7 +69,7 @@ class Donor < ActiveRecord::Base
 
     last_donation_price = Share.last.donation_price rescue 0.0
 
-    my_balance_history = (first_donation_date(endowment_id)..Date.today).select {|d| (d.day % 7) == 0}.map { |date| {date => self.endowment_balance_on(endowment_id, date)} }
+    my_balance_history = (first_donation_date(endowment_id)..Date.today).select {|d| (d.day % 7) == 0}.map { |date| {"date"=>date, "balance"=>self.endowment_balance_on(endowment_id, date)} }
 
     is_subscribed = false
 
