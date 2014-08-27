@@ -52,6 +52,7 @@ class Api::EndowmentController < Api::BaseController
         "created_at" => endowment.created_at,
         "updated_at" => endowment.updated_at,
         "name" => endowment.name,
+        "slug" => endowment.slug,
         "description" => endowment.description,
         "visibility" => endowment.visibility,
         "minimum_donation_amount" => endowment.minimum_donation_amount,
@@ -97,7 +98,13 @@ class Api::EndowmentController < Api::BaseController
 
 
   def show
-    endowment = Endowment.find_by_id(params[:id])
+    #endowment = Endowment.find_by_id(params[:id])
+
+    if current_donor.present? && current_donor.id
+      endowment = Endowment.where("(id = ? OR slug = ?) AND (visibility = ? OR donor_id = ?)",params[:id], params[:id], "public", current_donor.id).last
+    else
+      endowment = Endowment.where("(id = ? OR slug = ?) AND visibility = ?", params[:id], params[:id], "public").last
+    end
 
     if current_donor && current_donor.id
       my_balances = current_donor.my_balances(endowment.id)
@@ -108,6 +115,7 @@ class Api::EndowmentController < Api::BaseController
       "created_at" => endowment.created_at,
       "updated_at" => endowment.updated_at,
       "name" => endowment.name,
+      "slug" => endowment.slug,
       "description" => endowment.description,
       "visibility" => endowment.visibility,
       "minimum_donation_amount" => endowment.minimum_donation_amount,
@@ -125,6 +133,7 @@ class Api::EndowmentController < Api::BaseController
     end
   end
 
+=begin
   def find_by_slug
 
     endowment_slug = params[:slug]
@@ -148,6 +157,7 @@ class Api::EndowmentController < Api::BaseController
     end
 
   end
+=end
 
   def anonymous_donation
     endowment = Endowment.find_by_id(params[:id])
@@ -239,8 +249,10 @@ class Api::EndowmentController < Api::BaseController
         "created_at" => endowment.created_at,
         "updated_at" => endowment.updated_at,
         "name" => endowment.name,
+        "slug" => endowment.slug,
         "description" => endowment.description,
         "visibility" => endowment.visibility,
+        "minimum_donation_amount" => endowment.minimum_donation_amount,
         "my_balances" => my_balances,
         "global_balances" => endowment.global_balances,
         "charities" => endowment.charities              
