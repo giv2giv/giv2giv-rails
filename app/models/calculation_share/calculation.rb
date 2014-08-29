@@ -203,7 +203,6 @@ module CalculationShare
       total_grants = 0.0
       total_fees = 0.0
 
-
       month = 1
       while month <= years * 12 do
         month = month + 1

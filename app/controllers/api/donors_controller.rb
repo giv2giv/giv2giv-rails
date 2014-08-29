@@ -1,6 +1,8 @@
 class Api::DonorsController < Api::BaseController
   skip_before_filter :require_authentication, :only => [:create, :forgot_password, :reset_password, :balance_information]
 
+  
+
   def create
 
     donor = Donor.new(params[:donor])
@@ -17,7 +19,6 @@ class Api::DonorsController < Api::BaseController
         require 'gibbon'
         gb = Gibbon::API.new(App.mailer['mailchimp_key'])
         gb.lists.subscribe({:id => App.mailer['mailchimp_list_id'], :email => {:email => donor.email}, :merge_vars => {:FNAME => donor.name}, :double_optin => false})
-
         format.json { render json: donor, status: :created }
       else
         format.json { render json: donor.errors, status: :unprocessable_entity }
@@ -28,7 +29,6 @@ class Api::DonorsController < Api::BaseController
 
   def balance_information
     last_donation_price = Share.last.donation_price rescue 0.0
-
     if current_donor && current_donor.id
       share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.grants.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:shares_subtracted)}")
       donor_current_balance = (BigDecimal("#{share_balance}") * BigDecimal("#{last_donation_price}")).floor2(2)
@@ -48,7 +48,6 @@ class Api::DonorsController < Api::BaseController
       donor_active_subscriptions = 0
     end
 
-
     current_fund_balance_all_donors = global_balance_on(Date.today)
 
     total_number_of_donors = Donation.count('donor_id', :distinct => true)
@@ -59,10 +58,10 @@ class Api::DonorsController < Api::BaseController
 
     total_number_of_donations = Donation.count
     total_amount_of_donations = Donation.sum(:gross_amount).to_f
-    
-    global_balance_history = (global_first_donation_date..Date.today).select {|d| (d.day % 7) == 0}.map { |date| {"date"=>date, "balance"=> global_balance_on(date)} }
 
-    
+    global_balance_history = (global_first_donation_date..Date.today).select {|d| (d.day % 7) == 0}.map { |date| {"date"=>date, "balance"=> global_balance_on(date)} }
+    #global_balance_history = (global_first_donation_date..Date.today).select {|d| (d.day % 7) == 0 || d==Date.today}.map { |date| {"date"=>date, "balance"=> global_balance_on(date)} }
+
     total_number_of_grants = Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').count
     total_amount_of_grants = Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:grant_amount).to_f
     total_number_of_pending_grants = Grant.where("(status = ? OR status = ?)", 'pending_acceptance', 'pending_approval').count
@@ -97,7 +96,6 @@ class Api::DonorsController < Api::BaseController
   end
 
   def subscriptions
-    last_donation_price = Share.last.donation_price rescue 0.0
     subscriptions = current_donor.donor_subscriptions
     subscriptions ||= []
     subscriptions_list = []
@@ -179,6 +177,7 @@ class Api::DonorsController < Api::BaseController
     donations ||= []
     donations_list = []
 
+
     if params.has_key?(:start_date) && params.has_key?(:end_date) && params.has_key?(:endowment_id)
       donations = current_donor.donations.where("endowment_id = ? AND DATE(donations.created_at) between ? AND ?", params[:endowment_id], params[:start_date], params[:end_date])
     elsif params.has_key?(:start_date) && params.has_key?(:end_date)
@@ -193,39 +192,44 @@ class Api::DonorsController < Api::BaseController
 
     total = donations.sum(:gross_amount) || 0.0
 
+
     donations.each do |donation|
       donations_hash = {
           "donation_id" => donation.id,
-          "donor_id" => donation.id,
+          "donor_id" => donation.donor_id,
           "endowment_id" => donation.endowment_id,
           "endowment_name" => Endowment.find(donation.endowment_id).name,
           "payment_account_id" => donation.payment_account_id,
-          "created_at" => donation.created_at.to_i,
+          "created_at" => donation.created_at,
           "transaction_fee" => donation.transaction_fee,
-          "gross_amount" => donation.gross_amount,
-          "net_amount" => donation.net_amount
+          "gross_amount" => donation.gross_amount.to_f,
+          "net_amount" => donation.net_amount.to_f
       }
+      
       donations_list << donations_hash
+    
     end
     render json: { :donations => donations_list, :total => total, :timestamp => Time.new.to_i, }
   end
 end
 
 def global_first_donation_date
-  Donation.order("created_at ASC").first.created_at.to_date
+  Donation.order("created_at ASC").first.created_at.to_date rescue Date.today
 end
 def donor_first_donation_date
-  current_donor.donations.order("created_at ASC").first.created_at.to_date
+  current_donor.donations.order("created_at ASC").first.created_at.to_date rescue Date.today
 end
 
 def global_balance_on(date)
   last_donation_price = Share.last.donation_price rescue 0.0
-  
-  (last_donation_price * (Donation.where("created_at <= ?", date).sum(:shares_added) - Grant.where("created_at <= ? AND (status = ? OR status = ?)", date, 'accepted', 'pending_acceptance').sum(:shares_subtracted))).floor2(2)
+  donated_shares = Donation.where("created_at <= ?", date).sum(:shares_added) rescue 0.0
+  granted_shares = Grant.where("created_at <= ? AND (status = ? OR status = ?)", date, 'accepted', 'pending_acceptance').sum(:shares_subtracted) rescue 0.0
+  (last_donation_price * (donated_shares - granted_shares)).floor2(2)
 end
 
 def donor_balance_on(date)
   last_donation_price = Share.last.donation_price rescue 0.0
-  
-  (last_donation_price * (current_donor.donations.where("created_at <= ?", date).sum(:shares_added) - current_donor.grants.where("created_at <= ? AND (status = ? OR status = ?)", date, 'accepted', 'pending_acceptance').sum(:shares_subtracted))).floor2(2)
+  donated_shares = current_donor.donations.where("created_at <= ?", date).sum(:shares_added) rescue 0.0
+  granted_shares = current_donor.grants.where("created_at <= ? AND (status = ? OR status = ?)", date, 'accepted', 'pending_acceptance').sum(:shares_subtracted) rescue 0.0
+  (last_donation_price * (donated_shares - granted_shares)).floor2(2)
 end

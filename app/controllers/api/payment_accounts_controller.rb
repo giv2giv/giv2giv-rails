@@ -85,7 +85,6 @@ class Api::PaymentAccountsController < Api::BaseController
         format.json { head :not_found }
       end
     end
-
   end
 
   def destroy

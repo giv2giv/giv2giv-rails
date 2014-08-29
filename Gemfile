@@ -25,6 +25,7 @@ gem "mysql2"
 
 gem 'mailchimp-api'
 gem 'mandrill-api'
+gem 'gibbon'
 
 gem "omniauth"
 gem "omniauth-facebook"

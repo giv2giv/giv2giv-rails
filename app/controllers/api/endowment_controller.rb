@@ -28,15 +28,15 @@ class Api::EndowmentController < Api::BaseController
 
     if q=="%%"
       if current_donor.present? && current_donor.id
-  	    endowments = Endowment.where("(visibility = ? OR donor_id = ?)", "public", current_donor.id).order("RAND()")
+  	    endowments = Endowment.page(pagenum).per(perpage).where("(visibility = ? OR donor_id = ?)", "public", current_donor.id).order("RAND()")
       else
-        endowments = Endowment.where("visibility = ?", "public").order("RAND()")
+        endowments = Endowment.page(pagenum).per(perpage).where("visibility = ?", "public").order("RAND()")
       end
     else
       if current_donor.present? && current_donor.id
-        endowments = Endowment.where("name LIKE ? AND (visibility = ? OR donor_id = ?)", q, "public", current_donor.id).order("RAND()")
+        endowments = Endowment.page(pagenum).per(perpage).where("name LIKE ? AND (visibility = ? OR donor_id = ?)", q, "public", current_donor.id).order("RAND()")
       else
-        endowments = Endowment.where("name LIKE ? AND visibility = ?", q, "public").order("RAND()")
+        endowments = Endowment.page(pagenum).per(perpage).where("name LIKE ? AND visibility = ?", q, "public").order("RAND()")
       end
     end
 
@@ -132,32 +132,6 @@ class Api::EndowmentController < Api::BaseController
       end
     end
   end
-
-=begin
-  def find_by_slug
-
-    endowment_slug = params[:slug]
-
-    if endowment_slug == ""
-      render json: { :message => "Missing parameter slug" }
-    else
-      if current_donor.present? && current_donor.id
-        endowment = Endowment.where("slug = ? AND (visibility = ? OR donor_id = ?)", endowment_slug, "public", current_donor.id).last
-      else
-        endowment = Endowment.where("slug = ? AND visibility = ?", endowment_slug, "public").last
-      end
-    end
-
-    respond_to do |format|
-      if endowment
-        format.json { render json: endowment }
-      else
-        format.json { head :not_found }
-      end
-    end
-
-  end
-=end
 
   def anonymous_donation
     endowment = Endowment.find_by_id(params[:id])
@@ -283,7 +257,7 @@ class Api::EndowmentController < Api::BaseController
     end
 
     respond_to do |format|
-      format.json { render json: { :endowments => endowments.sort_by { |id, name, since_date, donations| donations }.reverse! } }
+      format.json { render json: { :endowments => endowments.sort_by { |id, name, since_date, donations| donations }.reverse!.first(10) } }
     end
   end
   

@@ -113,8 +113,8 @@ class PaymentAccount < ActiveRecord::Base
       return { :message => "Minimum donation is $#{MINIMUM_DONATION}" }.to_json
     end
 
-    amount = amount.round(2)
-    amount_cents = amount * 100 # convert to cents
+    amount = amount.to_f.round(2)
+    amount_cents = (amount * 100).to_i # convert to cents
 
     if endowment.visibility.eql?("private") && self.donor_id != endowment.donor_id
       return { :message => "Sorry! You cannot make a donation to a private endowment" }.to_json
@@ -167,22 +167,22 @@ class PaymentAccount < ActiveRecord::Base
   end # end one_time_payment
 
   def donate_subscription(amount, endowment_id, paymentaccount_id)
-
+Rails.logger.debug '1'
     raise PaymentAccountInvalid unless self.valid?
     raise EndowmentInvalid unless Endowment.find_by_id(endowment_id)
-
+Rails.logger.debug '2'
     payment_donor = PaymentAccount.find_by_id(paymentaccount_id)
     endowment = Endowment.find_by_id(endowment_id)
     num_of_charity = endowment.charities.count
     check_donor = Donor.find(payment_donor.donor_id)
-
+Rails.logger.debug '3'
     if amount.to_f < MINIMUM_DONATION
       return { :message => "Minimum donation is $#{MINIMUM_DONATION}" }.to_json
     end
-
-    amount = amount.round(2)
-    amount_cents = amount * 100 # convert to cents
-
+Rails.logger.debug '4'
+    amount = amount.to_f.round(2)
+    amount_cents = (amount * 100).to_i # convert to cents
+Rails.logger.debug '5'
 
     if endowment.visibility.eql?("private") && payment_donor.donor_id != endowment.donor_id
       return { :message => "Sorry! You cannot make a donation to a private endowment" }.to_json
