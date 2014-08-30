@@ -3,6 +3,7 @@ class Donor < ActiveRecord::Base
   has_many :payment_accounts, dependent: :destroy
   has_many :external_accounts, dependent: :destroy
   has_many :grants
+  has_many :invites
   has_many :donor_subscriptions, dependent: :destroy
   has_many :endowments
 

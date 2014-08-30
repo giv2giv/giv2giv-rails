@@ -1,8 +1,6 @@
 class Api::DonorsController < Api::BaseController
   skip_before_filter :require_authentication, :only => [:create, :forgot_password, :reset_password, :balance_information]
 
-  
-
   def create
 
     donor = Donor.new(params[:donor])
@@ -19,9 +17,36 @@ class Api::DonorsController < Api::BaseController
         require 'gibbon'
         gb = Gibbon::API.new(App.mailer['mailchimp_key'])
         gb.lists.subscribe({:id => App.mailer['mailchimp_list_id'], :email => {:email => donor.email}, :merge_vars => {:FNAME => donor.name}, :double_optin => false})
+
+        invite = Invite.where("hash_token = ?", params[:hash_token])
+        if invite
+          invite.accepted = true
+          invite.save!
+        end
+
         format.json { render json: donor, status: :created }
       else
         format.json { render json: donor.errors, status: :unprocessable_entity }
+      end
+    end
+
+  end
+
+  def send_invite
+
+    respond_to do |format|
+      if (params[:email])
+        invite = Invite.new()
+        invite.donor_id = current_donor.id
+        invite.email = params[:email]
+        invite.hash_token = SecureRandom.uuid
+        invite.accepted = false
+      end
+    
+      if invite.save
+        format.json { render json: invite, status: :created }
+      else
+        format.json { render json: {:message => "unauthorized"}.to_json, status: :unprocessable_entity }
       end
     end
 

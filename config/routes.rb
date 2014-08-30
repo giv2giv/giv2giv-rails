@@ -23,7 +23,8 @@ Giv2givRails::Application.routes.draw do
         get 'subscriptions', :on => :member
         get 'donations', :on => :member
         post 'forgot_password', :on => :member
-        get "reset_password", :on => :member
+        get 'reset_password', :on => :member
+        post 'send_invite', :on => :member
         
         resources :payment_accounts, :except => [:new, :edit] do        
           post 'donate_subscription', :on => :member

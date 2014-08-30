@@ -55,7 +55,6 @@ class Api::EndowmentController < Api::BaseController
         "slug" => endowment.slug,
         "description" => endowment.description,
         "visibility" => endowment.visibility,
-        "minimum_donation_amount" => endowment.minimum_donation_amount,
         "my_balances" => my_balances || "",
         "global_balances" => endowment.global_balances,
         "charities" => endowment.charities              
@@ -74,13 +73,7 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def create
-    #params[:endowment] = { name: params[:name], minimum_donation_amount: params[:minimum_donation_amount], visibility: params[:visibility], description: params[:description] }
-
     respond_to do |format|
-
-      #if params[:minimum_donation_amount].to_f < 2.0
-        #format.json { render json: { :message => "Minimum donation at giv2giv is $2" }.to_json }
-      #end
 
       endowment = Endowment.new(params[:endowment])
 
@@ -118,7 +111,6 @@ class Api::EndowmentController < Api::BaseController
       "slug" => endowment.slug,
       "description" => endowment.description,
       "visibility" => endowment.visibility,
-      "minimum_donation_amount" => endowment.minimum_donation_amount,
       "my_balances" => my_balances || "",
       "global_balances" => endowment.global_balances,
       "charities" => endowment.charities
@@ -226,7 +218,6 @@ class Api::EndowmentController < Api::BaseController
         "slug" => endowment.slug,
         "description" => endowment.description,
         "visibility" => endowment.visibility,
-        "minimum_donation_amount" => endowment.minimum_donation_amount,
         "my_balances" => my_balances,
         "global_balances" => endowment.global_balances,
         "charities" => endowment.charities              
