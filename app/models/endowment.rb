@@ -46,12 +46,14 @@ class Endowment < ActiveRecord::Base
   end
 
   def balance_on(date)
-    (self.donations.where("created_at <= ?", date).sum(:net_amount) - self.grants.where("created_at <= ? AND (status = ? OR status = ?)", date, 'accepted', 'pending_acceptance').sum(:grant_amount)).floor2(2)
+    dt = DateTime.parse(date.to_s)
+    dt = dt + 11.hours + 59.minutes + 59.seconds
+    (self.donations.where("created_at <= ?", dt).sum(:net_amount) - self.grants.where("created_at <= ? AND (status = ? OR status = ?)", dt, 'accepted', 'pending_acceptance').sum(:grant_amount)).floor2(2)
   end
 
   def global_balances
 
-    balance_history = (first_donation_date..Date.today).select {|d| (d.day % 7) == 0}.map { |date| {"date"=>date,"balance"=>self.balance_on(date)} }
+    balance_history = (first_donation_date..Date.today).select {|d| (d.day % 7) == 0 || d==Date.today}.map { |date| {"date"=>date,"balance"=>self.balance_on(date)} }
 
     endowment_balance = share_balance * last_donation_price
 

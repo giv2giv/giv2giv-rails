@@ -212,6 +212,7 @@ class PaymentAccount < ActiveRecord::Base
     end
 
     if subscription.save
+      DonorMailer.new_subscription(donor, endowment.name, amount).deliver
       { :message => "Success" }.to_json
     else
       { :message => "Error" }.to_json

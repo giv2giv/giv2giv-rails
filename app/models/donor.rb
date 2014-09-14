@@ -63,19 +63,21 @@ class Donor < ActiveRecord::Base
   end
 
   def endowment_balance_on(endowment_id, date)
-    (self.donations.where("endowment_id = ? AND created_at <= ?", endowment_id, date).sum(:net_amount) - self.grants.where("endowment_id = ? AND created_at <= ? AND (status = ? OR status = ?)", endowment_id, date, 'accepted', 'pending_acceptance').sum(:grant_amount)).floor2(2)
+    dt = DateTime.parse(date.to_s)
+    dt = dt + 11.hours + 59.minutes + 59.seconds
+    (self.donations.where("endowment_id = ? AND created_at <= ?", endowment_id, dt).sum(:net_amount) - self.grants.where("endowment_id = ? AND created_at <= ? AND (status = ? OR status = ?)", endowment_id, dt, 'accepted', 'pending_acceptance').sum(:grant_amount)).floor2(2)
   end
 
   def my_balances(endowment_id)
 
     last_donation_price = Share.last.donation_price rescue 0.0
 
-    my_balance_history = (first_donation_date(endowment_id)..Date.today).select {|d| (d.day % 7) == 0}.map { |date| {"date"=>date, "balance"=>self.endowment_balance_on(endowment_id, date)} }
+    my_balance_history = (first_donation_date(endowment_id)..Date.today).select {|d| (d.day % 7) == 0 || d==Date.today}.map { |date| {"date"=>date, "balance"=>self.endowment_balance_on(endowment_id, date)} }
 
     is_subscribed = false
 
     begin
-      my_subscription_row = self.donor_subscriptions.where("endowment_id = ?", endowment_id).where("canceled_at IS NULL OR canceled_at = ?", false).last
+      my_subscription_row = self.donor_subscriptions.where("endowment_id = ? AND canceled_at IS NULL", endowment_id).last
       is_subscribed = true
       my_subscription_id = my_subscription_row.id
       my_subscription_amount = my_subscription_row.gross_amount

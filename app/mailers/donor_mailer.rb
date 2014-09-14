@@ -29,7 +29,7 @@ class DonorMailer < ActionMailer::Base
      :text=>"Hello Kevin. #{donor_name} at #{email} just created an account at giv2giv.org",
      :to=>[ 
        {
-         :email=>'kevin@giv2giv.org',
+         :email=>'michael.blinn@giv2giv.org',
          :name=> 'Kevin Pujanauski'
        } 
      ],  
@@ -64,34 +64,79 @@ class DonorMailer < ActionMailer::Base
     message = {  
      :subject=> "[ giv2giv.org ] Confirm your new password request",
      :from_name=> "giv2giv.org",  
-     :text=>"Hello #{donor.name}. We received a request to change your password. If you did not request a password reset, ignored this email.  If you do wish to reset your password, click here to confirm: https://api.giv2giv.org/api/donors/reset_password.json?reset_token=#{donor.password_reset_token}",
+     :text=>"Hello #{donor.name}. We received a request to change your password. If you did not request a password reset, ignored this email.  If you do wish to reset your password, click here to confirm: https://wwwtest.giv2giv.org/#reset_password?reset_token=#{donor.password_reset_token}",
+     :to=>[
+       {
+         :email=> donor.email,
+         :name=> donor.name
+       }
+     ],
+     :html=>"Hello #{donor.name}. We received a request to change your password. If you did not request a password reset, ignored this email. <br /><br /> If you do wish to reset your password, click here to confirm: https://wwwtest.giv2giv.org/#reset_password?reset_token=#{donor.password_reset_token}",
+     :from_email=>"hello@giv2giv.org"  
+    }
+    sending = m.messages.send message
+  end
+
+  def reset_password(donor)
+    m= Mandrill::API.new  
+    message = {  
+     :subject=> "[ giv2giv.org ] Your new giv2giv.org password",
+     :from_name=> "giv2giv.org",  
+     :text=>"Hello #{donor.name}. You've successfully reset your password at giv2giv.org",
      :to=>[  
        {  
-         :email=> donor.email,
-         :name=> donor.name  
+         :email=> donor.email
        }  
      ],  
-     :html=>"Hello #{donor.name}. We received a request to change your password. If you did not request a password reset, ignored this email. <br /><br /> If you do wish to reset your password, click here to confirm: https://api.giv2giv.org/api/donors/reset_password.json?reset_token=#{donor.password_reset_token}",
+     :html=>"Hello #{donor.name}. You've successfully reset your password at giv2giv.org <br />  Please log in at giv2giv.org to continue building a legacy!",
      :from_email=>"hello@giv2giv.org"  
     }  
     sending = m.messages.send message
   end
 
-  def reset_password(email, new_password)
+  def new_subscription(donor, endowment_name, amount)
     m= Mandrill::API.new  
     message = {  
-     :subject=> "[ giv2giv.org ] Your new giv2giv.org password",
+     :subject=> "[ giv2giv.org ] New subscription",
      :from_name=> "giv2giv.org",  
-     :text=>"Hello #{donor.name}. We've changed your password to #{new_password}   Please log in at giv2giv.org to change this to something easy to remember, but hard to guess.",
+     :text=>"Hello giv2givers. We've got a new subscription! Donor #{donor.name} (#{donor.email} subscribed to endowment #{endowment_name} at $#{amount}/month",
      :to=>[  
        {  
-         :email=> email
-       }  
+        :email => "kevinpuj@gmail.com",
+        :name => "Kevin Pujanauski"
+       },
+       {
+        :email => "tfmoor@gmail.com",
+        :name => "Travis Moore"
+       },
+       {
+        :email => "michael.blinn@giv2giv.org",
+        :name => "Michael Blinn"
+       }
      ],  
-     :html=>"Hello #{donor.name}. We've changed your password to #{new_password} <br />  Please log in at giv2giv.org to change this to something easy to remember, but hard to guess.",
+     :html=>"Hello giv2givers. We've got a new subscription! Donor #{donor.name} (#{donor.email} subscribed to endowment #{endowment_name} at #{amount}",
      :from_email=>"hello@giv2giv.org"  
     }  
     sending = m.messages.send message
   end
+
+  def mail_invite(to_email, from_email)
+    m= Mandrill::API.new  
+    message = {  
+     :subject=> "[ giv2giv.org ] Invitation to giv2giv.org",
+     :from_name=> "giv2giv.org",  
+     :text=>"Hello! You've been invited to build a legacy at giv2giv.org by #{from_email}. Learn more at https://giv2giv.org",
+     :to=>[
+       {
+         :email=> to_email
+       }
+     ],
+     :html=>"Hello! You've been invited to build a legacy at giv2giv.org by #{from_email}. Learn more at https://giv2giv.org",
+     :from_email=>from_email  
+    }
+    sending = m.messages.send message
+  end
+
+  
 
 end

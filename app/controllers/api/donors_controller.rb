@@ -17,7 +17,6 @@ class Api::DonorsController < Api::BaseController
         require 'gibbon'
         gb = Gibbon::API.new(App.mailer['mailchimp_key'])
         gb.lists.subscribe({:id => App.mailer['mailchimp_list_id'], :email => {:email => donor.email}, :merge_vars => {:FNAME => donor.name}, :double_optin => false})
-
         invite = Invite.where("hash_token = ?", params[:hash_token])
         if invite
           invite.accepted = true
@@ -33,7 +32,6 @@ class Api::DonorsController < Api::BaseController
   end
 
   def send_invite
-
     respond_to do |format|
       if (params[:email])
         invite = Invite.new()
@@ -42,8 +40,8 @@ class Api::DonorsController < Api::BaseController
         invite.hash_token = SecureRandom.uuid
         invite.accepted = false
       end
-    
       if invite.save
+        DonorMailer.mail_invite(params[:email], current_donor.email)
         format.json { render json: invite, status: :created }
       else
         format.json { render json: {:message => "unauthorized"}.to_json, status: :unprocessable_entity }
@@ -61,7 +59,7 @@ class Api::DonorsController < Api::BaseController
       donor_total_amount_of_grants = current_donor.grants.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:grant_amount).to_f
       donor_total_amount_of_pending_grants = current_donor.grants.where("(status = ? OR status = ?)", 'pending_acceptance', 'pending_approval').sum(:grant_amount).to_f
       donor_total_number_of_pending_grants = current_donor.grants.where("(status = ? OR status = ?)", 'pending_acceptance', 'pending_approval').count
-      donor_balance_history = (donor_first_donation_date..Date.today).select {|d| (d.day % 7) == 0}.map { |date| {"date"=>date, "balance"=>donor_balance_on(date)} }
+      donor_balance_history = (donor_first_donation_date..Date.today).select {|d| (d.day % 7 ) == 0 || d==Date.today}.map { |date| {"date"=>date, "balance"=>donor_balance_on(date)} }
       donor_active_subscriptions = current_donor.donor_subscriptions.where("canceled_at IS NULL OR canceled_at = ?", false).sum(:gross_amount).floor2(2)
     else
       donor_current_balance = 0.0
@@ -84,8 +82,7 @@ class Api::DonorsController < Api::BaseController
     total_number_of_donations = Donation.count
     total_amount_of_donations = Donation.sum(:gross_amount).to_f
 
-    global_balance_history = (global_first_donation_date..Date.today).select {|d| (d.day % 7) == 0}.map { |date| {"date"=>date, "balance"=> global_balance_on(date)} }
-    #global_balance_history = (global_first_donation_date..Date.today).select {|d| (d.day % 7) == 0 || d==Date.today}.map { |date| {"date"=>date, "balance"=> global_balance_on(date)} }
+    global_balance_history = (global_first_donation_date..Date.today).select {|d| (d.day % 7) == 0 || d==Date.today}.map { |date| {"date"=>date, "balance"=> global_balance_on(date)} }
 
     total_number_of_grants = Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').count
     total_amount_of_grants = Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:grant_amount).to_f
@@ -121,7 +118,17 @@ class Api::DonorsController < Api::BaseController
   end
 
   def subscriptions
-    subscriptions = current_donor.donor_subscriptions
+
+    if params[:current_only]
+      subscriptions = current_donor.donor_subscriptions.where("canceled_at IS NULL")
+    else
+      subscriptions = current_donor.donor_subscriptions
+    end
+
+    if params[:group]
+      subscriptions = subscriptions.group(:endowment_id)
+    end
+
     subscriptions ||= []
     subscriptions_list = []
     
@@ -131,11 +138,12 @@ class Api::DonorsController < Api::BaseController
 
       subscriptions_hash = {
         "subscription_id" => subscription.id,
-        "endowment_id" => endowment.id,
+        "id" => endowment.id,
         "created_at" => endowment.created_at,
         "updated_at" => endowment.updated_at,
         "canceled_at" => subscription.canceled_at,
         "name" => endowment.name,
+        "slug" => endowment.slug,
         "description" => endowment.description,
         "my_balances" => current_donor.my_balances(endowment.id),
         "global_balances" => endowment.global_balances,
@@ -164,6 +172,8 @@ class Api::DonorsController < Api::BaseController
   end
 
   def show
+    gb = Gibbon::API.new(App.mailer['mailchimp_key'])
+
     respond_to do |format|
       format.json { render json: current_donor }
     end
@@ -177,31 +187,41 @@ class Api::DonorsController < Api::BaseController
 
   def reset_password
     donor = Donor.find_by_password_reset_token!(params[:reset_token])
-
-    if donor
+    if donor && params[:password]
       unless donor.expire_password_reset < 2.hours.ago
-        new_password = SecureRandom.base64(6)
-        if donor.update_attributes(password: secure_password(new_password))
-          DonorMailer.reset_password(donor.email, new_password).deliver
-          message = "Your new password has been sent to your email"
-        else
-          message = "Failed to reset password"
-        end
+        donor.password = secure_password(params[:password])
+        donor.password_reset_token = nil
+        donor.save!
+        DonorMailer.reset_password(donor).deliver
+        message = "Password successfully reset"
       else
         message = "Password reset has expired"
       end
       render json: { :message => message }.to_json
     else
-      render json: { :message => "Password reset has expired or not exist." }.to_json
+      render json: { :message => "Invalid token." }.to_json
     end
+  end
 
+  def subscribe
+    gb = Gibbon::API.new(App.mailer['mailchimp_key'])
+    gb.lists.subscribe({:id => App.mailer['mailchimp_list_id'], :email => {:email => current_donor.email}, :merge_vars => {:FNAME => current_donor.name}, :double_optin => false})
+    current_donor.subscribed=true
+    current_donor.save!
+    render json: { :message => "Subscribed." }.to_json
+  end
+  def unsubscribe
+    gb = Gibbon::API.new(App.mailer['mailchimp_key'])
+    gb.lists.unsubscribe({:id => App.mailer['mailchimp_list_id'], :email => {:email => current_donor.email}, :delete_member => true, :send_notify => true})
+    current_donor.subscribed=false
+    current_donor.save!
+    render json: { :message => "Unsubscribed." }.to_json
   end
 
   def donations
  
     donations ||= []
     donations_list = []
-
 
     if params.has_key?(:start_date) && params.has_key?(:end_date) && params.has_key?(:endowment_id)
       donations = current_donor.donations.where("endowment_id = ? AND DATE(donations.created_at) between ? AND ?", params[:endowment_id], params[:start_date], params[:end_date])
@@ -234,7 +254,7 @@ class Api::DonorsController < Api::BaseController
       donations_list << donations_hash
     
     end
-    render json: { :donations => donations_list, :total => total, :timestamp => Time.new.to_i, }
+    render json: { :donations => donations_list, :total => total.to_f, :timestamp => Time.new.to_i, }
   end
 end
 
@@ -247,14 +267,18 @@ end
 
 def global_balance_on(date)
   last_donation_price = Share.last.donation_price rescue 0.0
-  donated_shares = Donation.where("created_at <= ?", date).sum(:shares_added) rescue 0.0
-  granted_shares = Grant.where("created_at <= ? AND (status = ? OR status = ?)", date, 'accepted', 'pending_acceptance').sum(:shares_subtracted) rescue 0.0
+  dt = DateTime.parse(date.to_s)
+  dt = dt + 11.hours + 59.minutes + 59.seconds
+  donated_shares = Donation.where("created_at <= ?", dt).sum(:shares_added) rescue 0.0
+  granted_shares = Grant.where("created_at <= ? AND (status = ? OR status = ?)", dt, 'accepted', 'pending_acceptance').sum(:shares_subtracted) rescue 0.0
   (last_donation_price * (donated_shares - granted_shares)).floor2(2)
 end
 
 def donor_balance_on(date)
   last_donation_price = Share.last.donation_price rescue 0.0
-  donated_shares = current_donor.donations.where("created_at <= ?", date).sum(:shares_added) rescue 0.0
-  granted_shares = current_donor.grants.where("created_at <= ? AND (status = ? OR status = ?)", date, 'accepted', 'pending_acceptance').sum(:shares_subtracted) rescue 0.0
+  dt = DateTime.parse(date.to_s)
+  dt = dt + 11.hours + 59.minutes + 59.seconds
+  donated_shares = current_donor.donations.where("created_at <= ?", dt).sum(:shares_added) rescue 0.0
+  granted_shares = current_donor.grants.where("created_at <= ? AND (status = ? OR status = ?)", dt, 'accepted', 'pending_acceptance').sum(:shares_subtracted) rescue 0.0
   (last_donation_price * (donated_shares - granted_shares)).floor2(2)
 end

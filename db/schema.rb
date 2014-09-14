@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140409194606) do
+ActiveRecord::Schema.define(:version => 20140914031901) do
 
   create_table "charities", :force => true do |t|
     t.string   "name",                :null => false
@@ -51,49 +51,20 @@ ActiveRecord::Schema.define(:version => 20140409194606) do
 
   add_index "charities_tags", ["charity_id", "tag_id"], :name => "index_charities_tags_on_charity_id_and_tag_id", :unique => true
 
-  create_table "charity_grants", :force => true do |t|
-    t.integer  "charity_id"
-    t.decimal  "shares_subtracted", :precision => 30, :scale => 20
-    t.integer  "transaction_id"
-    t.float    "transaction_fee"
-    t.float    "giv2giv_fee"
-    t.float    "gross_amount"
-    t.float    "grant_amount"
-    t.string   "status"
-    t.datetime "created_at",                                        :null => false
-    t.datetime "updated_at",                                        :null => false
-  end
-
   create_table "donations", :force => true do |t|
-    t.float    "gross_amount",                                       :null => false
+    t.decimal  "gross_amount",       :precision => 30, :scale => 2,  :null => false
     t.integer  "endowment_id",                                       :null => false
     t.integer  "payment_account_id",                                 :null => false
     t.datetime "created_at",                                         :null => false
     t.datetime "updated_at",                                         :null => false
     t.decimal  "shares_added",       :precision => 30, :scale => 20
     t.integer  "donor_id"
-    t.float    "transaction_fees"
-    t.float    "net_amount"
+    t.decimal  "transaction_fee",    :precision => 10, :scale => 2,  :null => false
+    t.decimal  "net_amount",         :precision => 30, :scale => 2,  :null => false
   end
 
   add_index "donations", ["endowment_id"], :name => "index_donations_on_endowment_id"
   add_index "donations", ["payment_account_id"], :name => "index_donations_on_payment_account_id"
-
-  create_table "donor_grants", :force => true do |t|
-    t.integer  "charity_id"
-    t.integer  "endowment_id"
-    t.integer  "donor_id"
-    t.string   "status"
-    t.datetime "created_at",                                        :null => false
-    t.datetime "updated_at",                                        :null => false
-    t.decimal  "shares_subtracted", :precision => 30, :scale => 20
-    t.date     "date"
-    t.integer  "transaction_id"
-    t.decimal  "gross_amount",      :precision => 30, :scale => 20
-    t.decimal  "giv2giv_fee",       :precision => 30, :scale => 20
-    t.decimal  "transaction_fee",   :precision => 30, :scale => 20
-    t.decimal  "net_amount",        :precision => 30, :scale => 20
-  end
 
   create_table "donor_subscriptions", :force => true do |t|
     t.integer  "donor_id"
@@ -101,9 +72,9 @@ ActiveRecord::Schema.define(:version => 20140409194606) do
     t.integer  "endowment_id"
     t.string   "stripe_subscription_id"
     t.string   "type_subscription"
-    t.datetime "created_at",             :null => false
-    t.datetime "updated_at",             :null => false
-    t.float    "gross_amount"
+    t.datetime "created_at",                                            :null => false
+    t.datetime "updated_at",                                            :null => false
+    t.decimal  "gross_amount",           :precision => 30, :scale => 2, :null => false
     t.datetime "canceled_at"
   end
 
@@ -111,7 +82,6 @@ ActiveRecord::Schema.define(:version => 20140409194606) do
     t.string   "name",                  :null => false
     t.string   "email",                 :null => false
     t.string   "password",              :null => false
-    t.string   "facebook_id"
     t.string   "address"
     t.string   "city"
     t.string   "state"
@@ -124,8 +94,9 @@ ActiveRecord::Schema.define(:version => 20140409194606) do
     t.string   "password_reset_token"
     t.datetime "expire_password_reset"
     t.string   "auth_token"
-    t.datetime "accepted_terms"
+    t.boolean  "accepted_terms"
     t.datetime "accepted_terms_on",     :null => false
+    t.boolean  "subscribed"
   end
 
   create_table "endowments", :force => true do |t|
@@ -176,6 +147,30 @@ ActiveRecord::Schema.define(:version => 20140409194606) do
     t.string   "from_etrade_to_dwolla_transaction_id"
     t.string   "from_dwolla_to_giv2giv_transaction_id"
     t.string   "status"
+  end
+
+  create_table "grants", :force => true do |t|
+    t.integer  "charity_id"
+    t.integer  "endowment_id"
+    t.integer  "donor_id"
+    t.string   "status"
+    t.datetime "created_at",                                        :null => false
+    t.datetime "updated_at",                                        :null => false
+    t.decimal  "shares_subtracted", :precision => 30, :scale => 20
+    t.integer  "transaction_id"
+    t.decimal  "grant_amount",      :precision => 30, :scale => 2,  :null => false
+    t.decimal  "giv2giv_fee",       :precision => 30, :scale => 20
+    t.decimal  "transaction_fee",   :precision => 30, :scale => 20
+    t.decimal  "net_amount",        :precision => 30, :scale => 20
+  end
+
+  create_table "invites", :force => true do |t|
+    t.integer  "donor_id"
+    t.string   "email"
+    t.string   "hash_token"
+    t.boolean  "accepted"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
   end
 
   create_table "payment_accounts", :force => true do |t|

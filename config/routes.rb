@@ -2,8 +2,9 @@ Giv2givRails::Application.routes.draw do
 
   mount StripeEvent::Engine => '/stripe'
   #match '/dwolla' => 'dwolla#receive_hook', :via => :post
-    
+
   get '/auth/:provider/callback' => 'api/sessions#omniauth_callback'
+
   get '/signout', to: 'sessions#destroy', as: 'signout'
   get '/auth/failure', to: redirect('/')
   
@@ -17,14 +18,17 @@ Giv2givRails::Application.routes.draw do
       post 'sessions/destroy' => 'sessions#destroy'
       post 'sessions/create' => 'sessions#create'
       post 'sessions/ping' => 'sessions#ping'
+      post 'sessions/create_facebook' => 'sessions#create_facebook'
 
       resource :donors, :except => [:new, :edit, :destroy] do
         get 'balance_information', :on => :member
         get 'subscriptions', :on => :member
         get 'donations', :on => :member
         post 'forgot_password', :on => :member
-        get 'reset_password', :on => :member
+        post 'reset_password', :on => :member
         post 'send_invite', :on => :member
+        post 'subscribe', :on => :collection
+        post 'unsubscribe', :on => :collection
         
         resources :payment_accounts, :except => [:new, :edit] do        
           post 'donate_subscription', :on => :member

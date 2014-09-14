@@ -27,6 +27,9 @@ gem 'mailchimp-api'
 gem 'mandrill-api'
 gem 'gibbon'
 
+gem "koala", "~> 1.10.0rc"
+
+# We shouldn't need any of this now
 gem "omniauth"
 gem "omniauth-facebook"
 gem "omniauth-dwolla"
