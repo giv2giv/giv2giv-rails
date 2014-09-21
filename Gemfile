@@ -29,12 +29,9 @@ gem 'gibbon'
 
 gem "koala", "~> 1.10.0rc"
 
-# We shouldn't need any of this now
-gem "omniauth"
-gem "omniauth-facebook"
-gem "omniauth-dwolla"
-gem "omniauth-google-oauth2", "~> 0.2.1"
-gem "twitter"
+#Geocoding
+
+gem "geocoder"
 
 # CORS support
 gem 'rack-cors', :require => 'rack/cors'

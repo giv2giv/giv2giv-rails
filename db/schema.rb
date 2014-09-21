@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140914031901) do
+ActiveRecord::Schema.define(:version => 20140921122707) do
 
   create_table "charities", :force => true do |t|
     t.string   "name",                :null => false
@@ -30,6 +30,8 @@ ActiveRecord::Schema.define(:version => 20140914031901) do
     t.datetime "updated_at",          :null => false
     t.string   "email"
     t.string   "active"
+    t.float    "latitude"
+    t.float    "longitude"
   end
 
   add_index "charities", ["ein"], :name => "index_charities_on_ein"

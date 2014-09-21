@@ -1,6 +1,6 @@
 class Api::CharityController < Api::BaseController
 
-  skip_before_filter :require_authentication, :only => [:index, :show, :show_endowments]
+  skip_before_filter :require_authentication, :only => [:index, :show, :show_endowments, :near]
 
   def index
     pagenum = params[:page] || 1
@@ -19,8 +19,6 @@ class Api::CharityController < Api::BaseController
     cityq = "%#{city}%"
     #q = q.gsub!(' ','%')
     
-
-
     if cityq == "%%"
       charities_with_matching_name = Charity.where("name LIKE ? AND active = 'true'", nameq)
     else
@@ -64,6 +62,18 @@ class Api::CharityController < Api::BaseController
     respond_to do |format|
       if charity
         format.json { render json: charity.endowments}
+      else
+        format.json { head :not_found }
+      end
+    end
+  end
+
+  def near
+    location_by_ip = request.location
+    radius = params[:radius] || 25
+    respond_to do |format|
+      if location_by_ip
+        format.json { render json: Charity.near(location_by_ip, radius)}
       else
         format.json { head :not_found }
       end

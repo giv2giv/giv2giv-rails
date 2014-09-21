@@ -52,6 +52,7 @@ Giv2givRails::Application.routes.draw do
 
       resources :charity, :except => [:new, :edit, :destroy, :update, :create] do
         get 'show_endowments', :on => :member
+        get 'near', :on=> :collection
       end
 
       resources :wishes, :except => [:new, :edit, :destroy, :update] do
