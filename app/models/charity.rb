@@ -7,6 +7,8 @@ class Charity < ActiveRecord::Base
   #after_validation :geocode          # auto-fetch coordinates
 
   after_validation :geocode, if: ->(charity){ charity.address.present? and charity.address_changed? }
+  after_initialize :geocode, if: ->(charity){ charity.address.present? and charity.latitude.nil? }
+
 
   validates :ein, :presence => true, :uniqueness => true
   validates :name, :presence => true
