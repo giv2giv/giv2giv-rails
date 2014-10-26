@@ -1,12 +1,12 @@
 class AddTags < ActiveRecord::Migration
   def change
-    create_table :tags do |t|
+    create_table :tags, :id => false, :options => 'ENGINE=MyISAM' do |t|
       t.integer :id, :null => false
       t.string  :name, :limit => 1024
       t.timestamps
     end
 
-    create_table :charities_tags, :id => false do |t|
+    create_table :charities_tags, :id => false, :options => 'ENGINE=MyISAM' do |t|
       t.references :charity, :null => false
       t.references :tag, :null => false
     end

@@ -8,30 +8,29 @@ group :assets do
 end
 
 group :development, :test do
-  gem "rspec-rails"
-  gem "capybara"
-  gem "thin"
-  gem "debugger"
-  gem "factory_girl_rails"
-  gem "pry"
-  gem "pry-nav"
-  gem "awesome_print"
-
+  gem 'rspec-rails'
+  #gem 'capybara'
+  gem 'thin'
+  gem 'byebug'
+  gem 'factory_girl_rails'
+  gem 'pry'
+  gem 'pry-nav'
+  gem 'awesome_print'
 end
 
-gem 'rails', '3.2.17'
-gem "oauth", "~> 0.4.7" # for eTrade API
-gem "mysql2"
+gem 'rails', '4.1.4'
+
+gem 'oauth'
+gem 'mysql2'
 
 gem 'mailchimp-api'
 gem 'mandrill-api'
 gem 'gibbon'
 
-gem "koala", "~> 1.10.0rc"
+gem 'koala'
 
 #Geocoding
-
-gem "geocoder"
+gem 'geocoder'
 
 # CORS support
 gem 'rack-cors', :require => 'rack/cors'
@@ -55,7 +54,7 @@ gem 'spreadsheet'
 gem 'kaminari'
 
 # friendly-id for nice SEO endowment URLs
-gem "friendly_id", "~> 4.0.10"
+gem 'friendly_id'
 
 # Stripe events hooks
 gem 'stripe_event', :git => 'git://github.com/integrallis/stripe_event.git'

@@ -1,6 +1,6 @@
 class InitialMigration < ActiveRecord::Migration
   def change
-    create_table :charities do |t|
+    create_table :charities, :options => 'ENGINE=MyISAM' do |t|
       t.string :name, null: false
       t.integer :ein, null: false, unique: true
       t.string :address

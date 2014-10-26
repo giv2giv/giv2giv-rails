@@ -37,6 +37,7 @@ facebook:
 google:
   client_id:            your-google-client-id
   client_secret:        your-google-client-secret
+  geocoder_client_key:  your-google-maps-client-key
 
 twitter:
   api_key:              your-twitter-api-key

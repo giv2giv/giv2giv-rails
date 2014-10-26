@@ -47,12 +47,14 @@ Giv2givRails::Application.routes.draw do
         post 'anonymous_donation', :on => :member
         get 'my_endowments', :on=>:collection
         get 'trending', :on=>:collection
+        get 'near', :on=>:collection
         get 'find_by_slug', :on=> :collection
       end
 
       resources :charity, :except => [:new, :edit, :destroy, :update, :create] do
         get 'show_endowments', :on => :member
         get 'near', :on=> :collection
+        get 'find_by_slug', :on=> :collection
       end
 
       resources :wishes, :except => [:new, :edit, :destroy, :update] do

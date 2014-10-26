@@ -3,7 +3,7 @@ class Api::DonorsController < Api::BaseController
 
   def create
 
-    donor = Donor.new(params[:donor])
+    donor = Donor.new(donor_params)
     donor.type_donor = "registered"
     donor.password = secure_password(params[:donor][:password])
     if params[:accepted_terms]==true
@@ -33,7 +33,7 @@ class Api::DonorsController < Api::BaseController
 
   def send_invite
     respond_to do |format|
-      if (params[:email])
+      if(params.has_key?(:email]))
         invite = Invite.new()
         invite.donor_id = current_donor.id
         invite.email = params[:email]
@@ -119,13 +119,13 @@ class Api::DonorsController < Api::BaseController
 
   def subscriptions
 
-    if params[:current_only]
+    if params.has_key?(:current_only)
       subscriptions = current_donor.donor_subscriptions.where("canceled_at IS NULL")
     else
       subscriptions = current_donor.donor_subscriptions
     end
 
-    if params[:group]
+    if params.has_key?(:group)
       subscriptions = subscriptions.group(:endowment_id)
     end
 
@@ -160,7 +160,7 @@ class Api::DonorsController < Api::BaseController
     respond_to do |format|
 
       if donor && donor.id
-        donor.update_attributes(params[:donor].except(:accepted_terms, :password))
+        donor.update_attributes(donor_params)#params[:donor].except(:accepted_terms, :password))
         if params.has_key?(:password) 
           donor.update_attributes(password: secure_password(params[:password]))
         end
@@ -282,3 +282,9 @@ def donor_balance_on(date)
   granted_shares = current_donor.grants.where("created_at <= ? AND (status = ? OR status = ?)", dt, 'accepted', 'pending_acceptance').sum(:shares_subtracted) rescue 0.0
   (last_donation_price * (donated_shares - granted_shares)).floor2(2)
 end
+
+private
+  def donor_params
+    allow = [:name, :email, :password, :accepted_terms, :address, :city, :country, :phone_number, :zip]
+    params.require(:donor).permit(allow)
+  end

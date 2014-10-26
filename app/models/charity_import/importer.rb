@@ -85,6 +85,7 @@ module CharityImport
         request.run
       end
 
+
       def tag_charity(charity)
         tags = get_all_tags(charity)
         puts "Got all the tags: #{tags}" if @@verbose_with_misses
@@ -197,7 +198,6 @@ module CharityImport
 
             puts "---Creating Charity with #{options.inspect}" if @@verbose_with_misses
             charity = Charity.create_or_update(options)
-            tag_charity(charity)
         end
       end # end read_excel
 

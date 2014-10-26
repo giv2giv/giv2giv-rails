@@ -1,6 +1,6 @@
 class Api::EndowmentController < Api::BaseController
 
-  skip_before_filter :require_authentication, :only => [:index, :show, :find_by_slug, :trending]
+  skip_before_filter :require_authentication, :only => [:index, :show, :find_by_slug, :trending, :near, :anonymous_donation]
 
   def index
     pagenum = params[:page] || 1
@@ -40,7 +40,6 @@ class Api::EndowmentController < Api::BaseController
       end
     end
 
-
     endowments.each do |endowment|
 
       if current_donor && current_donor.id
@@ -75,7 +74,7 @@ class Api::EndowmentController < Api::BaseController
   def create
     respond_to do |format|
 
-      endowment = Endowment.new(params[:endowment])
+      endowment = Endowment.new(endowment_params)
 
       endowment.donor_id = current_session.donor_id
       if endowment.save
@@ -127,9 +126,11 @@ class Api::EndowmentController < Api::BaseController
 
   def anonymous_donation
     endowment = Endowment.find_by_id(params[:id])
+
     if endowment && params[:accepted_terms] && params[:stripeToken] && params[:amount]
       respond_to do |format|
-        if donation = endowment.anonymous_donation(params[:accepted_terms], params[:stripeToken], params[:endowment_id], params[:amount], params[:email])
+        donation = endowment.anonymous_donation(params[:accepted_terms], params[:stripeToken], params[:endowment_id], params[:amount], params[:email])
+        if donation
           format.json { render json: donation }
         else
           format.json { head :not_found }
@@ -145,7 +146,7 @@ class Api::EndowmentController < Api::BaseController
         if endowment.donations.size >= 1
           format.json { render json: "Cannot edit endowment when it already has donations to it" }
         else
-          endowment.update_attributes(params[:endowment])
+          endowment.update_attributes(endowment_params)
           format.json { render json: { :message => "endowment has been updated", :endowment => params[:endowment] }.to_json }
         end
       end
@@ -203,6 +204,17 @@ class Api::EndowmentController < Api::BaseController
     end
   end
 
+  def find_by_slug
+    endowment = Endowment.friendly.find(params[:slug])
+    respond_to do |format|
+      if endowment
+        format.json { render json: endowment }
+      else
+        format.json { head :not_found }
+      end
+    end
+  end
+
   def my_endowments
     endowments = current_donor.endowments
 
@@ -235,9 +247,7 @@ class Api::EndowmentController < Api::BaseController
   end
 
   def trending
-
     donations = Donation.where('created_at >= ?', 1.month.ago)
-
     endowments = donations.group(:endowment_id).map do |donation|
       {
         'id' => donation.endowment_id,
@@ -248,9 +258,46 @@ class Api::EndowmentController < Api::BaseController
     end
 
     respond_to do |format|
-      format.json { render json: { :endowments => endowments.sort_by { |id, name, since_date, donations| donations }.reverse!.first(10) } }
+      if endowments.present?
+        format.json { render json: { :endowments => endowments.sort_by { |id, name, since_date, donations| donations }.reverse!.first(10) } }
+      else
+        format.json { render json: { :message => "Not found" }.to_json }
+      end
     end
   end
+
+  def near
+    radius = (params[:radius] || 50).to_i
+    endowments_hash = []
+
+    if params.has_key?(:latitude) && params.has_key?(:longitude)
+      charities = Charity.near([params[:latitude].to_f, params[:longitude].to_f], radius, :order => "distance")
+    else
+      location_by_ip = request.location
+      charities = Charity.near([location_by_ip.latitude, location_by_ip.longitude], radius, :order => "distance")
+    end
+
+    if charities.present?
+      charities.each do |charity|
+        endowments_hash << charity.endowments
+      end
+    end
+
+    respond_to do |format|
+      if endowments_hash.present?
+        format.json { render json: endowments_hash }
+      else
+        format.json { head :not_found }
+      end
+    end
+  end
+
+
+  private
+    def endowment_params
+      allow = [:name, :visibility, :description, :charity_id]
+      params.require(:endowment).permit(allow)
+    end
   
 
 end

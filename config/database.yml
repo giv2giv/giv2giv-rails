@@ -1,23 +1,7 @@
-development:
-  adapter: mysql2
-  encoding: utf8
-  database: giv2giv_development
-  host: localhost
-  username: giv2giv
-  password: 
-
 test:
   adapter: mysql2
   encoding: utf8
   database: giv2giv_test
   host: localhost
-  username: giv2giv
-  password: 
-
-production:
-  adapter: mysql2
-  encoding: utf8
-  database: giv2giv_production
-  host: localhost
-  username: giv2giv
-  password: 
+  username: giv2giv_test
+  password: LS(*&3#Sph)D

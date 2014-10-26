@@ -1,6 +1,6 @@
 class Api::CharityController < Api::BaseController
 
-  skip_before_filter :require_authentication, :only => [:index, :show, :show_endowments, :near]
+  skip_before_filter :require_authentication, :only => [:index, :show, :find_by_slug, :show_endowments, :near]
 
   def index
     pagenum = params[:page] || 1
@@ -24,7 +24,6 @@ class Api::CharityController < Api::BaseController
     else
       charities_with_matching_name = Charity.where("name LIKE ? AND city LIKE ? AND active='true'", nameq, cityq)
     end
-
 
     #tag_limit = perpage - charities_with_matching_name.size
     #Tag.where("name LIKE ?", q).each do |t|
@@ -56,6 +55,17 @@ class Api::CharityController < Api::BaseController
       end
     end
   end
+  
+  def find_by_slug
+    charity = Charity.friendly.find(params[:slug])
+    respond_to do |format|
+      if charity
+        format.json { render json: charity }
+      else
+        format.json { head :not_found }
+      end
+    end
+  end
 
   def show_endowments
     charity = Charity.find(params[:id])
@@ -69,11 +79,18 @@ class Api::CharityController < Api::BaseController
   end
 
   def near
-    location_by_ip = request.location
-    radius = params[:radius] || 25
+    radius = (params[:radius] || 25).to_i
+
+    if params.has_key?(:latitude) && params.has_key?(:longitude)
+      charities = Charity.near([params[:latitude].to_f, params[:longitude].to_f], radius)
+    else
+      location_by_ip = request.location
+      charities = Charity.near([location_by_ip.latitude, location_by_ip.longitude], radius)
+    end
+
     respond_to do |format|
-      if location_by_ip
-        format.json { render json: Charity.near(location_by_ip, radius)}
+      if charities
+        format.json { render json: charities }
       else
         format.json { head :not_found }
       end

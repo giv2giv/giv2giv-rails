@@ -4,14 +4,9 @@ class Api::WishesController < Api::BaseController
 
   def create
 
-    wish=Wish.new(params[:wish])
-      #:page = params[:page],
-      #:wish_text = params[:wish_text],
-      #:created_at = DateTime(now),
-      #:updated_at = DateTime(now)
-    #)
+    wish = Wish.new(wish_params)
 
-    if current_donor.present? && current_donor.id
+    if current_donor.present? &&  current_donor.id
       wish.donor_id = current_donor.id
     end
 
@@ -35,5 +30,11 @@ class Api::WishesController < Api::BaseController
       format.json { render json: Wish.order("RAND()").limit(1) }
     end
   end
+
+  private
+    def wish_params
+      params.require(:wish).permit(:page, :wish_text, :donor_id)
+    end
+  
 
 end

@@ -8,7 +8,7 @@ class Api::SessionsController < Api::BaseController
 
     respond_to do |format|
       if donor
-        sess = Session.find_or_create_by_donor_id(donor.id)
+        sess = Session.where(:donor_id, donor.id).first_or_create({:donor_id => donor.id})
         format.json { render json: sess, status: :created }
       else
         format.json { render :json => {:message => "unauthorized"}.to_json, :status => :unauthorized }
@@ -135,7 +135,7 @@ class Api::SessionsController < Api::BaseController
       account.save!
     end
 
-    sess = Session.find_or_create_by_donor_id(donor.id)
+    sess = Session.where(:donor_id, donor_id).first_or_create
 
     respond_to do |format|
       if sess
@@ -145,7 +145,6 @@ class Api::SessionsController < Api::BaseController
       end
     end
   end
-
 
   def ping
     if current_session
@@ -158,7 +157,7 @@ class Api::SessionsController < Api::BaseController
   def destroy
     if current_session
       current_session.destroy
-      notice = "Successfuly remove your session"
+      notice = "Session destroyed"
     else
       notice = "You currently don't have any session active"
     end
@@ -167,5 +166,10 @@ class Api::SessionsController < Api::BaseController
       format.json { render :json => {:message => notice}.to_json }
     end
   end
+  private
+    def session_params
+      params.require(:session).permit(:email, :password, :donor_id)
+
+    end
 
 end

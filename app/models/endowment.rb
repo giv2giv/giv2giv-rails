@@ -72,33 +72,32 @@ class Endowment < ActiveRecord::Base
     }
   end
 
-  def anonymous_donation (accepted_terms, stripeToken, endowment_id, amount, email)
-    
-      if email.nil
-        email = 'anonymous_donor@' + SecureRandom.uuid + '.com'
-      end
+    def anonymous_donation (accepted_terms, stripeToken, endowment_id, amount, email)
+      
+        if email.blank?
+          email = 'anonymous_donor@' + SecureRandom.uuid + '.com'
+        end
 
-      anonymous_donor = Donor.new(
-          :name => 'Anonymous Donor',
-          :email=> email,
-          :password => SecureRandom.urlsafe_base64,
-          :accepted_terms => accepted_terms
-        )
+        anonymous_donor = Donor.new(
+            :name => 'Anonymous Donor',
+            :email=> email,
+            :password => SecureRandom.urlsafe_base64,
+            :accepted_terms => accepted_terms
+          )
 
-      anonymous_donor.type_donor = "anonymous"
+        anonymous_donor.type_donor = "anonymous"
 
-      if accepted_terms==true
-        anonymous_donor.accepted_terms = true
-        anonymous_donor.accepted_terms_on = DateTime.now      
-      end
+        if accepted_terms==true
+          anonymous_donor.accepted_terms = true
+          anonymous_donor.accepted_terms_on = DateTime.now      
+        end
 
-      anonymous_donor.save!
+        anonymous_donor.save!
 
-      payment = PaymentAccount.new_account(stripeToken, anonymous_donor.id, {:donor => anonymous_donor})
+        payment = PaymentAccount.new_account(stripeToken, anonymous_donor.id, {:donor => anonymous_donor})
 
-      donation = PaymentAccount.one_time_payment(amount, endowment_id, payment.id)
+        donation = PaymentAccount.one_time_payment(amount, endowment_id, payment.id)
 
-  end
- 
+    end
 
 end
