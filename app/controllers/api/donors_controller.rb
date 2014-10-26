@@ -33,7 +33,7 @@ class Api::DonorsController < Api::BaseController
 
   def send_invite
     respond_to do |format|
-      if(params.has_key?(:email]))
+      if(params.has_key?(:email))
         invite = Invite.new()
         invite.donor_id = current_donor.id
         invite.email = params[:email]
