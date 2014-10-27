@@ -142,6 +142,7 @@ class Api::DonorsController < Api::BaseController
         "created_at" => endowment.created_at,
         "updated_at" => endowment.updated_at,
         "canceled_at" => subscription.canceled_at,
+        "canceled_timestamp" => subscription.canceled_at.to_i,
         "name" => endowment.name,
         "slug" => endowment.slug,
         "description" => endowment.description,
