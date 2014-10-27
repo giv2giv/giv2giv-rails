@@ -37,7 +37,6 @@ class Api::SessionsController < Api::BaseController
     new_access_token = new_access_info["access_token"]
     new_access_expires_at = DateTime.now + new_access_info["expires"].to_i.seconds
 
-
     if !donor
       donor = Donor.new do |d|
         d.name = profile["name"]
@@ -65,7 +64,8 @@ class Api::SessionsController < Api::BaseController
       account.save!
     end
 
-    sess = Session.find_or_create_by_donor_id(donor.id)
+    #sess = Session.find_or_create_by_donor_id(donor.id)
+    sess = Session.where(:donor_id => donor.id).first_or_create!
 
     respond_to do |format|
       if sess
