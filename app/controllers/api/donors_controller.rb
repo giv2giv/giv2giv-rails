@@ -173,10 +173,10 @@ class Api::DonorsController < Api::BaseController
   end
 
   def show
-    gb = Gibbon::API.new(App.mailer['mailchimp_key'])
+    #gb = Gibbon::API.new(App.mailer['mailchimp_key'])
 
     respond_to do |format|
-      format.json { render json: current_donor }
+      format.json { render json: { :donor => current_donor }.to_json }
     end
   end
 

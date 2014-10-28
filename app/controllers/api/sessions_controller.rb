@@ -9,7 +9,7 @@ class Api::SessionsController < Api::BaseController
     respond_to do |format|
       if donor
         sess = Session.where(:donor_id, donor.id).first_or_create({:donor_id => donor.id})
-        format.json { render json: sess, status: :created }
+        format.json { render json: {:session => sess}.to_json, status: :created }
       else
         format.json { render :json => {:message => "unauthorized"}.to_json, :status => :unauthorized }
       end
@@ -69,9 +69,9 @@ class Api::SessionsController < Api::BaseController
 
     respond_to do |format|
       if sess
-        format.json { render json: sess, status: :created }
+        format.json { render json: {:session => sess}.to_json, status: :created }
       else
-        format.json { render json: {:message => "unauthorized"}.to_json, status: :unauthorized }      
+        format.json { render json: {:message => "unauthorized"}.to_json, status: :unauthorized }
       end
     end
   end
