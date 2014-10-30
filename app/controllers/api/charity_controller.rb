@@ -45,11 +45,12 @@ class Api::CharityController < Api::BaseController
   end
 
   def show
-    charity = Charity.find(params[:id])
+    charity = Charity.where("(id=? OR slug=?)", params[:id], params[:id]).last
+
     # Return charity.tags in response body
     respond_to do |format|
       if charity
-        format.json { render json: charity }
+        format.json { render json: { charity: charity } }
       else
         format.json { head :not_found }
       end

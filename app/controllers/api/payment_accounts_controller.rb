@@ -1,6 +1,6 @@
 class Api::PaymentAccountsController < Api::BaseController
   before_filter :current_donor_id, :except => [:index, :create]
-  skip_before_filter :current_donor_id, :only => [:all_donation_list, :cancel_subscription, :cancel_all_subscription]
+  skip_before_filter :current_donor_id, :only => [:all_donation_list, :cancel_subscription, :cancel_all_subscription, :verify_knox]
 
   def index
 
@@ -182,6 +182,20 @@ class Api::PaymentAccountsController < Api::BaseController
     else
       render :json => {:message => "unauthorized"}.to_json
     end
+  end
+
+  def verify_knox
+          render :json => {:message => "unauthorized"}.to_json
+=begin    sess = Session.where('token=?', params[:token])
+    if sess && params[:pst]=='Paid'
+      partner_key=App.knox['api_key']
+      partner_password=App.knox['api_password']
+      echo 'hi'
+      page = Nokogiri::HTML(open("https://knoxpayments.com/json/token.php?PARTNER_KEY="+partner_key+"&PARTNER_PASS="+partner_password+"&TRANS_ID="+params[:pay_id]+"&LIMIT_REQ=300"))
+      puts page.class   # => Nokogiri::HTML::Document
+    end
+=end
+
   end
 
   protected

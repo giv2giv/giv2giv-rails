@@ -36,6 +36,7 @@ Giv2givRails::Application.routes.draw do
           post 'one_time_payment', :on => :member
           get 'cancel_subscription', :on => :member
           get 'all_donation_list', :on => :collection
+          post 'verify_knox', :on => :collection
           #get 'cancel_all_subscription', :on => :collection #development stage
         end
       end
