@@ -1,6 +1,7 @@
 class DonorMailer < ActionMailer::Base
 
   require 'mandrill'
+
   ENV["MANDRILL_APIKEY"] = App.mailer["password"]
   
   def charge_success(donor, donation_amount)
@@ -94,12 +95,12 @@ class DonorMailer < ActionMailer::Base
     sending = m.messages.send message
   end
 
-  def new_subscription(donor, endowment_name, amount)
+  def new_subscription(donor, endowment_name, type, amount)
     m= Mandrill::API.new  
     message = {  
      :subject=> "[ giv2giv.org ] New subscription",
      :from_name=> "giv2giv.org",  
-     :text=>"Hello giv2givers. We've got a new subscription! Donor #{donor.name} (#{donor.email} subscribed to endowment #{endowment_name} at $#{amount}/month",
+     :text=>"Hello giv2givers. We've got a new subscription! Donor #{donor.name} (#{donor.email} did a "+type+" subscription to endowment #{endowment_name} at $#{amount}/month",
      :to=>[  
        {  
         :email => "kevinpuj@gmail.com",

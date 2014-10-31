@@ -43,6 +43,10 @@ twitter:
   api_key:              your-twitter-api-key
   api_secret:           your-twitter-api-secret
 
+knox:
+  api_key:               your-knox-api-key
+  api_password:          your-knox-api-password
+
 
 dwolla:
   api_key:        dwolla-api-key

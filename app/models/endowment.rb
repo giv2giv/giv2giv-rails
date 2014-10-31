@@ -94,9 +94,9 @@ class Endowment < ActiveRecord::Base
 
         anonymous_donor.save!
 
-        payment = PaymentAccount.new_account(stripeToken, anonymous_donor.id, {:donor => anonymous_donor})
+        #payment = PaymentAccount.new_account(stripeToken, anonymous_donor.id, {:donor => anonymous_donor})
 
-        donation = PaymentAccount.one_time_payment(amount, endowment_id, payment.id)
+        donation = PaymentAccount.stripe_charge('single_donation',amount, endowment_id, payment.id)
 
     end
 

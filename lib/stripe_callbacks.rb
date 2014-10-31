@@ -16,14 +16,9 @@ class StripeCallbacks
     charge_amount = BigDecimal(transaction.amount.to_s) / 100
     transaction_fee = BigDecimal(transaction.fee.to_s) / 100
     donation_amount = BigDecimal(transaction.net.to_s) / 100
+    transaction_id = transaction.id.to_s
 
-    donation = Donation.add_donation(subscription.id, charge_amount, transaction_fee, donation_amount)
-
-    if !donation.save
-      puts "ERROR!" # TODO: better error handling
-      return
-    end
-
+    donation = Donation.add_donation(subscription.id, charge_amount, transaction_id, transaction_fee, donation_amount)
     donor = Donor.find(subscription.donor_id)
     DonorMailer.charge_success(donor, charge_amount).deliver
 

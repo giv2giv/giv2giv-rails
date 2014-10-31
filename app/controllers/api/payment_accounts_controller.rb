@@ -1,6 +1,7 @@
 class Api::PaymentAccountsController < Api::BaseController
-  before_filter :current_donor_id, :except => [:index, :create]
-  skip_before_filter :current_donor_id, :only => [:all_donation_list, :cancel_subscription, :cancel_all_subscription, :verify_knox]
+  skip_before_filter :require_authentication, :only => [:verify_knox]
+  before_filter :current_payment_account, :except => [:index, :create, :verify_knox]
+  skip_before_filter :current_payment_account, :only => [:all_donation_list, :cancel_subscription, :cancel_all_subscription]
 
   def index
 
@@ -43,7 +44,7 @@ class Api::PaymentAccountsController < Api::BaseController
       render json: { :message => "Please provide your stripe token" }.to_json
     else
       if params.has_key?(:processor)
-        payment = PaymentAccount.new_account(set_token, current_donor.id, {:donor => current_donor, :processor => params[:processor]})
+        payment = PaymentAccount.new_stripe_account(set_token, current_donor.id, {:donor => current_donor, :processor => params[:processor]})
         render json: payment.to_json
       else
         render json: { :message => "Wrong parameters" }.to_json
@@ -51,36 +52,10 @@ class Api::PaymentAccountsController < Api::BaseController
     end
   end
 
-  def update
-    set_token = params[:stripeToken]
-    if set_token.blank?
-      render json: { :message => "Please provide your stripe token"}.to_json
-    else
-      params[:payment_account] = {"processor"=> params[:processor]}#, "stripeToken"=> params[:stripeToken]}
-
-      if params.has_key?(:payment_account)
-        payment = PaymentAccount.update_account(set_token, current_donor.id, current_donor_id, {:donor => current_donor}.merge(params[:payment_account]))
-
-        respond_to do |format|
-          if current_donor_id && current_donor_id.update_attributes(params[:payment_account])
-            format.json { render json: current_donor_id }
-          elsif current_donor_id
-            format.json { render json: current_donor_id.errors, status: :unprocessable_entity }
-          else
-            format.json { head :not_found }
-          end
-        end
-
-      else
-        render json: {:message => "Wrong parameters"}.to_json
-      end
-    end
-  end
-
   def show
     respond_to do |format|
-      if current_donor_id
-        format.json { render json: current_donor_id }
+      if current_payment_account
+        format.json { render json: current_payment_account }
       else
         format.json { head :not_found }
       end
@@ -90,7 +65,7 @@ class Api::PaymentAccountsController < Api::BaseController
   def destroy
     require "stripe"
     respond_to do |format|
-      if current_donor_id
+      if current_payment_account
           account = current_donor.payment_accounts.find(params[:id])
           subscription = DonorSubscription.find_by_payment_account_id(params[:id])
           customer = Stripe::Customer.retrieve(account.stripe_cust_id)
@@ -110,7 +85,7 @@ class Api::PaymentAccountsController < Api::BaseController
 
   def donate_subscription
     respond_to do |format|
-      if current_donor_id && donation = current_donor_id.donate_subscription(params[:amount], params[:endowment_id], params[:id])
+      if current_payment_account && donation = current_payment_account.stripe_charge('per-month',params[:amount], params[:endowment_id])
         format.json { render json: donation }
       else
         format.json { head :not_found }
@@ -120,7 +95,7 @@ class Api::PaymentAccountsController < Api::BaseController
 
   def one_time_payment
     respond_to do |format|
-      if current_donor_id && donation = current_donor_id.one_time_payment(params[:amount], params[:endowment_id], params[:id])
+      if current_payment_account && donation = current_payment_account.stripe_charge('single_donation',params[:amount], params[:endowment_id])
         format.json { render json: donation }
        else
         format.json { head :not_found }
@@ -130,8 +105,8 @@ class Api::PaymentAccountsController < Api::BaseController
 
   def donation_list
     respond_to do |format|
-      if current_donor_id
-        format.json { render json: current_donor_id.donations }
+      if current_payment_account
+        format.json { render json: current_payment_account.donations }
       else
         format.json { head :not_found }
       end
@@ -185,22 +160,33 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def verify_knox
-          render :json => {:message => "unauthorized"}.to_json
-=begin    sess = Session.where('token=?', params[:token])
+    require 'open-uri'
+    require 'json'
+
+    sess = Session.where('token=?', params[:token]).first
+
     if sess && params[:pst]=='Paid'
+      knox_donor = Donor.where('id=?', sess.donor_id).first
       partner_key=App.knox['api_key']
       partner_password=App.knox['api_password']
-      echo 'hi'
-      page = Nokogiri::HTML(open("https://knoxpayments.com/json/token.php?PARTNER_KEY="+partner_key+"&PARTNER_PASS="+partner_password+"&TRANS_ID="+params[:pay_id]+"&LIMIT_REQ=300"))
-      puts page.class   # => Nokogiri::HTML::Document
-    end
-=end
+      page = JSON.parse(open("https://knoxpayments.com/json/token.php?PARTNER_KEY="+partner_key+"&PARTNER_PASS="+partner_password+"&TRANS_ID="+params[:pay_id]+"&LIMIT_REQ=300").read())
 
+      page=page["JSonDataResult"]
+
+      #payment_account = PaymentAccount.new_knox_account(set_token, knox_donor.id, {:donor => knox_donor, :processor => params[:processor]})
+
+      respond_to do |format|
+        format.json { render json: { :page => page }.to_json }
+      end
+
+      
+      
+    end
   end
 
   protected
 
-  def current_donor_id
+  def current_payment_account
     current_donor.payment_accounts.find(params[:id])
   end
 
