@@ -1,12 +1,12 @@
 require 'nokogiri'
 require 'typhoeus'
-require 'spreadsheet'
+require 'csv'
 
 module CharityImport
   class Importer
     EXCEL_DIRECTORY = 'tmp/charity_excel_files'
     IRS_URL = 'http://www.irs.gov/pub/irs-soi/'
-    LINK_REGEX = /eo_[^.]{2,4}.xls/
+    LINK_REGEX = /eo_[^.]{2}.csv/
 
     DESIRED_DEDUCTION_CODES = ['1']
     DESIRED_FOUNDATION_CODES = ['0','2','3','9','10','11','12','13','14','15','16']
@@ -29,7 +29,7 @@ module CharityImport
           files.each { |file| download_eo_file(file) }
         end
 
-        files.each { |file| read_excel(file) }
+        files.each { |file| read_csv(file) }
       end
 
       def import_single_file(file_name, skip_downloading = true)
@@ -38,7 +38,7 @@ module CharityImport
           create_excel_dir_if_needed
           download_eo_file(file_name)
         end
-        read_excel(file_name)
+        read_csv(file_name)
       end
 
       def add_email_charity(charity_id, charity_email)
@@ -154,53 +154,87 @@ module CharityImport
         ntee_core_codes[ntee_code] if ntee_code.present?
       end
 
-      def read_excel(file)
+      def read_csv(file)
         file_with_dir = charity_excel_dir + file
         raise ArgumentError, "File not found: #{file_with_dir}" if !File.exists?(file_with_dir)
 
-        puts "Reading spreadsheet: #{file}" if @@verbose
+        puts "Reading CSV: #{file}" if @@verbose
 
-        book = Spreadsheet.open(file_with_dir)
-        sheet = book.worksheet(0)
-        rows = sheet.rows
-
-        rows.each_with_index do |row, i|
-          next if i == 0 # first row is headings
-
+        CSV.foreach(file_with_dir, row_sep: :auto, headers: true) do |row|
           ein = row[0].to_s.strip
           next if ein.empty?
 
           name = row[1].to_s.strip
-          deduction_code = row[12].to_int.to_s.strip
-          foundation_code = row[13].to_int.to_s.strip
+          deductibility_code = row[12].to_s.strip
+          foundation_code = row[13].to_s.strip
 
-          puts "EIN:#{ein} Name:#{name} Deduction Code:#{deduction_code} Foundation Code:#{foundation_code}" if @@verbose_with_misses
+          puts "EIN:#{ein} Name:#{name} Deduction Code:#{deductibility_code} Foundation Code:#{foundation_code}" if @@verbose_with_misses
 
-          if ((DESIRED_DEDUCTION_CODES.include?(deduction_code)) && (DESIRED_FOUNDATION_CODES.include?(foundation_code)))
+          if ((DESIRED_DEDUCTION_CODES.include?(deductibility_code)) && (DESIRED_FOUNDATION_CODES.include?(foundation_code)))
               active = 'true'
           else
               active = 'false'
           end
 
+          ruling_date = row[11].to_s.strip
+          if ruling_date.to_i != 0
+            Rails.logger.debug 'valid ruling pre'
+            Rails.logger.debug ruling_date
+            ruling_date = Date.strptime(ruling_date, "%Y%m")
+            Rails.logger.debug 'valid ruling post'
+          else
+            Rails.logger.debug 'hi'
+            ruling_date = nil
+          end
+
+          tax_period = row[17].to_s.strip
+          if tax_period.to_i != 0
+            Rails.logger.debug 'valid tax pre'
+            tax_period = Date.strptime(tax_period, "%Y%m")
+            Rails.logger.debug 'valid tax post'
+          else
+            Rails.logger.debug 'tax'
+            tax_period = nil
+          end
+
           options = {
-              :ein => ein,
-              :name => name,
-              :address => row[3].to_s.strip,
-              :city => row[4].to_s.strip,
-              :state => row[5].to_s.strip,
-              :zip => row[6].to_s.strip,
-              :ntee_code => row[30].to_s.strip,
-              :subsection_code => row[8].to_s.strip,
-              :classification_code => row[10].to_s.strip,
-              :activity_code => row[14].to_s.strip,
-              :active => active
-              }
+            :ein => ein,
+            :name => name.titleize,
+            :care_of => row[2].to_s.strip,
+            :address => row[3].to_s.strip,
+            :city => row[4].to_s.strip.titleize,
+            :state => row[5].to_s.strip,
+            :zip => row[6].to_s.strip,
+            :group_code => row[7].to_s.strip,
+            :subsection_code => row[8].to_s.strip,
+            :affiliation_code => row[9].to_s.strip,
+            :classification_code => row[10].to_s.strip,
+            :ruling_date => ruling_date,
+            :deductibility_code => deductibility_code,
+            :foundation_code => foundation_code,
+            :activity_code => row[14].to_s.strip,
+            :organization_code => row[15].to_s.strip,
+            :status_code => row[16].to_s.strip,
+            :tax_period => tax_period,
+            :asset_code => row[18].to_s.strip,
+            :income_code => row[19].to_s.strip,
+            :filing_requirement_code => row[20].to_s.strip,
+            :pf_filing_requirement_code => row[21].to_s.strip,
+            :accounting_period => row[22].to_s.strip,
+            :asset_amount => row[23].to_i,
+            :income_amount => row[24].to_i,
+            :revenue_amount => row[25].to_s.strip,
+            :ntee_code => row[26].to_s.strip,
+            :secondary_name => row[27].to_s.strip.titleize,
+            :active => active
+          }
 
-            puts "---Creating Charity with #{options.inspect}" if @@verbose_with_misses
-            charity = Charity.create_or_update(options)
-        end
-      end # end read_excel
+          puts "---Creating Charity with #{options.inspect}" if @@verbose_with_misses
 
+          charity = Charity.find_or_initialize_by(ein: ein)
+          charity.update(options)
+        end # end CSV.foreach
+      end # end read_csv
     end # end self
   end
 end

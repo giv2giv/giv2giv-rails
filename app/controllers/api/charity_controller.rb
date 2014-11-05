@@ -13,6 +13,7 @@ class Api::CharityController < Api::BaseController
 
     charities_with_matching_tags = []
     charities_with_matching_name = []
+    charity_list = []
 
     #let's not sqli ourselves in the API
     nameq = "%#{query}%"
@@ -31,26 +32,74 @@ class Api::CharityController < Api::BaseController
     #    charities_with_matching_tags << t.charities
     #end
 
-#    charities = charities_with_matching_name + charities_with_matching_tags
-#    results = charities.compact.uniq.paginate(:page => page, :per_page => perpage, :total_entries => charities.count)
-    results = charities_with_matching_name.page(pagenum).per(perpage)
+    charities_with_matching_name.page(pagenum).per(perpage).each do |charity|
+
+      #if current_donor && current_donor.id
+        #my_balances = current_donor.my_balances(endowment.id)
+      #end
+      charity_hash = {
+      "id" => charity.id,
+      "created_at" => charity.created_at,
+      "updated_at" => charity.updated_at,
+      "ein" => charity.ein,
+      "name" => charity.name.titleize,
+      "address" => charity.address,
+      "city" => charity.city.titleize,
+      "state" => charity.state,
+      "zip" => charity.zip,
+      "tax_period" => charity.group_code,
+      "asset_amount" => charity.group_code,
+      "income_amount" => charity.group_code,
+      "revenue_amount" => charity.revenue_amount,
+      "slug" => charity.slug,
+      "tags" => charity.tags.pluck(:name),
+      "donor_count" => charity.donor_count,
+      "current_balance" => charity.current_balance,
+      "pending_grants" => charity.pending_grants,
+      "delivered_grants" => charity.delivered_grants
+    }
+      charity_list << charity_hash
+    end # charity.each
 
     respond_to do |format|
-      if !results.empty?
-        format.json { render json: results.to_json(:include => [:tags => { :only => :name }] ) }
+      if charity_list.present?
+        format.json { render json: { :charities => charity_list } }
       else
-        format.json { render json: {:message => "Not found"}.to_json }
+        format.json { render json: { :message => "Not found" }.to_json }
       end
     end
+
   end
 
   def show
     charity = Charity.where("(id=? OR slug=?)", params[:id], params[:id]).last
 
-    # Return charity.tags in response body
+    charity_hash = {
+      "id" => charity.id,
+      "created_at" => charity.created_at,
+      "updated_at" => charity.updated_at,
+      "ein" => charity.ein,
+      "name" => charity.name.titleize,
+      "address" => charity.address,
+      "city" => charity.city.titleize,
+      "state" => charity.state,
+      "zip" => charity.zip,
+      "tax_period" => charity.group_code,
+      "asset_amount" => charity.group_code,
+      "income_amount" => charity.group_code,
+      "revenue_amount" => charity.revenue_amount,
+      "slug" => charity.slug,
+      "tags" => charity.tags.pluck(:name),
+      "donor_count" => charity.donor_count,
+      "current_balance" => charity.current_balance,
+      "pending_grants" => charity.pending_grants,
+      "delivered_grants" => charity.delivered_grants
+    }
+
+
     respond_to do |format|
       if charity
-        format.json { render json: { charity: charity } }
+        format.json { render json: { :charity => charity_hash } }
       else
         format.json { head :not_found }
       end
@@ -81,6 +130,11 @@ class Api::CharityController < Api::BaseController
 
   def near
     radius = (params[:radius] || 25).to_i
+    charity_list=[]
+
+    if radius > 100
+      radius = 100
+    end
 
     if params.has_key?(:latitude) && params.has_key?(:longitude)
       charities = Charity.near([params[:latitude].to_f, params[:longitude].to_f], radius)
@@ -89,11 +143,37 @@ class Api::CharityController < Api::BaseController
       charities = Charity.near([location_by_ip.latitude, location_by_ip.longitude], radius)
     end
 
+    charities.each do |charity|
+
+      charity_hash = {
+        "id" => charity.id,
+        "created_at" => charity.created_at,
+        "updated_at" => charity.updated_at,
+        "ein" => charity.ein,
+        "name" => charity.name.titleize,
+        "address" => charity.address,
+        "city" => charity.city.titleize,
+        "state" => charity.state,
+        "zip" => charity.zip,
+        "tax_period" => charity.group_code,
+        "asset_amount" => charity.group_code,
+        "income_amount" => charity.group_code,
+        "revenue_amount" => charity.revenue_amount,
+        "slug" => charity.slug,
+        "tags" => charity.tags.pluck(:name),
+        "donor_count" => charity.donor_count,
+        "current_balance" => charity.current_balance,
+        "pending_grants" => charity.pending_grants,
+        "delivered_grants" => charity.delivered_grants
+      }
+      charity_list << charity_hash
+    end # charity.each
+
     respond_to do |format|
-      if charities
-        format.json { render json: charities }
+      if charity_list.present?
+        format.json { render json: { :charities => charity_list } }
       else
-        format.json { head :not_found }
+        format.json { render json: { :message => "Not found" }.to_json }
       end
     end
   end

@@ -29,8 +29,11 @@ gem 'gibbon'
 
 gem 'koala'
 
-#Geocoding
+#Charity geocoding
 gem 'geocoder'
+
+#Charity logo/image support
+gem 'paperclip'
 
 # CORS support
 gem 'rack-cors', :require => 'rack/cors'
@@ -48,7 +51,7 @@ gem 'httparty'
 # Gems used for the charity import
 gem 'nokogiri', :require => false
 gem 'typhoeus', :require => false
-gem 'spreadsheet'
+#gem 'spreadsheet'
 
 # pagination
 gem 'kaminari'

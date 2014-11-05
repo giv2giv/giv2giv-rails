@@ -40,6 +40,7 @@ class Api::EndowmentController < Api::BaseController
       end
     end
 
+
     endowments.each do |endowment|
 
       if current_donor && current_donor.id
@@ -56,7 +57,7 @@ class Api::EndowmentController < Api::BaseController
         "visibility" => endowment.visibility,
         "my_balances" => my_balances || "",
         "global_balances" => endowment.global_balances,
-        "charities" => endowment.charities              
+        "charities" => endowment.charities           
       }
       endowments_list << endowment_hash
     end # endowment.each
@@ -94,12 +95,9 @@ class Api::EndowmentController < Api::BaseController
 
     if current_donor.present? && current_donor.id
       endowment = Endowment.where("(id = ? OR slug = ?) AND (visibility = ? OR donor_id = ?)",params[:id], params[:id], "public", current_donor.id).last
+      my_balances = current_donor.my_balances(endowment.id)
     else
       endowment = Endowment.where("(id = ? OR slug = ?) AND visibility = ?", params[:id], params[:id], "public").last
-    end
-
-    if current_donor && current_donor.id
-      my_balances = current_donor.my_balances(endowment.id)
     end
 
     endowment_hash = {
