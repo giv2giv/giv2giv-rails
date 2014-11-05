@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141104172245) do
+ActiveRecord::Schema.define(version: 20141105155257) do
 
   create_table "charities", force: true do |t|
     t.string   "name",                                  null: false
@@ -47,7 +47,7 @@ ActiveRecord::Schema.define(version: 20141104172245) do
     t.string   "filing_requirement_code"
     t.string   "pf_filing_requirement_code"
     t.string   "accounting_period"
-    t.integer  "asset_amount"
+    t.integer  "asset_amount",               limit: 8
     t.integer  "income_amount"
     t.integer  "revenue_amount"
     t.string   "secondary_name"

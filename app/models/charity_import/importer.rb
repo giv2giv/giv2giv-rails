@@ -85,7 +85,6 @@ module CharityImport
         request.run
       end
 
-
       def tag_charity(charity)
         tags = get_all_tags(charity)
         puts "Got all the tags: #{tags}" if @@verbose_with_misses
@@ -178,22 +177,15 @@ module CharityImport
 
           ruling_date = row[11].to_s.strip
           if ruling_date.to_i != 0
-            Rails.logger.debug 'valid ruling pre'
-            Rails.logger.debug ruling_date
             ruling_date = Date.strptime(ruling_date, "%Y%m")
-            Rails.logger.debug 'valid ruling post'
           else
-            Rails.logger.debug 'hi'
             ruling_date = nil
           end
 
           tax_period = row[17].to_s.strip
           if tax_period.to_i != 0
-            Rails.logger.debug 'valid tax pre'
             tax_period = Date.strptime(tax_period, "%Y%m")
-            Rails.logger.debug 'valid tax post'
           else
-            Rails.logger.debug 'tax'
             tax_period = nil
           end
 
