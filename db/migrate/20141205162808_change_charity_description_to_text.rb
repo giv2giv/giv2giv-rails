@@ -1,4 +1,4 @@
-class ChangeCharityDescriptionToText < ActiveRecord::Migration
+class ChangeEndowmentDescriptionToText < ActiveRecord::Migration
 
 
   def up

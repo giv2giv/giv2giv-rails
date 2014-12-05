@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141124190746) do
+ActiveRecord::Schema.define(version: 20141205162808) do
 
   create_table "charities", force: true do |t|
     t.string   "name",                                  null: false
@@ -24,7 +24,6 @@ ActiveRecord::Schema.define(version: 20141124190746) do
     t.string   "classification_code"
     t.string   "subsection_code"
     t.string   "activity_code"
-    t.string   "description"
     t.datetime "created_at",                            null: false
     t.datetime "updated_at",                            null: false
     t.string   "email"
@@ -58,7 +57,7 @@ ActiveRecord::Schema.define(version: 20141124190746) do
     t.string   "phone"
     t.string   "tagline"
     t.string   "short_description"
-    t.text     "long_description"
+    t.text     "description"
   end
 
   add_index "charities", ["ein"], name: "index_charities_on_ein", using: :btree
@@ -132,7 +131,7 @@ ActiveRecord::Schema.define(version: 20141124190746) do
 
   create_table "endowments", force: true do |t|
     t.string   "name",                               null: false
-    t.string   "description"
+    t.text     "description"
     t.float    "minimum_donation_amount", limit: 24
     t.datetime "created_at",                         null: false
     t.datetime "updated_at",                         null: false
