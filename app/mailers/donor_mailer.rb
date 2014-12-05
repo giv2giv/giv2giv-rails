@@ -5,18 +5,19 @@ class DonorMailer < ActionMailer::Base
   ENV["MANDRILL_APIKEY"] = App.mailer["password"]
   
   def charge_success(donor, endowment, donation_amount)
-    m= Mandrill::API.new  
+    m= Mandrill::API.new 
+
     donor_message = {  
      :subject=> "[ giv2giv.org ] Thank you for your donation",  
      :from_name=> "giv2giv.org",  
-     :text=>"Donation Successful! Thank you for your donation of $#{donation_amount} to the giv2giv.org fund <a href=https://giv2giv.org/#endowment/"+endowment.slug+">"+ endowment.name = "</a>. Want to see the breakdown by charity, or print a statement? Visit <a href=https://giv2giv.org/#endowment/"+endowment.slug+">giv2giv.org</a>",
+     :text=>"Donation Successful! Thank you for your donation of $#{donation_amount} to the giv2giv.org fund <a href=https://giv2giv.org/#endowment/#{endowment.slug}>#{endowment.name}</a>. Want to see the breakdown by charity, or print a statement? Visit <a href=https://giv2giv.org/#endowment/#{endowment.slug}>giv2giv.org</a>",
      :to=>[  
        {  
          :email=> donor.email,
          :name=> donor.name  
        }  
      ],  
-     :html=>"<h3>Donation Received!</h3><br /><hr />Thank you for your donation of #{donation_amount} to the giv2giv.org fund <a href=https://giv2giv.org/#endowment/"+endowment.slug+">"+ endowment.name + "</a>. Want to see the breakdown by charity, or print a statement? Visit <a href=https://giv2giv.org/#endowment/"+endowment.slug+">giv2giv.org</a><br><br>",
+     :html=>"<h3>Donation Received!</h3><br /><hr />Thank you for your donation of #{donation_amount} to the giv2giv.org fund <a href=https://giv2giv.org/#endowment/#{endowment.slug}>#{endowment.name}</a>. Want to see the breakdown by charity, or print a statement? Visit <a href=https://giv2giv.org/#endowment/#{endowment.slug}>giv2giv.org</a><br><br>",
      :from_email=>"hello@giv2giv.org"  
     }
 
@@ -25,18 +26,18 @@ class DonorMailer < ActionMailer::Base
     charities = endowment.charities
     charities.each do |charity|
 
-      if charity.email?
+      if charity.email.present?
         charity_message = {  
           :subject=> "[ giv2giv.org ] One of your endowments received a donation",
           :from_name=> "giv2giv.org",  
-          :text=>"A giv2giv.org endowment that has your charity as a grant recipient has received a donation. Learn more at <a href=https://giv2giv.org/#endowment/"+endowment.slug+">"+ endowment.name + "</a>.",
+          :text=>"A giv2giv.org endowment that has your charity as a grant recipient has received a donation. Learn more at <a href=https://giv2giv.org/#endowment/#{endowment.slug}>#{endowment.name}</a>.",
           :to=>[  
            {  
              :email=> charity.email,
              :name=> charity.name  
            }  
           ],  
-          :html=>"<h3>Donation Received!</h3><br /><hr />A giv2giv.org endowment that has your charity as a grant recipient has received a donation. Learn more at <a href=https://giv2giv.org/#endowment/"+endowment.slug+">"+ endowment.name + "</a>.<br><br>",
+          :html=>"<h3>Donation Received!</h3><br /><hr />A giv2giv.org endowment that has your charity as a grant recipient has received a donation. Learn more at <a href=https://giv2giv.org/#endowment/#{endowment.slug}>#{endowment.name}</a>.<br>",
           :from_email=>"hello@giv2giv.org"  
         }
         sending = m.messages.send charity_message
