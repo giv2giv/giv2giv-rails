@@ -26,8 +26,25 @@ module EtradeHelper
   def get_net_account_value
     self.get_accounts["json.accountListResponse"]["response"][0]["netAccountValue"]
   end
-end
 
+  def get_transaction_history
+    #last 30 days
+    return false if TOKEN.nil?
+    consumer = OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {:site => ETRADE_SITE, :http_method => :get})
+    access_token = OAuth::Token.new(TOKEN, SECRET)
+    account_id = self.get_accounts["json.accountListResponse"]["response"][0]["accountId"]
+ 
+    first_open_transit = TransitFund.where("cleared=?", "false").order(:created_at).first
+    from_date = first_open_transit.created_at.strftime("%m%d%Y")
+
+    request_uri = "/accounts/#{SANDBOX_MODE ? 'sandbox/' : ''}rest/#{account_id.to_s}/transactions.json?fromDate=#{from_date}&count=2"
+    response = JSON.parse(consumer.request(:get, request_uri, access_token).body)
+
+    #while response["json.transactions"]["next"]
+
+  end
+
+end
 
 =begin
   def get_accounts

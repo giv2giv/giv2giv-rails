@@ -3,6 +3,7 @@
 module CharityImport
   module Classification
 
+    #include CharityImport   CharityImport::Classification::CLASSIFICATION['01']['1']
 
 
     # CLASSIFICATION[:subsection_code][:classification_code]
@@ -60,8 +61,8 @@ module CharityImport
                        '70' => { '1' => 'Child Care Organization (501(k))' },
                        '71' => { '1' => 'Charitable Risk Pool' },
                        '81' => { '1' => 'Qualified State-Sponsored Tuition Program' },
-                       '92' => { '1' => '4947(a)(1) - Private Foundation (Form 990PF Filer)' } }
-
+                       '92' => { '1' => '4947(a)(1) - Private Foundation (Form 990PF Filer)' }
+                   }
 
     # Religious Activities
     RELIGIOUS_ACTIVITIES = ['001', '002', '003', '004', '005', '006', '007', '008', '029']
@@ -1010,7 +1011,10 @@ module CharityImport
                         'Y44' => 'Voluntary Employees Beneficiary Associations (Government)',
                         'Y50' => 'Cemeteries, Burial Services',
                         'Y99' => 'Mutual/Membership Benefit Organizations, Other N.E.C.',
-                        'Z99' => 'Unknown' }
+                        'Z99' => 'Unknown' 
+                    }
+
+
 
   end
 end

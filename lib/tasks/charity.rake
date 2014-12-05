@@ -1,5 +1,4 @@
 namespace :charity do
-
   # bundle exec rake charity:import_all
   # bundle exec rake charity:import_all verbose=false
   # bundle exec rake charity:import_all verbose=false skip_download=true

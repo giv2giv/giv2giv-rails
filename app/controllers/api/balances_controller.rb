@@ -1,13 +1,6 @@
 class Api::BalancesController < Api::BaseController
   before_filter :require_authentication
   
-  GIV_FEE_AMOUNT = App.giv["giv_fee_amount"].to_f
-  GIV_GRANT_AMOUNT = App.giv["giv_grant_amount"]
-  SHARE_PRECISION = App.giv["share_precision"]
-  PIN_DWOLLA = App.dwolla["pin_account"]
-  DWOLLA_GRANT_SOURCE_ACCOUNT = App.dwolla["dwolla_grant_source_account"]
-  DWOLLA_FEE_DESTINATION_ACCOUNT = App.dwolla["dwolla_fee_destination_account"]
-
   def show_grants
     grants = Grant.where("status = ?",'pending_approval')
 

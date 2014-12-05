@@ -5,8 +5,8 @@ class Charity < ActiveRecord::Base
   has_many :grants
   geocoded_by :full_street_address
   has_attached_file :image, styles: { small: "64x64", med: "100x100", large: "200x200" }
+  
 
-=begin
   #geocode on save if address changed
   after_validation :geocode, if: ->(charity){ charity.address.present? and charity.address_changed? }
   #geocode on load if charity not yet geocoded
@@ -16,7 +16,7 @@ class Charity < ActiveRecord::Base
       charity.save!
     end
   end
-=end
+
   validates :ein, :presence => true, :uniqueness => true
   validates :name, :presence => true
   

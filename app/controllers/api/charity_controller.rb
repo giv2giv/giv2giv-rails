@@ -2,6 +2,8 @@ class Api::CharityController < Api::BaseController
 
   skip_before_filter :require_authentication, :only => [:index, :show, :find_by_slug, :show_endowments, :near]
 
+  include CharityImport
+
   def index
     pagenum = params[:page] || 1
     perpage = params[:per_page] || 10
@@ -47,6 +49,8 @@ class Api::CharityController < Api::BaseController
       "city" => charity.city.titleize,
       "state" => charity.state,
       "zip" => charity.zip,
+      "latitude" => charity.latitude,
+      "longitude" => charity.longitude,
       "tax_period" => charity.group_code,
       "asset_amount" => charity.group_code,
       "income_amount" => charity.group_code,
@@ -54,6 +58,7 @@ class Api::CharityController < Api::BaseController
       "slug" => charity.slug,
       "tags" => charity.tags.pluck(:name),
       "donor_count" => charity.donor_count,
+      "supporting_endowments" => charity.endowments,
       "current_balance" => charity.current_balance,
       "pending_grants" => charity.pending_grants,
       "delivered_grants" => charity.delivered_grants
@@ -63,7 +68,7 @@ class Api::CharityController < Api::BaseController
 
     respond_to do |format|
       if charity_list.present?
-        format.json { render json: { :charities => charity_list } }
+        format.json { render json: { :charities => charity_list }.to_json }
       else
         format.json { render json: { :message => "Not found" }.to_json }
       end
@@ -84,6 +89,8 @@ class Api::CharityController < Api::BaseController
       "city" => charity.city.titleize,
       "state" => charity.state,
       "zip" => charity.zip,
+      "latitude" => charity.latitude,
+      "longitude" => charity.longitude,
       "tax_period" => charity.group_code,
       "asset_amount" => charity.group_code,
       "income_amount" => charity.group_code,
@@ -91,6 +98,7 @@ class Api::CharityController < Api::BaseController
       "slug" => charity.slug,
       "tags" => charity.tags.pluck(:name),
       "donor_count" => charity.donor_count,
+      "supporting_endowments" => charity.endowments,
       "current_balance" => charity.current_balance,
       "pending_grants" => charity.pending_grants,
       "delivered_grants" => charity.delivered_grants
@@ -99,7 +107,7 @@ class Api::CharityController < Api::BaseController
 
     respond_to do |format|
       if charity
-        format.json { render json: { :charity => charity_hash } }
+        format.json { render json: { :charity => charity_hash }.to_json }
       else
         format.json { head :not_found }
       end
@@ -136,12 +144,20 @@ class Api::CharityController < Api::BaseController
       radius = 100
     end
 
-    if params.has_key?(:latitude) && params.has_key?(:longitude)
-      charities = Charity.near([params[:latitude].to_f, params[:longitude].to_f], radius)
-    else
-      location_by_ip = request.location
-      charities = Charity.near([location_by_ip.latitude, location_by_ip.longitude], radius)
+    location_by_ip = request.location
+
+    if location_by_ip.blank?
+      raise "Location not found"
     end
+
+    begin
+      if params.has_key?(:latitude) && params.has_key?(:longitude)
+        charities = Charity.near([params[:latitude].to_f, params[:longitude].to_f], radius)
+      else
+        charities = Charity.near([location_by_ip.latitude, location_by_ip.longitude], radius)
+      end
+      radius*=2
+    end while charities.empty? && radius < 250
 
     charities.each do |charity|
 
@@ -155,6 +171,8 @@ class Api::CharityController < Api::BaseController
         "city" => charity.city.titleize,
         "state" => charity.state,
         "zip" => charity.zip,
+        "latitude" => charity.latitude || 0,
+        "longitude" => charity.longitude || 0,
         "tax_period" => charity.group_code,
         "asset_amount" => charity.group_code,
         "income_amount" => charity.group_code,
@@ -162,6 +180,7 @@ class Api::CharityController < Api::BaseController
         "slug" => charity.slug,
         "tags" => charity.tags.pluck(:name),
         "donor_count" => charity.donor_count,
+        "supporting_endowments" => charity.endowments,
         "current_balance" => charity.current_balance,
         "pending_grants" => charity.pending_grants,
         "delivered_grants" => charity.delivered_grants
@@ -171,7 +190,7 @@ class Api::CharityController < Api::BaseController
 
     respond_to do |format|
       if charity_list.present?
-        format.json { render json: { :charities => charity_list } }
+        format.json { render json: { :charities => charity_list }.to_json }
       else
         format.json { render json: { :message => "Not found" }.to_json }
       end

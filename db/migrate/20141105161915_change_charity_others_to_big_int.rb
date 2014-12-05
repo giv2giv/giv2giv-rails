@@ -5,7 +5,7 @@ class ChangeCharityOthersToBigInt < ActiveRecord::Migration
   end
 
   def down
-    change_column :charities, :income_amount, :integer
-    change_column :charities, :revenue_amount, :integer
+    change_column :charities, :income_amount, :integer, :limit => 8
+    change_column :charities, :revenue_amount, :integer, :limit => 8
   end
 end

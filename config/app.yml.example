@@ -4,6 +4,7 @@ force_ssl: true
 
 giv:
   giv_fee_amount     : .00125
+  giv_passthru_fee_amount: .035
   giv_grant_amount   : .0125
   giv_grant_password : reallyLongUnguessablePassword!!
   share_precision    : 20
@@ -37,6 +38,7 @@ facebook:
 google:
   client_id:            your-google-client-id
   client_secret:        your-google-client-secret
+  geocoder_client_id:   your-google-maps-gme-client-id
   geocoder_client_key:  your-google-maps-client-key
 
 twitter:

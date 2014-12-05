@@ -51,6 +51,9 @@ class Api::DonorsController < Api::BaseController
   end
 
   def balance_information
+    
+    load_global_and_donor_balances
+
     last_donation_price = Share.last.donation_price rescue 0.0
     if current_donor && current_donor.id
       share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.grants.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:shares_subtracted)}")
@@ -259,6 +262,14 @@ class Api::DonorsController < Api::BaseController
   end
 end
 
+def load_global_and_donor_balances
+  @global_donations = Donation.all
+  @global_grants = Grant.where('(status = ? OR status = ?)', 'accepted', 'pending_acceptance')
+  @my_donations = @global_donations.where('donor_id = ?', current_donor.id)
+  @my_grants = current_donor.grants.where('donor_id = ? AND (status = ? OR status = ?)', current_donor.id, 'accepted', 'pending_acceptance')
+end
+
+
 def global_first_donation_date
   Donation.order("created_at ASC").first.created_at.to_date rescue Date.today
 end
@@ -267,22 +278,27 @@ def donor_first_donation_date
 end
 
 def global_balance_on(date)
-  last_donation_price = Share.last.donation_price rescue 0.0
   dt = DateTime.parse(date.to_s)
   dt = dt + 11.hours + 59.minutes + 59.seconds
-  donated_shares = Donation.where("created_at <= ?", dt).sum(:shares_added) rescue 0.0
-  granted_shares = Grant.where("created_at <= ? AND (status = ? OR status = ?)", dt, 'accepted', 'pending_acceptance').sum(:shares_subtracted) rescue 0.0
-  (last_donation_price * (donated_shares - granted_shares)).floor2(2)
+  shares_added = @global_donations.where('created_at <= ?', dt).sum(:shares_added) || 0
+  shares_subtracted = @global_grants.where('created_at <= ?', dt).sum(:shares_subtracted) || 0
+  share_price = Share.where('created_at <= ?', dt).order("created_at DESC").first || 0
+  #All three type BigDecimal
+  balance = (shares_added - shares_subtracted) * share_price.donation_price
+  balance.floor2(2)
 end
 
 def donor_balance_on(date)
-  last_donation_price = Share.last.donation_price rescue 0.0
   dt = DateTime.parse(date.to_s)
   dt = dt + 11.hours + 59.minutes + 59.seconds
-  donated_shares = current_donor.donations.where("created_at <= ?", dt).sum(:shares_added) rescue 0.0
-  granted_shares = current_donor.grants.where("created_at <= ? AND (status = ? OR status = ?)", dt, 'accepted', 'pending_acceptance').sum(:shares_subtracted) rescue 0.0
-  (last_donation_price * (donated_shares - granted_shares)).floor2(2)
+  shares_added = @my_donations.where('created_at <= ?', dt).sum(:shares_added) || 0
+  shares_subtracted = @my_grants.where('created_at <= ?', dt).sum(:shares_subtracted) || 0
+  share_price = Share.where('created_at <= ?', dt).order("created_at DESC").first || 0
+  #All three type BigDecimal
+  balance = (shares_added - shares_subtracted) * share_price.donation_price
+  balance.floor2(2)
 end
+
 
 private
   def donor_params

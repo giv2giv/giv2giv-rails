@@ -69,7 +69,6 @@ class Api::PaymentAccountsController < Api::BaseController
           account = current_donor.payment_accounts.find(params[:id])
           subscription = DonorSubscription.find_by_payment_account_id(params[:id])
           customer = Stripe::Customer.retrieve(account.stripe_cust_id)
-          
           account.destroy
           if subscription
             subscription.destroy

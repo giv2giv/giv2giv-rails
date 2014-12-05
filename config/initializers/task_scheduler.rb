@@ -1,6 +1,22 @@
 require 'rubygems'
 require 'rufus/scheduler'  
 
+class StripeTransfer
+
+  def call(job)
+    puts ". #{self.class} called at #{Time.now} (#{@count_grant})"
+    ret = system 'bundle exec rake transit:send_stripe_funds'
+    if ret == false
+      ErrorJobMailer.error_send_stripe_funds(App.giv["email_support"]).deliver
+    else
+      JobMailer.success_job_scheduler(App.giv["email_support"], "startgrantcalculation_step1").deliver
+      puts "Finished running task at #{DateTime.now}"
+    end
+  end
+
+end # end class
+
+
 class SchedulerPrice
   attr_reader :count
 
@@ -69,5 +85,6 @@ class GrantPrice
 end # end class
 
 scheduler = Rufus::Scheduler.new
+scheduler.every '1d', StripeTransfer.new, :blocking => true #Don't make this automatic yet
 #scheduler.cron '5 0 * * *', SchedulerPrice.new, :blocking => true # midnight ET?
 #scheduler.every '90d', GrantPrice.new, :blocking => true #Don't make this automatic yet

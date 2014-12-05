@@ -176,14 +176,14 @@ module CharityImport
           end
 
           ruling_date = row[11].to_s.strip
-          if ruling_date.to_i != 0
+          if ruling_date.length==6 && ruling_date.to_i!=0 && ruling_date != '190900'
             ruling_date = Date.strptime(ruling_date, "%Y%m")
           else
             ruling_date = nil
           end
 
           tax_period = row[17].to_s.strip
-          if tax_period.to_i != 0
+          if tax_period.length==6 && tax_period.to_i!=0 && tax_period != '190900'
             tax_period = Date.strptime(tax_period, "%Y%m")
           else
             tax_period = nil

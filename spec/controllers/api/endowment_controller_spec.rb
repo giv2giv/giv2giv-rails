@@ -37,7 +37,7 @@ describe Api::EndowmentController do
       charity2 = create(:charity)
       donor = create(:donor)
       setup_authenticated_session(donor)
-      post :create, :format => :json, :endowment => {:name => 'Something', :minimum_donation_amount => 50, :visibility => 'public', :donor_id => "#{donor.id}", :charities => [{:id => "#{charity1.id}"},{:id => "#{charity2.id}"}] }
+      post :create, :format => :json, :endowment => {:name => 'Something', :visibility => 'public', :donor_id => "#{donor.id}", :charities => [{:id => "#{charity1.id}"},{:id => "#{charity2.id}"}] }
       response.should be_success
       resp = JSON.parse(response.body)["endowment"]
       resp['name'].should == 'Something'

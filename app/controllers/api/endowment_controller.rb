@@ -11,7 +11,7 @@ class Api::EndowmentController < Api::BaseController
 
     endowments = []
     charities = []
-    endowments_list = []
+    endowments_array = []
 
     #tags = Tag.find(:all, :conditions=> [ "name LIKE ?", "%#{query}%" ])
     #tags.each do |tag|
@@ -57,14 +57,14 @@ class Api::EndowmentController < Api::BaseController
         "visibility" => endowment.visibility,
         "my_balances" => my_balances || "",
         "global_balances" => endowment.global_balances,
-        "charities" => endowment.charities           
+        "charities" => endowment.charities
       }
-      endowments_list << endowment_hash
+      endowments_array << endowment_hash
     end # endowment.each
 
     respond_to do |format|
-      if endowments_list.present?
-        format.json { render json: { :endowments => endowments_list } }
+      if endowments_array.present?
+        format.json { render json: { :endowments => endowments_array }.to_json }
       else
         format.json { render json: { :message => "Not found" }.to_json }
       end
@@ -82,7 +82,7 @@ class Api::EndowmentController < Api::BaseController
         if params.has_key?(:charities)
           charities = endowment.add_charity(params[:charities])
         end
-        format.json { render json: endowment.to_json(:include => charities)}
+        format.json { render json: {:endowment => endowment}.to_json(:include => charities), status: :created }
       else
         format.json { render json: endowment.errors , status: :unprocessable_entity }
       end
@@ -115,7 +115,7 @@ class Api::EndowmentController < Api::BaseController
 
     respond_to do |format|
       if endowment
-        format.json { render json: { endowment: endowment_hash } }
+        format.json { render json: { endowment: endowment_hash }.to_json }
       else
         format.json { head :not_found }
       end
@@ -216,7 +216,7 @@ class Api::EndowmentController < Api::BaseController
   def my_endowments
     endowments = current_donor.endowments
 
-    endowments_list = []
+    endowments_array = []
 
     endowments.each do |endowment|
       my_balances = current_donor.my_balances(endowment.id) || ""
@@ -232,12 +232,12 @@ class Api::EndowmentController < Api::BaseController
         "global_balances" => endowment.global_balances,
         "charities" => endowment.charities              
       }
-      endowments_list << endowment_hash
+      endowments_array << endowment_hash
     end # endowment.each
 
     respond_to do |format|
-      if endowments_list.present?
-        format.json { render json: { :endowments => endowments_list } }
+      if endowments_array.present?
+        format.json { render json: { :endowments => endowments_array }.to_json }
       else
         format.json { render json: { :message => "Not found" }.to_json }
       end
@@ -257,7 +257,7 @@ class Api::EndowmentController < Api::BaseController
 
     respond_to do |format|
       if endowments.present?
-        format.json { render json: { :endowments => endowments.sort_by { |id, name, since_date, donations| donations }.reverse!.first(10) } }
+        format.json { render json: { :endowments => endowments.sort_by { |id, name, since_date, donations| donations }.reverse!.first(10) }.to_json }
       else
         format.json { render json: { :message => "Not found" }.to_json }
       end
@@ -280,10 +280,10 @@ class Api::EndowmentController < Api::BaseController
         endowments_hash << charity.endowments
       end
     end
-
+    
     respond_to do |format|
       if endowments_hash.present?
-        format.json { render json: endowments_hash }
+        format.json { render json: { :endowments => endowments_hash }.to_json }
       else
         format.json { head :not_found }
       end

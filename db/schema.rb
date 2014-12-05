@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141105161915) do
+ActiveRecord::Schema.define(version: 20141124190746) do
 
   create_table "charities", force: true do |t|
     t.string   "name",                                  null: false
@@ -25,7 +25,6 @@ ActiveRecord::Schema.define(version: 20141105161915) do
     t.string   "subsection_code"
     t.string   "activity_code"
     t.string   "description"
-    t.string   "website"
     t.datetime "created_at",                            null: false
     t.datetime "updated_at",                            null: false
     t.string   "email"
@@ -55,6 +54,11 @@ ActiveRecord::Schema.define(version: 20141105161915) do
     t.string   "image_content_type"
     t.integer  "image_file_size"
     t.datetime "image_updated_at"
+    t.string   "website"
+    t.string   "phone"
+    t.string   "tagline"
+    t.string   "short_description"
+    t.text     "long_description"
   end
 
   add_index "charities", ["ein"], name: "index_charities_on_ein", using: :btree
@@ -189,6 +193,7 @@ ActiveRecord::Schema.define(version: 20141105161915) do
     t.decimal  "giv2giv_fee",       precision: 30, scale: 20
     t.decimal  "transaction_fee",   precision: 30, scale: 20
     t.decimal  "net_amount",        precision: 30, scale: 20
+    t.string   "type"
   end
 
   create_table "invites", force: true do |t|
@@ -232,6 +237,8 @@ ActiveRecord::Schema.define(version: 20141105161915) do
     t.decimal  "etrade_balance",              precision: 10, scale: 2
     t.decimal  "donation_price",              precision: 10, scale: 2
     t.decimal  "grant_price",                 precision: 10, scale: 2
+    t.decimal  "dwolla_balance",              precision: 30, scale: 2,  null: false
+    t.decimal  "transit_balance",             precision: 30, scale: 2,  null: false
   end
 
   create_table "stripe_logs", force: true do |t|
@@ -249,6 +256,16 @@ ActiveRecord::Schema.define(version: 20141105161915) do
 
   add_index "tags", ["id"], name: "index_tags_on_id", using: :btree
   add_index "tags", ["name"], name: "index_tags_on_name", length: {"name"=>255}, using: :btree
+
+  create_table "transit_funds", force: true do |t|
+    t.string   "transaction_id",                                          null: false
+    t.string   "source",                                                  null: false
+    t.string   "destination",                                             null: false
+    t.decimal  "amount",         precision: 30, scale: 2,                 null: false
+    t.boolean  "cleared",                                 default: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "wishes", force: true do |t|
     t.integer  "donor_id"

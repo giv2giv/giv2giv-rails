@@ -13,10 +13,13 @@ module CalculationShare
     class << self
 
       def compute_share_price
+
         stripe_balance = get_stripe_balance
         etrade_balance = get_etrade_balance
+        dwolla_balance = get_dwolla_balance
+        transit_balance = get_transit_balance
 
-        givbalance = stripe_balance + etrade_balance
+        current_balance = stripe_balance + etrade_balance + dwolla_balance + transit_balance
       
         last_share = Share.order("created_at DESC").first
 
@@ -25,20 +28,20 @@ module CalculationShare
           last_share_created_at = last_share.created_at
         rescue
           share_total_beginning = 0
-          last_share_created_at = DateTime.now
+          last_share_created_at = DateTime.new(2001,2,3) 
         end
 
         # shares added by donation
         shares_added_by_donation = Donation.where("created_at >= ?", last_share_created_at).sum(:shares_added)
 
         # shares removed by grant
-        shares_subtracted_by_grants = Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').where("created_at >= ?", last_share_created_at).sum(:shares_subtracted)
+        shares_subtracted_by_grants = Grant.where("status = ? AND created_at >= ?", 'accepted', last_share_created_at).sum(:shares_subtracted)
 
         share_total_end = (BigDecimal(share_total_beginning.to_s) + BigDecimal(shares_added_by_donation.to_s) - BigDecimal(shares_subtracted_by_grants.to_s)).round(SHARE_PRECISION)
 
         # get donation share price
-        # givbalance / total_donor_shares_all_time
-        preliminary_share_price = (BigDecimal(givbalance.to_s) / BigDecimal(share_total_end.to_s)).to_f
+        # current_balance / shares_outstanding
+        preliminary_share_price = (BigDecimal(current_balance.to_s) / BigDecimal(share_total_end.to_s)).to_f
 
         preliminary_share_price = 100000.0 unless preliminary_share_price.finite?
         if preliminary_share_price.to_f.nan?
@@ -48,10 +51,11 @@ module CalculationShare
         donation_share_price = preliminary_share_price.ceil2(2)
         grant_share_price = preliminary_share_price.floor2(2)
 
-
         new_record_share = Share.new(
                                      :stripe_balance => stripe_balance,
                                      :etrade_balance => etrade_balance,
+                                     :dwolla_balance => dwolla_balance,
+                                     :transit_balance => transit_balance,
                                      :share_total_beginning => share_total_beginning,
                                      :shares_added_by_donation => shares_added_by_donation,
                                      :shares_subtracted_by_grants => shares_subtracted_by_grants,
@@ -61,10 +65,14 @@ module CalculationShare
                                     )
         if new_record_share.save
           puts "Share Price has been updated"
-          JobMailer.success_compute(App.giv["email_support"], "compute_share_price").deliver
+          JobMailer.success_compute(App.giv["email_support"]).deliver
         else
           puts "ERROR"
         end
+      end
+
+      def clear_transit_funds
+        #examine etrade transactions, set matching TransitFunds.clear=true
       end
 
       def grant_step_1
@@ -89,7 +97,7 @@ module CalculationShare
             amount_per_charity = 0
             shares_per_charity = 0
 
-            shares_donor_granted = endowment.grants.where("donor_id = ? AND endowment_id = ? AND (status = ? OR status = ?)", donor_id, endowment.id, "accepted", "pending_acceptance").sum(:shares_subtracted)
+            shares_donor_granted = endowment.grants.where("donor_id = ? AND endowment_id = ? AND status = ? OR status = ?)", donor_id, endowment.id, "accepted", "pending_acceptance").sum(:shares_subtracted)
 
             donor_share_balance = shares_donor_donated - shares_donor_granted # is BigDecimal - BigDecimal, so precision OK
 
@@ -107,6 +115,7 @@ module CalculationShare
                                         :charity_id => charity.id,
                                         :shares_subtracted => shares_per_charity,
                                         :grant_amount => amount_per_charity,
+                                        :type => 'endowed',
                                         :status => 'pending_approval'
                                         )
               grant_record.save
@@ -159,12 +168,12 @@ module CalculationShare
         total_grants = 0
 
         grants = Grant.select("charity_id AS charity_id, SUM(grant_amount) AS amount").where("status = ?", "pending_approval").group("charity_id")
+
+        text = "Hi! This is an unrestricted grant from donors at the crowd-endowment service giv2giv  Contact hello@giv2giv.org with any questions or to find out how to partner with us."
         
         grants.each do |grant|
           charity = Charity.find(grant.charity_id)
           next if charity.email.nil?
-
-          text = "This is an unrestricted grant from donors at the crowd-endowment service www.giv2giv.org  Contact hello@giv2giv.org with any questions or to find out how to partner with us."
 
           total_grants = total_grants + grant.amount
 
@@ -237,13 +246,17 @@ module CalculationShare
 
     private
 
+      def get_current_balance
+        get_stripe_balance + get_etrade_balance + get_dwolla_balance + get_transit_balance
+      end
+
       def get_stripe_balance
         begin
           stripe_balance = Stripe::Balance.retrieve
           stripe_pending = (stripe_balance["pending"][0][:amount].to_f) / 100
           stripe_available = (stripe_balance["available"][0][:amount].to_f) / 100
           total_stripe = stripe_pending + stripe_available
-          puts "Stripe Balance : #{total_stripe}"
+          #puts "Stripe Balance : #{total_stripe}"
           return total_stripe
         rescue Stripe::CardError => e
           body = e.json_body
@@ -262,12 +275,19 @@ module CalculationShare
         raise "eTrade connection problem" if !etrade_balance
 
         etrade_balance = BigDecimal(etrade_balance.to_s) - 1000 #1000 initial deposit by giv2giv
-        puts "Etrade Balance : #{etrade_balance}"
+        #puts "Etrade Balance : #{etrade_balance}"
         return etrade_balance
-        
       end
 
+      def get_dwolla_balance
+        dwolla_balance = DwollaLibs.new.get_balance
+        raise "Dwolla connection problem" if !dwolla_balance
+        BigDecimal('#{dwolla_balance}')
+      end
 
+      def get_transit_balance
+        TransitFund.where("cleared IS NULL").sum(:amount)
+      end
 
     end # end self
   end

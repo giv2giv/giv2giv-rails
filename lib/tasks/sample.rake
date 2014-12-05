@@ -15,10 +15,10 @@ namespace :sample do
 	  Dwolla::api_key = API_KEY
 	  Dwolla::api_secret = API_SECRET
 	  Dwolla::token = TOKEN
-	   
+	  
     # from_etrade_to_dwolla_transaction_id
-    Dwolla::FundingSources.deposit(DWOLLA_GRANT_SOURCE_ACCOUNT, {:pin => PIN_DWOLLA, :amount => 5})
-    Dwolla::FundingSources.withdraw(DWOLLA_FEE_DESTINATION_ACCOUNT, {:amount => 5, :pin => PIN_DWOLLA})
+    Dwolla::FundingSources.deposit(DWOLLA_GRANT_SOURCE_ACCOUNT, {:pin => PIN_DWOLLA, :amount => 0.01})
+    Dwolla::FundingSources.withdraw(DWOLLA_FEE_DESTINATION_ACCOUNT, {:amount => 0.01, :pin => PIN_DWOLLA})
   end
 
 end

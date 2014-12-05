@@ -7,6 +7,7 @@ class DwollaLibs
   TOKEN = App.dwolla["company_token"]
   PIN = App.dwolla["pin_account"]
   ACC_ID = App.dwolla["account_id"] 
+  GRANT_SOURCE_ACCOUNT = App.dwolla["grant_source_account"]
 
   Dwolla::api_key = API_KEY
   Dwolla::api_secret = API_SECRET
@@ -55,7 +56,7 @@ class DwollaLibs
 
   def dwolla_send(email, notes = "", amount=nil)
     begin
-      transactionId = Dwolla::Transactions.send({:destinationId => email, :pin => PIN, :destinationType => 'email', :amount => amount, :notes => notes})
+      transactionId = Dwolla::Transactions.send({:destinationId => email, :pin => PIN, :destinationType => 'email', :amount => amount, :notes => notes, :fundsSource => GRANT_SOURCE_ACCOUNT})
       return transactionId
     rescue Dwolla::APIError => error
       return error
