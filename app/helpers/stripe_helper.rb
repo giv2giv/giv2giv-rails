@@ -9,20 +9,11 @@ module StripeHelper
     end
 
     transfer = Stripe::Transfer.create(
-      :amount => (amount_to_send * 100).to_i, #sent in cents
+      :amount => -amount_to_send, #already in cents
       :currency => "usd",
       :recipient => "self",
       :statement_description => "#{Date.today} transfer to eTrade"
     )
-
-    TransitFund.create(
-      transaction_id: transfer.id,
-      source: "stripe",
-      destionation: "etrade",
-      amount: transfer.amount,
-      cleared: false
-    )
-   
-
   end
+  
 end

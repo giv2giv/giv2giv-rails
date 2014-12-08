@@ -27,4 +27,24 @@ class StripeCallbacks
 
   end
 
+  def transfer_created(event)
+    transfer = event.data.object
+
+    TransitFund.create(
+      transaction_id: transfer.id,
+      source: "stripe",
+      destination: "etrade",
+      amount: (BigDecimal("#{transfer.amount}")/100).floor(2), #stripe records cents, we record BigDecimal
+      cleared: true
+    )
+    
+  end
+  
+  def transfer_paid(event)
+    stripe_transfer = event.data.object
+    our_transfer = TransitFund.where("transaction_id=?", transfer.id)
+    our_transfer.cleared=true
+    our_transfer.save
+  end
+  
 end

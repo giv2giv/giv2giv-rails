@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141205162808) do
+ActiveRecord::Schema.define(version: 20141208193302) do
 
   create_table "charities", force: true do |t|
     t.string   "name",                                  null: false
@@ -192,7 +192,7 @@ ActiveRecord::Schema.define(version: 20141205162808) do
     t.decimal  "giv2giv_fee",       precision: 30, scale: 20
     t.decimal  "transaction_fee",   precision: 30, scale: 20
     t.decimal  "net_amount",        precision: 30, scale: 20
-    t.string   "type"
+    t.string   "grant_type"
   end
 
   create_table "invites", force: true do |t|

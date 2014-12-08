@@ -2,16 +2,14 @@ class Grant < ActiveRecord::Base
   belongs_to :charity
   belongs_to :endowment
   belongs_to :donor
-  has_one 	 :fee
 
   VALID_STATUS = %w(pending_approval denied pending_acceptance accepted reclaimed failed canceled)
-  VALID_TYPES = %w(endowed pass_thru)
+  VALID_GRANT_TYPES = %w(endowed pass_thru)
   validates :status, :presence => true, :inclusion => { :in => VALID_STATUS }
-  validates :type, :presence => true, :inclusion => { :in => VALID_TYPES }
+  validates :grant_type, :presence => true, :inclusion => { :in => VALID_GRANT_TYPES }
 
   SHARE_PRECISION = App.giv["share_precision"]
 	GIV2GIV_PASSTHRU_FEE = App.giv["giv_passthru_fee_amount"]
-
 
   def add_passthru_grant (subscription, original_donation_amount)
   	#Called upon successful donation. Sells shares, makes grants to recipient charities
@@ -24,7 +22,7 @@ class Grant < ActiveRecord::Base
 
 		giv2giv_fee = (grant_amount * GIV2GIV_PASSTHRU_FEE).floor(2)
 
-  	donation_amount = (original_donation_amount - giv2giv_fee).floor2(2)
+  	    donation_amount = (original_donation_amount - giv2giv_fee).floor2(2)
 
  		amount_per_charity = (donation_amount / grantee_charities.count).floor2(2)
 

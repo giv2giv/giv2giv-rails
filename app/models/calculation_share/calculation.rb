@@ -97,7 +97,7 @@ module CalculationShare
             amount_per_charity = 0
             shares_per_charity = 0
 
-            shares_donor_granted = endowment.grants.where("donor_id = ? AND endowment_id = ? AND status = ? OR status = ?)", donor_id, endowment.id, "accepted", "pending_acceptance").sum(:shares_subtracted)
+            shares_donor_granted = endowment.grants.where("donor_id = ? AND endowment_id = ? AND (status = ? OR status = ?)", donor_id, endowment.id, "accepted", "pending_acceptance").sum(:shares_subtracted)
 
             donor_share_balance = shares_donor_donated - shares_donor_granted # is BigDecimal - BigDecimal, so precision OK
 
@@ -108,6 +108,8 @@ module CalculationShare
             amount_per_charity = (preliminary_shares_per_charity * grant_share_price).floor2(2) # convert to dollars and cents
             shares_per_charity = amount_per_charity / grant_share_price # calculate shares subtracted
 
+            next if amount_per_charity <= 0
+            
             charities.each do |charity|
               grant_record = Grant.new(
                                         :donor_id => donor_id,
@@ -115,16 +117,17 @@ module CalculationShare
                                         :charity_id => charity.id,
                                         :shares_subtracted => shares_per_charity,
                                         :grant_amount => amount_per_charity,
-                                        :type => 'endowed',
+                                        :grant_type => 'endowed',
                                         :status => 'pending_approval'
                                         )
+
               grant_record.save
             end
 
           end # donor_shares.each
         end # endowments.each       
 
-        JobMailer.success_compute(App.giv["email_support"], "grantcalculation_step1").deliver
+        JobMailer.success_compute(App.giv["email_support"]).deliver
       end # def grant_step_1
 
 
@@ -179,7 +182,7 @@ module CalculationShare
 
           transaction_id = DwollaLibs.new.dwolla_send(charity.email, text, grant.amount)
           if transaction_id.is_a? Integer
-            Grant.where("status = ?", "pending_approval").where("charity_id = ?", grant.charity_id).update_all(:transaction_id => transaction_id, :status => 'pending_acceptance')
+            Grant.where("status = ? AND charity_id=?", "pending_approval", grant.charity_id).update_all(:transaction_id => transaction_id, :status => 'pending_acceptance')
           else
             ap transaction_id
           end

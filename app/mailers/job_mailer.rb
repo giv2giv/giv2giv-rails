@@ -6,7 +6,7 @@ class JobMailer < ActionMailer::Base
   def success_compute(email)
     m = Mandrill::API.new
     message = {  
-     :subject=> "[ giv2giv.org ] Success #{action}",  
+     :subject=> "[ giv2giv.org ] Share Price calculation successful",  
      :from_name=> "giv2giv.org",  
      :text=>"Share price calculation successful",
      :to=>[  
@@ -14,7 +14,7 @@ class JobMailer < ActionMailer::Base
          :email=> email
        }  
      ],  
-     :html=>"<h3>Share price calculation success in #{action}</h3><br /><hr />Date : #{DateTime.now}",
+     :html=>"<h3>Share price calculation success</h3><br /><hr />Date : #{DateTime.now}",
      :from_email=>App.giv['email_support']
     }  
     sending = m.messages.send message
