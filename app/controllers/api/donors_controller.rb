@@ -17,10 +17,14 @@ class Api::DonorsController < Api::BaseController
         require 'gibbon'
         gb = Gibbon::API.new(App.mailer['mailchimp_key'])
         gb.lists.subscribe({:id => App.mailer['mailchimp_list_id'], :email => {:email => donor.email}, :merge_vars => {:FNAME => donor.name}, :double_optin => false})
-        invite = Invite.where("hash_token = ?", params[:hash_token])
-        if invite
-          invite.accepted = true
-          invite.save!
+        if params[:hash_token]
+          invite = Invite.where("hash_token = ?", params[:hash_token])
+          if invite
+            Rails.logger.debug 'hi'
+            invite.accepted = true
+            Rails.logger.debug 'hi2'
+            invite.save!
+          end
         end
 
         format.json { render json: donor, status: :created }

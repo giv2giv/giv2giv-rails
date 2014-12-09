@@ -88,14 +88,14 @@ class DonorMailer < ActionMailer::Base
     message = {  
      :subject=> "[ giv2giv.org ] Confirm your new password request",
      :from_name=> "giv2giv.org",  
-     :text=>"Hello #{donor.name}. We received a request to change your password. If you did not request a password reset, ignored this email.  If you do wish to reset your password, click here to confirm: https://wwwtest.giv2giv.org/#reset_password?reset_token=#{donor.password_reset_token}",
+     :text=>"Hello #{donor.name}. We received a request to change your password. If you did not request a password reset, ignore this email.  If you do wish to reset your password, click here to confirm: https://wwwtest.giv2giv.org/#reset_password?reset_token=#{donor.password_reset_token}",
      :to=>[
        {
          :email=> donor.email,
          :name=> donor.name
        }
      ],
-     :html=>"Hello #{donor.name}. We received a request to change your password. If you did not request a password reset, ignored this email. <br /><br /> If you do wish to reset your password, click here to confirm: https://wwwtest.giv2giv.org/#reset_password?reset_token=#{donor.password_reset_token}",
+     :html=>"Hello #{donor.name}. We received a request to change your password. If you did not request a password reset, ignore this email. <br /><br /> If you do wish to reset your password, click here to confirm: https://wwwtest.giv2giv.org/#reset_password?reset_token=#{donor.password_reset_token}",
      :from_email=>"hello@giv2giv.org"  
     }
     sending = m.messages.send message
