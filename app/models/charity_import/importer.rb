@@ -225,6 +225,7 @@ module CharityImport
 
           charity = Charity.find_or_initialize_by(ein: ein)
           charity.update(options)
+          tag_charity(charity)
         end # end CSV.foreach
       end # end read_csv
     end # end self

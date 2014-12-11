@@ -147,14 +147,15 @@ class Api::CharityController < Api::BaseController
     location_by_ip = request.location
 
     if location_by_ip.blank?
-      raise "Location not found"
+      params[:latitude] = '38.149576'
+      params[:longitude] = '-79.0716958'
     end
 
     begin
       if params.has_key?(:latitude) && params.has_key?(:longitude)
-        charities = Charity.near([params[:latitude].to_f, params[:longitude].to_f], radius)
+        charities = Charity.near([params[:latitude].to_f, params[:longitude].to_f], radius, :order => "distance").limit(50)
       else
-        charities = Charity.near([location_by_ip.latitude, location_by_ip.longitude], radius)
+        charities = Charity.near([location_by_ip.latitude, location_by_ip.longitude], radius, :order => "distance").limit(50)
       end
       radius*=2
     end while charities.empty? && radius < 250

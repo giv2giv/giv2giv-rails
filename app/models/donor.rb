@@ -42,7 +42,7 @@ class Donor < ActiveRecord::Base
 
   def send_password_reset
     token = generate_token(:password_reset_token)
-    self.expire_password_reset = Time.zone.now
+    self.expire_password_reset = Time.zone.now + 1.day
     save!
     DonorMailer.forgot_password(self).deliver
   end

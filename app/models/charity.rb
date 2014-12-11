@@ -3,9 +3,19 @@ class Charity < ActiveRecord::Base
   has_and_belongs_to_many :endowments
   has_and_belongs_to_many :tags
   has_many :grants
-  geocoded_by :full_street_address
-  has_attached_file :image, styles: { small: "64x64", med: "100x100", large: "200x200" }
   
+  geocoded_by :full_street_address
+  #has_attached_file :image, styles: { small: "64x64", med: "100x100", large: "200x200" }
+  
+=begin
+  searchkick
+  def search_data
+    {
+      name: name,
+      tag_name: tags.map(&:name)
+    }
+  end
+=end
 
   #geocode on save if address changed
   after_validation :geocode, if: ->(charity){ charity.address.present? and charity.address_changed? }
