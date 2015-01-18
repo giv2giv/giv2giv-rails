@@ -11,11 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141208193302) do
+ActiveRecord::Schema.define(version: 20141022094808) do
 
   create_table "charities", force: true do |t|
-    t.string   "name",                                  null: false
-    t.string   "ein",                                   null: false
+    t.string   "name",                           null: false
+    t.string   "ein",                            null: false
     t.string   "address"
     t.string   "city"
     t.string   "state"
@@ -24,40 +24,15 @@ ActiveRecord::Schema.define(version: 20141208193302) do
     t.string   "classification_code"
     t.string   "subsection_code"
     t.string   "activity_code"
-    t.datetime "created_at",                            null: false
-    t.datetime "updated_at",                            null: false
+    t.string   "description"
+    t.string   "website"
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
     t.string   "email"
     t.string   "active"
-    t.float    "latitude",                   limit: 24
-    t.float    "longitude",                  limit: 24
+    t.float    "latitude",            limit: 24
+    t.float    "longitude",           limit: 24
     t.string   "slug"
-    t.string   "care_of"
-    t.string   "group_code"
-    t.string   "affiliation_code"
-    t.date     "ruling_date"
-    t.string   "deductibility_code"
-    t.string   "foundation_code"
-    t.string   "organization_code"
-    t.string   "status_code"
-    t.date     "tax_period"
-    t.string   "asset_code"
-    t.string   "income_code"
-    t.string   "filing_requirement_code"
-    t.string   "pf_filing_requirement_code"
-    t.string   "accounting_period"
-    t.integer  "asset_amount",               limit: 8
-    t.integer  "income_amount",              limit: 8
-    t.integer  "revenue_amount",             limit: 8
-    t.string   "secondary_name"
-    t.string   "image_file_name"
-    t.string   "image_content_type"
-    t.integer  "image_file_size"
-    t.datetime "image_updated_at"
-    t.string   "website"
-    t.string   "phone"
-    t.string   "tagline"
-    t.string   "short_description"
-    t.text     "description"
   end
 
   add_index "charities", ["ein"], name: "index_charities_on_ein", using: :btree
@@ -90,7 +65,6 @@ ActiveRecord::Schema.define(version: 20141208193302) do
     t.integer  "donor_id"
     t.decimal  "transaction_fee",    precision: 10, scale: 2,  null: false
     t.decimal  "net_amount",         precision: 30, scale: 2,  null: false
-    t.string   "transaction_id"
   end
 
   add_index "donations", ["endowment_id"], name: "index_donations_on_endowment_id", using: :btree
@@ -131,7 +105,7 @@ ActiveRecord::Schema.define(version: 20141208193302) do
 
   create_table "endowments", force: true do |t|
     t.string   "name",                               null: false
-    t.text     "description"
+    t.string   "description"
     t.float    "minimum_donation_amount", limit: 24
     t.datetime "created_at",                         null: false
     t.datetime "updated_at",                         null: false
@@ -192,7 +166,6 @@ ActiveRecord::Schema.define(version: 20141208193302) do
     t.decimal  "giv2giv_fee",       precision: 30, scale: 20
     t.decimal  "transaction_fee",   precision: 30, scale: 20
     t.decimal  "net_amount",        precision: 30, scale: 20
-    t.string   "grant_type"
   end
 
   create_table "invites", force: true do |t|
@@ -236,8 +209,6 @@ ActiveRecord::Schema.define(version: 20141208193302) do
     t.decimal  "etrade_balance",              precision: 10, scale: 2
     t.decimal  "donation_price",              precision: 10, scale: 2
     t.decimal  "grant_price",                 precision: 10, scale: 2
-    t.decimal  "dwolla_balance",              precision: 30, scale: 2,  null: false
-    t.decimal  "transit_balance",             precision: 30, scale: 2,  null: false
   end
 
   create_table "stripe_logs", force: true do |t|
@@ -255,16 +226,6 @@ ActiveRecord::Schema.define(version: 20141208193302) do
 
   add_index "tags", ["id"], name: "index_tags_on_id", using: :btree
   add_index "tags", ["name"], name: "index_tags_on_name", length: {"name"=>255}, using: :btree
-
-  create_table "transit_funds", force: true do |t|
-    t.string   "transaction_id",                                          null: false
-    t.string   "source",                                                  null: false
-    t.string   "destination",                                             null: false
-    t.decimal  "amount",         precision: 30, scale: 2,                 null: false
-    t.boolean  "cleared",                                 default: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-  end
 
   create_table "wishes", force: true do |t|
     t.integer  "donor_id"

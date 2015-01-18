@@ -20,13 +20,8 @@ class Api::EndowmentController < Api::BaseController
       #end
     #end
 
-    #charities.each do |c|
-      #endowments << c.endowments
-    #end
-   
-    q = "%#{query}%"
 
-    if q=="%%"
+    if query == ""
       if current_donor.present? && current_donor.id
   	    endowments = Endowment.page(pagenum).per(perpage).where("(visibility = ? OR donor_id = ?)", "public", current_donor.id).order("RAND()")
       else
@@ -34,9 +29,12 @@ class Api::EndowmentController < Api::BaseController
       end
     else
       if current_donor.present? && current_donor.id
-        endowments = Endowment.page(pagenum).per(perpage).where("name LIKE ? AND (visibility = ? OR donor_id = ?)", q, "public", current_donor.id).order("RAND()")
+        
+        #endowments = Endowment.search query, where: {visibility: "public" }#, or: [{donor_id: current_donor.id}] }
+
+        endowments = Endowment.page(pagenum).per(perpage).where("name LIKE ? AND (visibility = ? OR donor_id = ?)", query, "public", current_donor.id).order("RAND()")
       else
-        endowments = Endowment.page(pagenum).per(perpage).where("name LIKE ? AND visibility = ?", q, "public").order("RAND()")
+        endowments = Endowment.page(pagenum).per(perpage).where("name LIKE ? AND visibility = ?", query, "public").order("RAND()")
       end
     end
 

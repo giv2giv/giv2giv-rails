@@ -75,6 +75,7 @@ module CalculationShare
         #examine etrade transactions, set matching TransitFunds.clear=true
       end
 
+
       def grant_step_1
                 
         endowments = Endowment.all
@@ -139,12 +140,12 @@ module CalculationShare
           grant_status=nil
 
           case dwolla_grant["Status"]
-          when 'processed'
-            grant_status = "accepted"
-          when 'pending'
-            grant_status = 'pending_acceptance'
-          else
-            grant_status = dwolla_grant["Status"]
+            when 'processed'
+              grant_status = "accepted"
+            when 'pending'
+              grant_status = 'pending_acceptance'
+            else
+              grant_status = dwolla_grant["Status"]
           end
 
           giv2giv_grants = Grant.where("transaction_id = ?", dwolla_grant["Id"])

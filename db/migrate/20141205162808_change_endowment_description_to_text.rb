@@ -1,6 +1,5 @@
 class ChangeEndowmentDescriptionToText < ActiveRecord::Migration
 
-
   def up
     change_column :endowments, :description, :text
   end

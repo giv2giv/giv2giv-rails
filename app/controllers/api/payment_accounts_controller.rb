@@ -10,26 +10,44 @@ class Api::PaymentAccountsController < Api::BaseController
     accounts_list = []
 
     payment_accounts.each do |account|
-      stripe_customer = Stripe::Customer.retrieve(account.stripe_cust_id)
-      cards_list = []
-        stripe_customer.cards.data.each do |card|
-          cards_hash = [ card.id => {
-            "type" => card.type,
-            "last4" => card.last4,
-            "exp_month" => card.exp_month,
-            "exp_year" => card.exp_year
-          } ]
-          cards_list << cards_hash
+      if account.processor=='stripe'
+        stripe_customer = Stripe::Customer.retrieve(account.stripe_cust_id)
+        
+        #  cards_list = []
+        #  stripe_customer.cards.data.each do |card|
+        #      cards_hash = [ card.id => {
+        #        "type" => card.type,
+        #        "last4" => card.last4,
+        #        "exp_month" => card.exp_month,
+        #        "exp_year" => card.exp_year
+        #      } ]
+        #      cards_list << cards_hash
+        #
+        #  end
+        card = {
+          "type" => stripe_customer.cards.data.last.type,
+          "last4" => stripe_customer.cards.data.last.last4,
+          "exp_month" => stripe_customer.cards.data.last.exp_month,
+          "exp_year" => stripe_customer.cards.data.last.exp_year
+        }
       end
 
-      accounts_hash = [ account.id => {
+      card = card || {
+          "type" => "",
+          "last4" => "",
+          "exp_month" => "",
+          "exp_year" => ""
+        }
+
+      accounts_hash = {
+        "id" => account.id,
         "created_at" => account.created_at,
         "updated_at" => account.updated_at,
         "processor" => account.processor,
         "requires_reauth" => account.requires_reauth,
         "stripe_cust_id" => account.stripe_cust_id,
-	      "cards" => cards_list
-      } ]
+        "card_info" => card || {}
+      }
       accounts_list << accounts_hash
     end
 
@@ -63,18 +81,19 @@ class Api::PaymentAccountsController < Api::BaseController
   end
 
   def destroy
-    require "stripe"
     respond_to do |format|
       if current_payment_account
-          account = current_donor.payment_accounts.find(params[:id])
-          subscription = DonorSubscription.find_by_payment_account_id(params[:id])
-          customer = Stripe::Customer.retrieve(account.stripe_cust_id)
-          account.destroy
-          if subscription
-            subscription.destroy
+
+          subscription = DonorSubscription.where('payment_account_id=?',current_payment_account.id).destroy_all
+
+          if current_payment_account.processor=='stripe'
+            require "stripe"
+            customer = Stripe::Customer.retrieve(current_payment_account.stripe_cust_id)
+            customer.delete
           end
-          customer.delete
           
+          current_payment_account.destroy       
+
           format.json { render json: { :message => "Payment account has been deleted" }.to_json }
       else
         format.json { head :not_found }
@@ -172,13 +191,12 @@ class Api::PaymentAccountsController < Api::BaseController
 
       page=page["JSonDataResult"]
 
-      #payment_account = PaymentAccount.new_knox_account(set_token, knox_donor.id, {:donor => knox_donor, :processor => params[:processor]})
+      payment_account = PaymentAccount.new_knox_account(knox_donor.id, {:donor => knox_donor, :processor => 'knox', :user_key => page["user_key"], :user_pass => page["user_pass"] })
 
-      respond_to do |format|
-        format.json { render json: { :page => page }.to_json }
+#TODO
+      if payment_account
+        redirect_to "https://wwwtest.giv2giv.org/#donor"
       end
-
-      
       
     end
   end

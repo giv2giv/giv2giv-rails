@@ -12,7 +12,7 @@ class DonorMailer < ActionMailer::Base
      :from_name=> "giv2giv.org",  
      :text=>"Donation Successful! Thank you for your donation of $#{donation_amount} to the giv2giv.org fund <a href=https://giv2giv.org/#endowment/#{endowment.slug}>#{endowment.name}</a>. Want to see the breakdown by charity, or print a statement? Visit <a href=https://giv2giv.org/#endowment/#{endowment.slug}>giv2giv.org</a>",
      :to=>[  
-       {  
+       { 
          :email=> donor.email,
          :name=> donor.name  
        }  

@@ -26,7 +26,6 @@ class Donation < ActiveRecord::Base
         donation.shares_added=buy_shares
         donation.save!
       }
-
     end
   end
 end

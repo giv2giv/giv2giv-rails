@@ -9,7 +9,7 @@ module StripeHelper
     end
 
     transfer = Stripe::Transfer.create(
-      :amount => -amount_to_send, #already in cents
+      :amount => amount_to_send, #already in cents
       :currency => "usd",
       :recipient => "self",
       :statement_description => "#{Date.today} transfer to eTrade"

@@ -46,7 +46,7 @@ class DwollaLibs
     transaction_hash[0]
   end
 
-  def get_all_transaction
+  def get_all_transactions
     Dwolla::Transactions.get
   end
 
@@ -56,7 +56,8 @@ class DwollaLibs
 
   def dwolla_send(email, notes = "", amount=nil)
     begin
-      transactionId = Dwolla::Transactions.send({:destinationId => email, :pin => PIN, :destinationType => 'email', :amount => amount, :notes => notes, :fundsSource => GRANT_SOURCE_ACCOUNT})
+      #transactionId = Dwolla::Transactions.send({:destinationId => email, :pin => PIN, :destinationType => 'email', :amount => amount, :notes => notes, :fundsSource => GRANT_SOURCE_ACCOUNT})
+      transactionId = Dwolla::Transactions.send({:destinationId => email, :pin => PIN, :destinationType => 'email', :amount => amount, :notes => notes })
       return transactionId
     rescue Dwolla::APIError => error
       return error

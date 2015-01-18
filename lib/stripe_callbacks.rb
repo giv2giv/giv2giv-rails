@@ -20,9 +20,10 @@ class StripeCallbacks
 
     donation = Donation.add_donation(subscription.id, charge_amount, transaction_id, transaction_fee, donation_amount)
     
-    endowment = Endowment.find(subscription.endowment_id)
-    #passthru_grant = Grant.add_passthru_grant(subscription.id, donation_amount)
+    #passthru_grant = Grant.add_passthru_grant(subscription, donation_amount) #no pass-thrus yet
+
     donor = Donor.find(subscription.donor_id)
+    endowment = Endowment.find(subscription.endowment_id)
     DonorMailer.charge_success(donor, endowment, charge_amount).deliver
 
   end
@@ -35,7 +36,7 @@ class StripeCallbacks
       source: "stripe",
       destination: "etrade",
       amount: (BigDecimal("#{transfer.amount}")/100).floor(2), #stripe records cents, we record BigDecimal
-      cleared: true
+      cleared: false
     )
     
   end

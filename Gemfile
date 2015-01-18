@@ -50,8 +50,12 @@ gem 'httparty'
 
 # Gems used for the charity import
 gem 'nokogiri', :require => false
+
+# Search
+gem 'searchkick'
+
+# typhoeus optimizes libcurl for charity import and searchkick
 gem 'typhoeus', :require => false
-#gem 'spreadsheet'
 
 # pagination
 gem 'kaminari'

@@ -1,7 +1,7 @@
 class PaymentAccount < ActiveRecord::Base
   require "stripe"
 
-  VALID_PROCESSORS = %w(stripe)
+  VALID_PROCESSORS = %w(stripe knox)
   PLAN_ID = '1cent'
   PER_SHARE_DEFAULT = 100000
   SHARE_PRECISION = App.giv["share_precision"]
@@ -105,6 +105,22 @@ class PaymentAccount < ActiveRecord::Base
       customer = Stripe::Customer.create(description: "giv2giv subscription", email: check_donor.email, card: stripeToken)
       payment = PaymentAccount.new(options)
       payment.stripe_cust_id = customer.id
+      if payment.save
+        payment
+      else
+        payment.errors
+      end
+    end
+
+    def new_knox_account(donor_id, options = {})
+      
+      check_donor = Donor.find(donor_id)
+      
+      if !check_donor
+        return { :message => "Wrong donor id" }.to_json
+      end
+
+      payment = PaymentAccount.new(options)
       if payment.save
         payment
       else
