@@ -5,10 +5,14 @@ class StripeCallbacks
     invoice = event.data.object.invoice
 
     if invoice.blank?
-      subscription = DonorSubscription.find_by_stripe_subscription_id(event.data.object.id) # stripe charge.id
+      #subscription = DonorSubscription.where('unique_subscription_id = ?', event.data.object.id) # stripe charge.id
+      subscription = DonorSubscription.find_by unique_subscription_id: event.data.object.id
+
     else
       invoice = Stripe::Invoice.retrieve(event.data.object.invoice)
-      subscription = DonorSubscription.find_by_stripe_subscription_id(invoice.lines.data.first.id) # stripe subscription.id
+      subscription = DonorSubscription.find_by unique_subscription_id: invoice.lines.data.first.id
+
+      #subscription = DonorSubscription.where('unique_subscription_id = ?', invoice.lines.data.first.id) # stripe subscription.id
     end
 
     transaction = Stripe::BalanceTransaction.retrieve(event.data.object.balance_transaction)
