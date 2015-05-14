@@ -1,10 +1,13 @@
 class Api::EndowmentController < Api::BaseController
 
-  skip_before_filter :require_authentication, :only => [:index, :show, :find_by_slug, :trending, :near, :anonymous_donation]
+  skip_before_filter :require_authentication, :only => [:index, :show, :find_by_slug, :trending, :near, :anonymous_donation, :widget_data, :autocomplete]
+  before_action :set_endowment, :only => [:widget_data]
 
   def index
     pagenum = params[:page] || 1
     perpage = params[:per_page] || 10
+
+    #query = (params[:query] || "").tr(" ", "%")
     query = params[:query] || ""
 
     perpage=50 if perpage.to_i > 50
@@ -20,24 +23,22 @@ class Api::EndowmentController < Api::BaseController
       #end
     #end
 
-
     if query == ""
       if current_donor.present? && current_donor.id
-  	    endowments = Endowment.page(pagenum).per(perpage).where("(visibility = ? OR donor_id = ?)", "public", current_donor.id).order("RAND()")
+        endowments = Endowment.page(pagenum).per(perpage).where("(visibility = ? OR donor_id = ?)", "public", current_donor.id).order("RAND()")
       else
         endowments = Endowment.page(pagenum).per(perpage).where("visibility = ?", "public").order("RAND()")
       end
     else
       if current_donor.present? && current_donor.id
         
-        #endowments = Endowment.search query, where: {visibility: "public" }#, or: [{donor_id: current_donor.id}] }
+        #endowments = Endowment.search query #, where: {visibility: "public" }#, or: [{donor_id: current_donor.id}] }
 
         endowments = Endowment.page(pagenum).per(perpage).where("name LIKE ? AND (visibility = ? OR donor_id = ?)", query, "public", current_donor.id).order("RAND()")
       else
         endowments = Endowment.page(pagenum).per(perpage).where("name LIKE ? AND visibility = ?", query, "public").order("RAND()")
       end
     end
-
 
     endowments.each do |endowment|
 
@@ -51,7 +52,7 @@ class Api::EndowmentController < Api::BaseController
         "updated_at" => endowment.updated_at,
         "name" => endowment.name,
         "slug" => endowment.slug,
-        "description" => endowment.description,
+        "description" => endowment.description || "",
         "visibility" => endowment.visibility,
         "my_balances" => my_balances || "",
         "global_balances" => endowment.global_balances,
@@ -104,7 +105,7 @@ class Api::EndowmentController < Api::BaseController
       "updated_at" => endowment.updated_at,
       "name" => endowment.name,
       "slug" => endowment.slug,
-      "description" => endowment.description,
+      "description" => endowment.description || "",
       "visibility" => endowment.visibility,
       "my_balances" => my_balances || "",
       "global_balances" => endowment.global_balances,
@@ -211,6 +212,10 @@ class Api::EndowmentController < Api::BaseController
     end
   end
 
+  def autocomplete
+    render json: Endowment.search(params[:q], fields: [{name: :word_start}], limit: 30).map {|endowment| {value: endowment.name, id: endowment.id}}
+  end
+
   def my_endowments
     endowments = current_donor.endowments
 
@@ -288,12 +293,18 @@ class Api::EndowmentController < Api::BaseController
     end
   end
 
+  def widget_data
+    render json: @endowment
+  end
+
 
   private
     def endowment_params
       allow = [:name, :visibility, :description, :charity_id]
       params.require(:endowment).permit(allow)
     end
-  
-
+    def set_endowment
+      @endowment = Endowment.where("(id = ? OR slug = ?) AND visibility = ?", params[:id], params[:id], "public").last
+    end
+    
 end

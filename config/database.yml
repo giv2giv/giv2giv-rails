@@ -1,7 +1,0 @@
-test:
-  adapter: mysql2
-  encoding: utf8
-  database: giv2giv_test
-  host: 6f47516f18de9984f5b58d787e7a2906104b11f4.rackspaceclouddb.com
-  username: giv2giv_test
-  password: LS(*&3#Sph)D2&l29

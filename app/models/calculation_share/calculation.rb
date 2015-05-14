@@ -284,9 +284,10 @@ module CalculationShare
       end
 
       def get_dwolla_balance
-        dwolla_balance = DwollaLibs.new.get_balance
-        raise "Dwolla connection problem" if !dwolla_balance
-        BigDecimal('#{dwolla_balance}')
+        return 0
+        #dwolla_balance = DwollaLibs.new.get_balance
+        #raise "Dwolla connection problem" if !dwolla_balance
+        #BigDecimal('#{dwolla_balance}')
       end
 
       def get_transit_balance

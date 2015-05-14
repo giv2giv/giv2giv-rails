@@ -23,7 +23,7 @@ feature "Stripe Allocation" do
   	result = PaymentAccount.one_time_payment(123.00, endowment.id, donor.email, 'mock_stripeToken', payment_account.id, 'password')
   	result.should == {:message => "Success"}.to_json
   	subscription = donor.donor_subscriptions.first
-  	subscription.stripe_subscription_id.to_i.should == 22
+  	subscription.unique_subscription_id.to_i.should == 22
   	subscription.type_subscription.should == "one_time_payment"
   	subscription.gross_amount.to_i.should == 123
   end

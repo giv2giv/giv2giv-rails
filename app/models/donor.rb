@@ -109,7 +109,6 @@ class Donor < ActiveRecord::Base
     else
       my_investment_gainloss_percentage = 0.0
     end
-
     {
       "is_subscribed" => is_subscribed,
       "my_subscription_id" => my_subscription_id || "",
@@ -131,6 +130,7 @@ class Donor < ActiveRecord::Base
       "my_investment_gainloss_percentage" => my_investment_gainloss_percentage || 0,
       "my_endowment_balance" => my_endowment_balance.to_f || 0
     }
+
   end
   
 end

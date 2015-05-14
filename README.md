@@ -11,7 +11,7 @@ This API provides endpoints for the giv2giv.org fund software. It uses Ruby 1.9.
 
 2. Install Ruby
         # We use [rvm](https://rvm.io/)
-        rvm install ruby-1.9.3
+        rvm install ruby-2.1.2
 
 3. Install gems
         bundle install

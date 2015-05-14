@@ -113,7 +113,13 @@ class Api::PaymentAccountsController < Api::BaseController
 
   def one_time_payment
     respond_to do |format|
-      if current_payment_account && donation = current_payment_account.stripe_charge('single_donation',params[:amount], params[:endowment_id])
+      if current_payment_account
+        if current_payment_account.processor=='stripe'
+          donation = current_payment_account.stripe_charge('single_donation',params[:amount], params[:endowment_id])
+        elsif current_payment_account.processor=='knox'
+          donation = current_payment_account.knox_donation('single_donation', params[:amount], params[:endowment_id])
+          Rails.logger.debug "Hello worldlast"
+        end
         format.json { render json: donation }
        else
         format.json { head :not_found }

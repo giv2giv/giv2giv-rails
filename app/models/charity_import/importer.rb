@@ -189,7 +189,7 @@ module CharityImport
             tax_period = nil
           end
 
-          options = {
+          charity_options = {
             :ein => ein,
             :name => name.titleize,
             :care_of => row[2].to_s.strip,
@@ -221,11 +221,24 @@ module CharityImport
             :active => active
           }
 
-          puts "---Creating Charity with #{options.inspect}" if @@verbose_with_misses
+          puts "---Creating Charity with #{charity_options.inspect}" if @@verbose_with_misses
 
           charity = Charity.find_or_initialize_by(ein: ein)
-          charity.update(options)
+          charity.update(charity_options)
           tag_charity(charity)
+
+          endowment = Endowment.find_or_initialize_by(id: charity.main_endowment_id)
+          endowment.name = name.titleize
+          endowment.visibility = 'public'
+          begin
+            if endowment.save!
+              charity.main_endowment_id = endowment.id
+              charity.save! unless charity.main_endowment_id==endowment.id
+            end
+          rescue ActiveRecord::RecordInvalid
+            #Fail silently, only keep first endowment
+          end
+
         end # end CSV.foreach
       end # end read_csv
     end # end self

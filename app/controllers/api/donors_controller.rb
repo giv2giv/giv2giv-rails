@@ -54,6 +54,7 @@ class Api::DonorsController < Api::BaseController
     load_global_and_donor_balances
 
     last_donation_price = Share.last.donation_price rescue 0.0
+
     if current_donor && current_donor.id
       share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.grants.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:shares_subtracted)}")
       donor_current_balance = (BigDecimal("#{share_balance}") * BigDecimal("#{last_donation_price}")).floor2(2)
@@ -278,14 +279,28 @@ def donor_first_donation_date
   current_donor.donations.order("created_at ASC").first.created_at.to_date rescue Date.today
 end
 
+def donation_price_on(date)
+  dt = DateTime.parse(date.to_s)
+  dt = dt + 11.hours + 59.minutes + 59.seconds
+  shareprice = Share.where('created_at <= ?', dt).order("created_at DESC").first
+  shareprice.donation_price rescue 0.0
+end
+
+def grant_price_on(date)
+  dt = DateTime.parse(date.to_s)
+  dt = dt + 11.hours + 59.minutes + 59.seconds
+  shareprice = Share.where('created_at <= ?', dt).order("created_at DESC").first
+  shareprice.grant_price rescue 0.0
+end
+
 def global_balance_on(date)
   dt = DateTime.parse(date.to_s)
   dt = dt + 11.hours + 59.minutes + 59.seconds
   shares_added = @all_donations.where('created_at <= ?', dt).sum(:shares_added)
   shares_subtracted = @all_grants.where('created_at <= ?', dt).sum(:shares_subtracted)
-  share_price = Share.where('created_at <= ?', dt).order("created_at DESC").first
+  share_price = donation_price_on(date)
   #All three type BigDecimal
-  balance = (shares_added - shares_subtracted) * share_price.donation_price
+  balance = (shares_added - shares_subtracted) * share_price
   balance.floor2(2)
 end
 
@@ -294,9 +309,9 @@ def donor_balance_on(date)
   dt = dt + 11.hours + 59.minutes + 59.seconds
   shares_added = @my_donations.where('created_at <= ?', dt).sum(:shares_added)
   shares_subtracted = @my_grants.where('created_at <= ?', dt).sum(:shares_subtracted)
-  share_price = Share.where('created_at <= ?', dt).order("created_at DESC").first
+  share_price = donation_price_on(date)
   #All three type BigDecimal
-  balance = (shares_added - shares_subtracted) * share_price.donation_price
+  balance = (shares_added - shares_subtracted) * share_price
   balance.floor2(2)
 end
 

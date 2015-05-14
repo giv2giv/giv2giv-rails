@@ -13,7 +13,13 @@ class Endowment < ActiveRecord::Base
   extend FriendlyId
   friendly_id :name, use: :slugged
 
-  searchkick
+  searchkick word_start: [:name], callbacks: false#, callbacks: :async
+
+  def search_data
+    {
+      name: name
+    }
+  end
 
   def should_generate_new_friendly_id?
     slug.blank? || name_changed?
@@ -59,7 +65,7 @@ class Endowment < ActiveRecord::Base
     shares_subtracted = @all_grants.where('created_at <= ?', dt).sum(:shares_subtracted)
     share_price = Share.where('created_at <= ?', dt).order("created_at DESC").first
     #All three type BigDecimal
-    balance = (shares_added - shares_subtracted) * share_price.donation_price
+    balance = (shares_added - shares_subtracted) * share_price.donation_price rescue 0.0
     balance.floor2(2)
   end
 
@@ -107,7 +113,7 @@ class Endowment < ActiveRecord::Base
 
         anonymous_donor.save!
 
-        #payment = PaymentAccount.new_account(stripeToken, anonymous_donor.id, {:donor => anonymous_donor})
+        payment = PaymentAccount.new_account(stripeToken, anonymous_donor.id, {:donor => anonymous_donor})
 
         donation = PaymentAccount.stripe_charge('single_donation',amount, endowment_id, payment.id)
 

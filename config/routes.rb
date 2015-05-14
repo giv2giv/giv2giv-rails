@@ -46,6 +46,8 @@ Giv2givRails::Application.routes.draw do
         delete 'remove_charity', :on => :member
         post 'rename_endowment', :on => :member
         post 'anonymous_donation', :on => :member
+        get 'widget_data', :on => :member
+        get 'autocomplete', :on=>:collection
         get 'my_endowments', :on=>:collection
         get 'trending', :on=>:collection
         get 'near', :on=>:collection
@@ -56,6 +58,9 @@ Giv2givRails::Application.routes.draw do
         get 'show_endowments', :on => :member
         get 'near', :on=> :collection
         get 'find_by_slug', :on=> :collection
+        get 'widget_data', :on => :member
+        get 'stripe', :on => :member
+        get 'autocomplete', :on=> :collection
       end
 
       resources :wishes, :except => [:new, :edit, :destroy, :update] do

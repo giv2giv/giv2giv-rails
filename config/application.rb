@@ -64,13 +64,13 @@ module Giv2givRails
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
 
-
     # Open CORS up 
     #config.middleware.use Rack::Cors do
     config.middleware.insert 0, Rack::Cors do
       allow do
         origins '*'
       	if Rails.env.eql?("production")
+                resource %r{widget_data}, :headers => :any, :methods => [:get, :options]
                 resource '/api/endowment/*', :headers => :any, :methods => [:post, :get, :put]
                 resource '/api/charity/*', :headers => :any, :methods => [:get]
                 resource '/api/donors/payment_accounts/*', :headers => :any, :methods => [:get, :post, :put, :delete]
