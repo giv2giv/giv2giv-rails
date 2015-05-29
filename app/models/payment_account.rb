@@ -138,7 +138,7 @@ class PaymentAccount < ActiveRecord::Base
 
       if subscription.save
         DonorMailer.new_subscription(current_donor, charity.name, type, amount).deliver
-        { :message => "Success" }.to_json
+        stripe_charge
       else
         { :message => "Error" }.to_json
       end # end subscription.save

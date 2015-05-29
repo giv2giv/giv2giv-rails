@@ -220,41 +220,37 @@ class Api::CharityController < Api::BaseController
 
     amount = (amount.to_f * 100).to_i #make sure assume_fees is calculated correctly
 
-    email = params[:'giv2giv-email'].present? ? params[:'giv2giv-email'] : createRandomEmail
+    email = params[:'giv2giv-email'].present? ? params.fetch(:'giv2giv-email') : createRandomEmail
 
     begin
 
-    # Create a Customer
-    customer = Stripe::Customer.create(
-      :source => stripeToken,
-      :email  => email,
-      :description => "widget"
-    )
+      # Create a Customer
+      customer = Stripe::Customer.create(
+        :source => stripeToken,
+        :email  => email,
+        :description => "widget"
+      )
 
-    donor = Donor.where(:email => email).first_or_initialize
+      donor = Donor.where(:email => email).first_or_initialize
 
-    if donor.id.nil?
-      donor.name = 'Unknown'
-      donor.password = createRandomEmail
-      donor.accepted_terms = true
-      donor.accepted_terms_on = DateTime.now
-      donor.type_donor = 'anonymous'
-      donor.save!
+      if donor.id.nil?
+        donor.name = 'Unknown'
+        donor.password = createRandomEmail
+        donor.accepted_terms = true
+        donor.accepted_terms_on = DateTime.now
+        donor.type_donor = 'anonymous'
+        donor.save!
+      end
+
+      payment = PaymentAccount.new({:donor=>donor})
+      payment.processor = 'stripe';
+      payment.stripe_cust_id = customer.id
+      payment.save!
+
+      donation = payment.charity_stripe_charge(params.fetch(:'giv2giv-recurring'), amount, @charity)
     end
 
-    payment = PaymentAccount.new({:donor=>donor})
-    payment.processor = 'stripe';
-    payment.stripe_cust_id = customer.id
-    payment.save!
-
-    donation = payment.charity_stripe_charge(params.fetch(:'giv2giv-recurring'), amount, @charity)
-
-    transaction = Stripe::BalanceTransaction.retrieve(donation.balance_transaction)
-
-    format.json { render :json => transaction }
-
-    end
-
+    render json: donation
   end
 
   private
