@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150514013603) do
+ActiveRecord::Schema.define(version: 20150528014603) do
 
   create_table "charities", force: true do |t|
     t.string   "name",                                  null: false
@@ -92,6 +92,7 @@ ActiveRecord::Schema.define(version: 20150514013603) do
     t.decimal  "transaction_fee",    precision: 10, scale: 2,  null: false
     t.decimal  "net_amount",         precision: 30, scale: 2,  null: false
     t.string   "transaction_id"
+    t.integer  "charity_id"
   end
 
   add_index "donations", ["endowment_id"], name: "index_donations_on_endowment_id", using: :btree
@@ -107,6 +108,7 @@ ActiveRecord::Schema.define(version: 20150514013603) do
     t.datetime "updated_at"
     t.decimal  "gross_amount",           precision: 30, scale: 2, null: false
     t.datetime "canceled_at"
+    t.integer  "charity_id"
   end
 
   create_table "donors", force: true do |t|

@@ -11,7 +11,6 @@ namespace :charity do
     # Look in the charity folder for csv and try to import them
     skip_download = (ENV['skip_download'].present? && ENV['skip_download'] == 'true')
     verbose = true if extremely_verbose
-
     CharityImport::Importer.run(verbose, extremely_verbose, skip_download)
   end
 
@@ -29,7 +28,6 @@ namespace :charity do
   task :add_email => :environment do
     charity_id = ENV['charity_id']
     charity_email = ENV['charity_email']
-
     raise ArgumentError, 'Must specify charity id and charity email' if charity_email.nil? or charity_id.nil?
     CharityImport::Importer.add_email_charity(charity_id, charity_email)
   end

@@ -247,37 +247,11 @@ class Api::CharityController < Api::BaseController
     payment.stripe_cust_id = customer.id
     payment.save!
 
-# HERE
-# expects type, amount, endowment_id
+    donation = payment.charity_stripe_charge(params.fetch(:'giv2giv-recurring'), amount, @charity)
 
-# Which endowment!?
+    transaction = Stripe::BalanceTransaction.retrieve(donation.balance_transaction)
 
-    donation = payment.stripe_charge('single_donation',amount, @charity.id)
-
-Rails.logger.debug 'hi3'
-
-    transaction = Stripe::BalanceTransaction.retrieve(charge.balance_transaction)
-
-    gross_amount = BigDecimal(transaction.amount.to_s) / 100
-    transaction_fee = BigDecimal(transaction.fee.to_s) / 100
-    net_amount = BigDecimal(transaction.net.to_s) / 100
-Rails.logger.debug 'hi'
-    donation = Donation.add_donation(
-      donor_id: donor.id,
-      charity_id: @charty.id,
-      transaction_id: transaction.id.to_s,
-      gross_amount: gross_amount,
-      transaction_fee: transaction_fee,
-      net_amount: net_amount
-    )
-    Rails.logger.debug 'hi2'
-    format.json { render :json => donation }
-    
-
-    #rescue Stripe::CardError => e
-      # The card has been declined
-    #rescue #ActiveRecord::ActiveRecordError #rescue most everything else
-      # Problem with DB
+    format.json { render :json => transaction }
 
     end
 

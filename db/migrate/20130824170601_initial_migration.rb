@@ -29,7 +29,7 @@ class InitialMigration < ActiveRecord::Migration
 
     create_table :donations do |t|
       t.float :amount, null: false
-      t.integer :endowment_id, null: false
+      t.integer :endowment_id
       t.integer :payment_account_id, null: false
       t.string :transaction_id, null: false
       t.string :transaction_processor, null: false

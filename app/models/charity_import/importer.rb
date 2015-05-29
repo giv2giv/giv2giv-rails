@@ -4,7 +4,7 @@ require 'csv'
 
 module CharityImport
   class Importer
-    EXCEL_DIRECTORY = 'tmp/charity_excel_files'
+    CSV_DIRECTORY = 'tmp/charity_csv_files'
     IRS_URL = 'http://www.irs.gov/pub/irs-soi/'
     LINK_REGEX = /eo_[^.]{2}.csv/
 
@@ -25,7 +25,7 @@ module CharityImport
           files = files_from_dir
         else
           files = select_eo_links(get_irs_page)
-          create_excel_dir_if_needed
+          create_csv_dir_if_needed
           files.each { |file| download_eo_file(file) }
         end
 
@@ -35,7 +35,7 @@ module CharityImport
       def import_single_file(file_name, skip_downloading = true)
 
         if !skip_downloading
-          create_excel_dir_if_needed
+          create_csv_dir_if_needed
           download_eo_file(file_name)
         end
         read_csv(file_name)
@@ -58,16 +58,16 @@ module CharityImport
         irs_doc.xpath('//a/@href').select { |link| link.to_s =~ LINK_REGEX }.map(&:to_s)
       end
 
-      def charity_excel_dir
-        Rails.root.join(EXCEL_DIRECTORY)
+      def charity_csv_dir
+        Rails.root.join(CSV_DIRECTORY)
       end
 
       def files_from_dir
-        Dir.entries(charity_excel_dir).select{ |m| m =~ /\.xls/ }
+        Dir.entries(charity_csv_dir).select{ |m| m =~ /\.xls/ }
       end
 
-      def create_excel_dir_if_needed
-        FileUtils.mkdir_p(charity_excel_dir) if !File.exists?(charity_excel_dir)
+      def create_csv_dir_if_needed
+        FileUtils.mkdir_p(charity_csv_dir) if !File.exists?(charity_csv_dir)
       end
 
       def write_file(file_name, content)
@@ -80,7 +80,7 @@ module CharityImport
         request = Typhoeus::Request.new(IRS_URL + file)
         request.on_complete do |response|
           puts "-- #{file} download complete!" if @@verbose
-          write_file(charity_excel_dir + file, response.body)
+          write_file(charity_csv_dir + file, response.body)
         end
         request.run
       end
@@ -154,7 +154,7 @@ module CharityImport
       end
 
       def read_csv(file)
-        file_with_dir = charity_excel_dir + file
+        file_with_dir = charity_csv_dir + file
         raise ArgumentError, "File not found: #{file_with_dir}" if !File.exists?(file_with_dir)
 
         puts "Reading CSV: #{file}" if @@verbose
