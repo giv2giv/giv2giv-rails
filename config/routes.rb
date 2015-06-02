@@ -60,6 +60,8 @@ Giv2givRails::Application.routes.draw do
         get 'find_by_slug', :on=> :collection
         get 'widget_data', :on => :member
         get 'stripe', :on => :member
+        get 'dwolla', :on => :member
+        get 'dwolla_done', :on => :member
         get 'autocomplete', :on=> :collection
       end
 

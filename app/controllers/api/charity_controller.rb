@@ -1,7 +1,7 @@
 class Api::CharityController < Api::BaseController
 
-  skip_before_filter :require_authentication, :only => [:index, :show, :find_by_slug, :show_endowments, :near, :widget_data, :stripe]
-  before_action :set_charity, :only => [:widget_data, :stripe]
+  skip_before_filter :require_authentication, :only => [:index, :show, :find_by_slug, :show_endowments, :near, :widget_data, :stripe, :dwolla, :dwolla_done]
+  before_action :set_charity, :only => [:show, :widget_data, :stripe, :dwolla, :dwolla_done, :show_endowments]
 
   include CharityImport
 
@@ -80,38 +80,36 @@ class Api::CharityController < Api::BaseController
   end
 
   def show
-    charity = Charity.where("(id=? OR slug=?)", params[:id], params[:id]).last
 
     charity_hash = {
-      "id" => charity.id,
-      "created_at" => charity.created_at,
-      "updated_at" => charity.updated_at,
-      "ein" => charity.ein,
-      "name" => charity.name.titleize,
-      "address" => charity.address,
-      "city" => charity.city.titleize,
-      "state" => charity.state,
-      "zip" => charity.zip,
-      "latitude" => charity.latitude,
-      "longitude" => charity.longitude,
-      "tax_period" => charity.group_code,
-      "asset_amount" => charity.group_code,
-      "income_amount" => charity.group_code,
-      "revenue_amount" => charity.revenue_amount,
-      "slug" => charity.slug,
-      "tags" => charity.tags.pluck(:name),
-      "tagline" => charity.tagline,
-      "description" => charity.description,
-      "donor_count" => charity.donor_count,
-      "supporting_endowments" => charity.endowments,
-      "current_balance" => charity.current_balance,
-      "pending_grants" => charity.pending_grants,
-      "delivered_grants" => charity.delivered_grants
+      "id" => @charity.id,
+      "created_at" => @charity.created_at,
+      "updated_at" => @charity.updated_at,
+      "ein" => @charity.ein,
+      "name" => @charity.name.titleize,
+      "address" => @charity.address,
+      "city" => @charity.city.titleize,
+      "state" => @charity.state,
+      "zip" => @charity.zip,
+      "latitude" => @charity.latitude,
+      "longitude" => @charity.longitude,
+      "tax_period" => @charity.group_code,
+      "asset_amount" => @charity.group_code,
+      "income_amount" => @charity.group_code,
+      "revenue_amount" => @charity.revenue_amount,
+      "slug" => @charity.slug,
+      "tags" => @charity.tags.pluck(:name),
+      "tagline" => @charity.tagline,
+      "description" => @charity.description,
+      "donor_count" => @charity.donor_count,
+      "supporting_endowments" => @charity.endowments,
+      "current_balance" => @charity.current_balance,
+      "pending_grants" => @charity.pending_grants,
+      "delivered_grants" => @charity.delivered_grants
     }
 
-
     respond_to do |format|
-      if charity
+      if @charity
         format.json { render json: { :charity => charity_hash }.to_json }
       else
         format.json { head :not_found }
@@ -135,10 +133,9 @@ class Api::CharityController < Api::BaseController
   end
 
   def show_endowments
-    charity = Charity.find(params[:id])
     respond_to do |format|
-      if charity
-        format.json { render json: charity.endowments}
+      if @charity
+        format.json { render json: @charity.endowments}
       else
         format.json { head :not_found }
       end
@@ -252,6 +249,101 @@ class Api::CharityController < Api::BaseController
 
     render json: donation
   end
+
+  def dwolla
+    require 'dwolla'
+
+    Dwolla::OffsiteGateway.clear_session
+
+    # Set API credentials
+    Dwolla::api_key = App.dwolla['api_key']
+    Dwolla::api_secret = App.dwolla['api_secret']
+
+    Dwolla::sandbox = true
+    mail = params[:'giv2giv-email'].present? ? params[:'giv2giv-email'] : createRandomEmail
+
+    # Where should Dwolla send the user after they check out or cancel?
+    Dwolla::OffsiteGateway.redirect = App.giv['api_url'] + "/charity/#{@charity.id}/dwolla_done.json"
+
+    # Add a product to the purchase order
+    Dwolla::OffsiteGateway.add_product(@charity.name, "giv2giv donation to " + @charity.name, params[:'giv2giv-amount'].gsub(/[^\d\.]/, '').to_f, 1)
+
+    # Generate a checkout URL payable to our Dwolla ID
+    checkout_url = Dwolla::OffsiteGateway.get_checkout_url(App.dwolla['account_id'])
+    redirect_to checkout_url
+  end
+
+  def dwolla_done
+
+#callback comes in
+#  create subscription
+#  create grant, mark as 'pending'?
+
+
+#receive webhook
+#  mark as correct status
+#  if !immediate, send pass-thru
+
+    Dwolla::OffsiteGateway.clear_session
+
+    # Set API credentials
+    Dwolla::api_key = App.dwolla['api_key']
+    Dwolla::api_secret = App.dwolla['api_secret']
+    Dwolla::sandbox = App.dwolla['sandbox_mode']
+
+=begin Callback params looks like:
+      "signature"=>"77dbd9d237cc8bce5bd2425c2eb88b435752a788",
+      "orderId"=>"",
+      "amount"=>"5.00",
+      "checkoutId"=>"3c98a679-2795-4dda-a0c2-6b712831c944",
+      "status"=>"Completed",
+      "clearingDate"=>"2015-02-11T02:27:37Z",
+      "sourceEmail"=>"mblinn@gmail.com",
+      "sourceName"=>"John Doe",
+      "transaction"=>"834644",
+      "destinationTransaction"=>"834643",
+      "action"=>"dwolla_done",
+      "controller"=>"charities",
+      "id"=>"1"
+=end
+
+    transaction = Dwolla::OffsiteGateway.read_callback(params.to_json)
+
+    email = transaction['sourceEmail']
+    gross_amount = BigDecimal(transaction['amount'])
+    
+    transaction_fee = gross_amount > 10 ? 0.25 : 0.0
+    net_amount = gross_amount - transaction_fee;
+    
+    begin
+
+#Make donor, not user
+      user = User.where(:email => email).first_or_initialize
+      user.skip_confirmation!
+      user.save!(:validate => false)
+
+#Here do donor_subscription
+      donation = Donation.add_donation(
+        donor_id: donor.id,
+        campaign_id: @charity.id,
+        transaction_id: transaction.id.to_s,
+        gross_amount: gross_amount,
+        transaction_fee: transaction_fee,
+        net_amount: net_amount
+      )
+      render json: donation.to_json # or redirect_to since we've grabbed the browser?
+
+      rescue Dwolla::APIError => e
+        Rails.logger.debug 'oops'
+        # User pressed cancel
+      rescue #ActiveRecord::ActiveRecordError #rescue most everything else
+        # Problem with DB
+    end
+
+  end
+
+
+
 
   private
     def set_charity

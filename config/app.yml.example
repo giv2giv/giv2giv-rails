@@ -3,6 +3,8 @@
 force_ssl: true
 
 giv:
+  web_url                : https://giv2giv.org/
+  api_url                : https://api.giv2giv.org/
   giv_fee_amount     : .00125
   giv_passthru_fee_amount: .035
   giv_grant_amount   : .0125
@@ -51,6 +53,7 @@ knox:
 
 
 dwolla:
+  sandbox_mode:        "true"
   api_key:        dwolla-api-key
   api_secret:     dwolla-api-secret
   account_id:     dwolla-account-id

@@ -1,6 +1,5 @@
 class DwollaController < ApplicationController
   require 'json'
-  include DwollaHelper
   
 
 #This code is unused
