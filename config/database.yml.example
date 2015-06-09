@@ -2,8 +2,8 @@ default: &default
   adapter: mysql2
   encoding: utf8
   pool: 5
-  username: giv2giv
-  password: giv2giv_database
+  username: giv2giv_development
+  password: giv2giv_development_password
   socket: /var/run/mysqld/mysqld.sock
 
 development:
@@ -17,5 +17,5 @@ test:
 production:
   <<: *default
   database: giv2giv_production
-  username: giv2giv
-  password: giv2giv_database
+  username: giv2giv_production
+  password: giv2giv_production_password

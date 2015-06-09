@@ -42,7 +42,7 @@ gem 'rack-cors', :require => 'rack/cors'
 gem 'rufus-scheduler'
 
 # Gems used to interact with payment processors
-gem 'dwolla-ruby'
+gem 'dwolla-ruby', :path => "../dwolla-ruby"
 #gem 'ice_cube' # recurring billing
 gem 'stripe'
 

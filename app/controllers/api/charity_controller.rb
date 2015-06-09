@@ -208,7 +208,6 @@ class Api::CharityController < Api::BaseController
 
   def widget_data
      render json: @charity
-
   end
 
   def stripe
@@ -264,6 +263,8 @@ class Api::CharityController < Api::BaseController
 
     # Where should Dwolla send the user after they check out or cancel?
     Dwolla::OffsiteGateway.redirect = App.giv['api_url'] + "/charity/#{@charity.id}/dwolla_done.json"
+    Dwolla::OffsiteGateway.allowGuestCheckout = true
+    Dwolla::OffsiteGateway.allowFundingSources = true
 
     # Add a product to the purchase order
     Dwolla::OffsiteGateway.add_product(@charity.name, "giv2giv donation to " + @charity.name, params[:'giv2giv-amount'].gsub(/[^\d\.]/, '').to_f, 1)
@@ -308,30 +309,42 @@ class Api::CharityController < Api::BaseController
 =end
 
     transaction = Dwolla::OffsiteGateway.read_callback(params.to_json)
-
     email = transaction['sourceEmail']
     gross_amount = BigDecimal(transaction['amount'])
     
-    transaction_fee = gross_amount > 10 ? 0.25 : 0.0
-    net_amount = gross_amount - transaction_fee;
+    #transaction_fee = gross_amount > 10 ? 0.25 : 0.0
+    net_amount = gross_amount#- transaction_fee;
     
     begin
 
-#Make donor, not user
-      user = User.where(:email => email).first_or_initialize
-      user.skip_confirmation!
-      user.save!(:validate => false)
+#Make donor
+
+      donor = Donor.where(:email => params[:email]).first_or_initialize
+      if donor.id.nil?
+         donor.name = 'Unknown'
+         donor.password = createRandomEmail
+         donor.accepted_terms = true
+         donor.accepted_terms_on = DateTime.now
+         donor.type_donor = 'registered'
+         donor.save!
+       end
+ 
+       payment = PaymentAccount.new({:donor=>donor})
+       payment.processor = 'dwolla';
+       payment.stripe_cust_id = customer.id
+       payment.save!  
+      
 
 #Here do donor_subscription
-      donation = Donation.add_donation(
+      donor_subscription = DonorSubscription.new(
         donor_id: donor.id,
-        campaign_id: @charity.id,
-        transaction_id: transaction.id.to_s,
-        gross_amount: gross_amount,
-        transaction_fee: transaction_fee,
-        net_amount: net_amount
+        payment_account_id: payment.id,
+        charity_id: @charity.id,
+        gross_amount: gross_amount
       )
-      render json: donation.to_json # or redirect_to since we've grabbed the browser?
+      donor_subscription.save!
+
+      redirect_to "http://cnn.com"
 
       rescue Dwolla::APIError => e
         Rails.logger.debug 'oops'
