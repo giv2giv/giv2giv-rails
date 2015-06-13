@@ -23,7 +23,12 @@ class DonorMailer < ActionMailer::Base
 
     sending = m.messages.send donor_message
 
-    charities = endowment.charities
+    begin
+      charities = endowment.charities
+    rescue NoMethodError => e
+      charities = [endowment]
+    end
+
     charities.each do |charity|
 
       if charity.email.present?

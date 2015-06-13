@@ -214,7 +214,7 @@ class Api::CharityController < Api::BaseController
     amount =  params.fetch(:'giv2giv-amount') { raise 'giv2giv-amount required' }
     stripeToken = params.fetch(:'giv2giv-stripeToken') { raise 'giv2giv-stripeToken required' }
 
-    amount = (amount.to_f * 100).to_i #make sure assume_fees is calculated correctly
+    #amount = (amount.to_f * 100).to_i
 
     email = params[:'giv2giv-email'].present? ? params.fetch(:'giv2giv-email') : createRandomEmail
 
