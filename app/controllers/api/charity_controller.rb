@@ -19,8 +19,8 @@ class Api::CharityController < Api::BaseController
     charity_list = []
 
     #let's not sqli ourselves in the API
-    nameq = "%#{query}%"
-    cityq = "%#{city}%"
+    nameq = "#{query}%"
+    cityq = "#{city}%"
     #q = q.gsub!(' ','%')
     
     if cityq == "%%"
