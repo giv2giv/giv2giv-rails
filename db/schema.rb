@@ -11,11 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150613213825) do
+ActiveRecord::Schema.define(version: 20150623141912) do
 
   create_table "charities", force: true do |t|
-    t.string   "name",                                  null: false
-    t.string   "ein",                                   null: false
+    t.string   "name",                                               null: false
+    t.string   "ein",                                                null: false
     t.string   "address"
     t.string   "city"
     t.string   "state"
@@ -26,8 +26,8 @@ ActiveRecord::Schema.define(version: 20150613213825) do
     t.string   "activity_code"
     t.string   "description"
     t.string   "website"
-    t.datetime "created_at",                            null: false
-    t.datetime "updated_at",                            null: false
+    t.datetime "created_at",                                         null: false
+    t.datetime "updated_at",                                         null: false
     t.string   "email"
     t.string   "active"
     t.float    "latitude",                   limit: 24
@@ -58,6 +58,7 @@ ActiveRecord::Schema.define(version: 20150613213825) do
     t.string   "phone"
     t.text     "tagline"
     t.integer  "main_endowment_id"
+    t.integer  "grant_threshold",                       default: 20
   end
 
   add_index "charities", ["ein"], name: "index_charities_on_ein", using: :btree
@@ -108,6 +109,7 @@ ActiveRecord::Schema.define(version: 20150613213825) do
     t.decimal  "gross_amount",           precision: 30, scale: 2, null: false
     t.datetime "canceled_at"
     t.integer  "charity_id"
+    t.integer  "passthru_percent"
   end
 
   create_table "donors", force: true do |t|

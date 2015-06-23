@@ -52,34 +52,24 @@ class Grant < ActiveRecord::Base
         end
 
         rounding_leftovers = half_donation_amount-total_grants
+        # Leave rounding leftovers in the DAF
 
-        Grant.process_passthru_grants(grants_array, rounding_leftovers)
+        Grant.process_passthru_grants()
 
       end
 
     end
 
-    def process_passthru_grants(grants_array, rounding_leftovers)
+    def process_passthru_grants()
 
-      text = "Hi! This is an unrestricted grant from donors at the crowd-endowment service giv2giv.org  Half goes directly to you, half is invested and will be granted later.  Contact hello@giv2giv.org with any questions or to find out how to partner with us."
-    
-#what if under threshold?
+      grants = Grant.joins(:charity).select("grants.id, charity_id, sum(grant_amount), email, grant_threshold").where("status =?", 'pending_approval').group("charity_id").having("sum(grant_amount) > charities.grant_threshold")
 
-      grants_array.each do |grant|
-
-        charity = Charity.find(grant.charity_id)
-
-        #
-        #
-        charity.email = 'reflector@dwolla.com'
-        #
-        #
-
-        if !charity.email
-          next
-        end
+      grants.each do |grant|
+        next if !grant.email
 
         net_amount = grant.grant_amount - grant.giv2giv_fee
+
+        text = "Hi! This is an unrestricted grant from donors at the crowd-endowment service giv2giv.org  Half goes directly to you, half is invested and will be granted later.  Contact hello@giv2giv.org with any questions or to find out how to partner with us."
 
         transaction_id = DwollaLibs.new.dwolla_send(charity.email, text, net_amount)
 
@@ -104,8 +94,7 @@ class Grant < ActiveRecord::Base
           grant.status=status
           grant.net_amount = net_amount
           
-
-          if grant.save
+          if grant.save!
             # Create funds in-transit record for etrade-to-dwolla
             TransitFund.create(
               transaction_id: transaction.id,
@@ -118,11 +107,8 @@ class Grant < ActiveRecord::Base
         else
           raise 'Oops, Dwolla ID not available!'
         end
-      end #grants_array.each
-    end
 
-    def process_others(giv2giv_fee, rounding_leftovers)
-      #do something (matching donations pot?) with the leftovers
+      end #grants_array.each
     end
   end # end self
 end

@@ -45,7 +45,7 @@ Giv2givRails::Application.routes.draw do
         post 'add_charity', :on => :member
         delete 'remove_charity', :on => :member
         post 'rename_endowment', :on => :member
-        post 'anonymous_donation', :on => :member
+        #post 'anonymous_donation', :on => :member
         get 'widget_data', :on => :member
         get 'autocomplete', :on=>:collection
         get 'my_endowments', :on=>:collection

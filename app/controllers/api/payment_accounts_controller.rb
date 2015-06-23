@@ -115,10 +115,7 @@ class Api::PaymentAccountsController < Api::BaseController
     respond_to do |format|
       if current_payment_account
         if current_payment_account.processor=='stripe'
-          donation = current_payment_account.stripe_charge('single_donation',params[:amount], params[:endowment_id])
-        elsif current_payment_account.processor=='knox'
-          donation = current_payment_account.knox_donation('single_donation', params[:amount], params[:endowment_id])
-          Rails.logger.debug "Hello worldlast"
+          donation = current_payment_account.stripe_charge('single_donation',params[:amount], params[:endowment_id], params[:passthru])
         end
         format.json { render json: donation }
        else
