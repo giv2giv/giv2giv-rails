@@ -103,7 +103,7 @@ class Api::PaymentAccountsController < Api::BaseController
 
   def donate_subscription
     respond_to do |format|
-      if current_payment_account && donation = current_payment_account.stripe_charge('per-month',params[:amount], params[:endowment_id])
+      if current_payment_account && donation = current_payment_account.stripe_charge('per-month',params[:amount], params[:endowment_id], params[:passthru])
         format.json { render json: donation }
       else
         format.json { head :not_found }

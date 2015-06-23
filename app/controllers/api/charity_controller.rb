@@ -214,12 +214,10 @@ class Api::CharityController < Api::BaseController
     amount =  params.fetch(:'giv2giv-amount') { raise 'giv2giv-amount required' }
     stripeToken = params.fetch(:'giv2giv-stripeToken') { raise 'giv2giv-stripeToken required' }
 
-    #amount = (amount.to_f * 100).to_i
-
     email = params[:'giv2giv-email'].present? ? params.fetch(:'giv2giv-email') : createRandomEmail
+    passthru_percent = params[:'giv2giv-passthru-percent'].chomp('%')
 
-    begin
-
+    Charity.transaction do
       # Create a Customer
       customer = Stripe::Customer.create(
         :source => stripeToken,
@@ -243,10 +241,21 @@ class Api::CharityController < Api::BaseController
       payment.stripe_cust_id = customer.id
       payment.save!
 
-      donation = payment.charity_stripe_charge(params.fetch(:'giv2giv-recurring'), amount, @charity)
+      endowment = Endowment.find_or_initialize_by(id: @charity.main_endowment_id)
+      endowment.name = @charity.name.titleize
+      endowment.visibility = 'public'
+    
+      if endowment.save!
+        @charity.main_endowment_id = endowment.id
+        @charity.save! if @charity.changed?
+        donation = payment.stripe_charge(params.fetch(:'giv2giv-recurring'), amount, endowment.id, passthru_percent)
+        render json: donation
+      else
+        render json: { :message => "Not found" }.to_json
+      end
+    
     end
 
-    render json: donation
   end
 
   def dwolla

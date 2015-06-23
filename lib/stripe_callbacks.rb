@@ -24,15 +24,12 @@ class StripeCallbacks
 
     donation = Donation.add_donation(subscription.id, charge_amount, transaction_id, transaction_fee, donation_amount)
     
-    #passthru_grant = Grant.add_passthru_grant(subscription, donation_amount) #no pass-thrus yet
+    passthru_grant = Grant.add_passthru_grant(subscription, donation_amount)
 
     donor = Donor.find(subscription.donor_id)
-    if subscription.endowment_id
-      endowment = Endowment.find(subscription.endowment_id)
-    else
-      charity = Charity.find(subscription.charity_id)
-    end
-    DonorMailer.charge_success(donor, endowment||charity, charge_amount).deliver
+    endowment = Endowment.find(subscription.endowment_id)
+
+    DonorMailer.charge_success(donor, endowment, charge_amount).deliver
 
   end
 

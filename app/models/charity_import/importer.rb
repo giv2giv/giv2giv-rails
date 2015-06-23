@@ -227,18 +227,6 @@ module CharityImport
           charity.update(charity_options)
           tag_charity(charity)
 
-          endowment = Endowment.find_or_initialize_by(id: charity.main_endowment_id)
-          endowment.name = name.titleize
-          endowment.visibility = 'public'
-          begin
-            if endowment.save!
-              charity.main_endowment_id = endowment.id
-              charity.save! unless charity.main_endowment_id==endowment.id
-            end
-          rescue ActiveRecord::RecordInvalid
-            #Fail silently, only keep first endowment
-          end
-
         end # end CSV.foreach
       end # end read_csv
     end # end self

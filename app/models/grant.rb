@@ -8,7 +8,6 @@ class Grant < ActiveRecord::Base
   validates :status, :presence => true, :inclusion => { :in => VALID_STATUS }
   validates :grant_type, :presence => true, :inclusion => { :in => VALID_GRANT_TYPES }
 
-  SHARE_PRECISION = App.giv["share_precision"]
   GIV2GIV_PASSTHRU_FEE = App.giv["passthru_fee"]
 
   class << self
@@ -22,11 +21,11 @@ class Grant < ActiveRecord::Base
 
       share_price = Share.last.grant_price
 
-      half_donation_amount = (original_donation_amount / 2).floor2(2) # only pass-thru 50%, original_donation_amount is BigDecimal
+      grant_pre_fee_amount = (original_donation_amount * BigDecimal("#{subscription.passthru_percent}") / 100).floor2(2)
 
-      giv2giv_fee = (half_donation_amount * GIV2GIV_PASSTHRU_FEE).floor2(2)
+      giv2giv_fee = (grant_pre_fee_amount * GIV2GIV_PASSTHRU_FEE).floor2(2)
 
-      grant_amount = (half_donation_amount - giv2giv_fee).floor2(2)
+      grant_amount = (grant_pre_fee_amount - giv2giv_fee).floor2(2)
 
       amount_per_charity = (grant_amount / grantee_charities.count).floor2(2)
 
@@ -64,10 +63,17 @@ class Grant < ActiveRecord::Base
 
       text = "Hi! This is an unrestricted grant from donors at the crowd-endowment service giv2giv.org  Half goes directly to you, half is invested and will be granted later.  Contact hello@giv2giv.org with any questions or to find out how to partner with us."
     
+#what if under threshold?
+
       grants_array.each do |grant|
 
         charity = Charity.find(grant.charity_id)
+
+        #
+        #
         charity.email = 'reflector@dwolla.com'
+        #
+        #
 
         if !charity.email
           next
@@ -98,6 +104,7 @@ class Grant < ActiveRecord::Base
           grant.status=status
           grant.net_amount = net_amount
           
+
           if grant.save
             # Create funds in-transit record for etrade-to-dwolla
             TransitFund.create(

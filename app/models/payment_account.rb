@@ -21,7 +21,15 @@ class PaymentAccount < ActiveRecord::Base
   end
 
 
-  def stripe_charge(type, amount, endowment_id)
+
+
+
+
+
+
+#add charity_id to donations and donor_subscriptions   Do we really need this??
+
+  def stripe_charge(type, amount, endowment_id, passthru_percent)
 
     raise PaymentAccountInvalid unless self.valid?
     raise EndowmentInvalid unless Endowment.find_by_id(endowment_id)
@@ -71,12 +79,13 @@ class PaymentAccount < ActiveRecord::Base
        :endowment_id => endowment.id,
        :unique_subscription_id => stripe_charge.id,
        :type_subscription => type,
+       :passthru_percent => passthru_percent,
        :canceled_at => canceled_at,
        :gross_amount => amount
        )
 
       if subscription.save
-        DonorMailer.new_subscription(current_donor, endowment.name, type, amount).deliver
+        DonorMailer.new_subscription(current_donor, endowment.name, type, amount, passthru_percent).deliver
         { :message => "Success" }.to_json
       else
         { :message => "Error" }.to_json
@@ -91,6 +100,8 @@ class PaymentAccount < ActiveRecord::Base
 
   end # end stripe_charge
 
+
+# Unused now
   def charity_stripe_charge(type, amount, charity)
 
     raise PaymentAccountInvalid unless self.valid?
@@ -136,7 +147,7 @@ class PaymentAccount < ActiveRecord::Base
        :gross_amount => amount
        )
 
-      if subscription.save
+      if subscription.save!
         DonorMailer.new_subscription(current_donor, charity.name, type, amount).deliver
         stripe_charge
       else

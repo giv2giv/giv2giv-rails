@@ -123,7 +123,7 @@ class DonorMailer < ActionMailer::Base
     sending = m.messages.send message
   end
 
-  def new_subscription(donor, endowment_name, type, amount)
+  def new_subscription(donor, endowment_name, type, amount, passthru_percent)
     m= Mandrill::API.new  
     message = {  
      :subject=> "[ giv2giv.org ] New subscription",
