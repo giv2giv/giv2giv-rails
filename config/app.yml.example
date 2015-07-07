@@ -5,14 +5,14 @@ force_ssl: true
 giv:
   web_url                : https://giv2giv.org/
   api_url                : https://api.giv2giv.org/
-  giv_fee_amount     : .00125
-  giv_passthru_fee_amount: .035
-  giv_grant_amount   : .0125
-  giv_grant_password : reallyLongUnguessablePassword!!
+  passthru_fee   : .0
+  grant_fee      : .00125
+  grant_amount   : .0125
+  grant_password : reallyLongUnguessablePassword!!
   share_precision    : 20
-  minimum_donation_amount : 5
   email_support      : hello@yourdomain.org
   cookie_key         : "really-long-SecureRandom-string" # Make sure this secret key is at least 30 characters and all random, no regular words or you'll be exposed to dictionary attacks.
+  minimum_donation_amount: 5
 
 mailer:
   enable_starttls_auto:   true

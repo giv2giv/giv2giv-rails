@@ -8,7 +8,9 @@ class Grant < ActiveRecord::Base
   validates :status, :presence => true, :inclusion => { :in => VALID_STATUS }
   validates :grant_type, :presence => true, :inclusion => { :in => VALID_GRANT_TYPES }
 
-  GIV2GIV_PASSTHRU_FEE = App.giv["passthru_fee"]
+  GIV2GIV_PASSTHRU_FEE = App.giv["passthru_fee"].to_f
+  GIV2GIV_GRANT_AMOUNT = App.giv["grant_amount"]
+  GIV2GIV_GRANT_FEE = App.giv["grant_fee"].to_f
 
   class << self
 
@@ -25,9 +27,9 @@ class Grant < ActiveRecord::Base
 
       giv2giv_fee = (grant_pre_fee_amount * GIV2GIV_PASSTHRU_FEE).floor2(2)
 
-      grant_amount = (grant_pre_fee_amount - giv2giv_fee).floor2(2)
+      net_amount = (grant_pre_fee_amount - giv2giv_fee).floor2(2)
 
-      amount_per_charity = (grant_amount / grantee_charities.count).floor2(2)
+      amount_per_charity = (net_amount / grantee_charities.count).floor2(2)
 
       shares_per_charity = BigDecimal("#{amount_per_charity}") / share_price # BigDecimal/BigDecimal, truncated by database
 
@@ -40,75 +42,151 @@ class Grant < ActiveRecord::Base
                     :endowment_id => subscription.endowment_id,
                     :donor_id => subscription.donor_id,
                     :shares_subtracted => shares_per_charity,
-                    :grant_amount => amount_per_charity,
+                    :grant_amount => grant_pre_fee_amount,
+                    :net_amount => net_amount,
                     :giv2giv_fee => giv2giv_fee,
                     :grant_type => 'pass_thru',
                     :status => 'pending_approval'
                     )
           if grant.save
             grants_array << grant
-            total_grants += grant.grant_amount
+            total_grants += grant.net_amount
           end
         end
 
-        rounding_leftovers = half_donation_amount-total_grants
-        # Leave rounding leftovers in the DAF
-
-        Grant.process_passthru_grants()
+        rounding_leftovers = net_amount-total_grants
+        # Leave rounding leftovers in the DAF; the next share price calculation will adjust
 
       end
 
     end
 
-    def process_passthru_grants()
+    def grant_step_1
+              
+      endowments = Endowment.all
 
-      grants = Grant.joins(:charity).select("grants.id, charity_id, sum(grant_amount), email, grant_threshold").where("status =?", 'pending_approval').group("charity_id").having("sum(grant_amount) > charities.grant_threshold")
+      #endowment_share_balance = BigDecimal("#{endowment.donations.sum(:shares_added)}") - BigDecimal("#{endowment.donor_grants.sum(:shares_subtracted)}")
+      #endowment_grant_shares = (BigDecimal("#{endowment_share_balance}") * BigDecimal("#{GIV_GRANT_AMOUNT}")).round(SHARE_PRECISION)
 
-      grants.each do |grant|
-        next if !grant.email
+      grant_share_price = Share.last.grant_price
 
-        net_amount = grant.grant_amount - grant.giv2giv_fee
+      endowments.each do |endowment|
 
-        text = "Hi! This is an unrestricted grant from donors at the crowd-endowment service giv2giv.org  Half goes directly to you, half is invested and will be granted later.  Contact hello@giv2giv.org with any questions or to find out how to partner with us."
+        charities = endowment.charities.where("active = ?", "true")
 
-        transaction_id = DwollaLibs.new.dwolla_send(charity.email, text, net_amount)
+        next if charities.count < 1
 
-        transaction_details = DwollaLibs.new.get_detail_transaction(transaction_id)
+        donated_shares = endowment.donations.group(:donor_id).sum(:shares_added)
 
-        if transaction_id.is_a? Integer
-          grant.transaction_id=transaction_id
-          grant.transaction_fee=transaction_details['Fees']
+        donated_shares.each do |donor_id, shares_donor_donated|
 
-          case transaction_details["Status"]
-            when 'processed'
-              status = "accepted"
-              cleared = true
-            when 'pending'
-              status = 'pending_acceptance'
-              cleared=false
-            else
-              status = transaction_details["Status"]
-              cleared=false
-          end
+          amount_per_charity = 0
+          shares_per_charity = 0
 
-          grant.status=status
-          grant.net_amount = net_amount
+          shares_donor_granted = endowment.grants.where("donor_id = ? AND endowment_id = ? AND (status = ? OR status = ?)", donor_id, endowment.id, "accepted", "pending_acceptance").sum(:shares_subtracted)
+
+          donor_share_balance = shares_donor_donated - shares_donor_granted # is BigDecimal - BigDecimal, so precision OK
+
+          next if donor_share_balance <= 0
+
+          preliminary_shares_per_charity = (donor_share_balance * BigDecimal("#{GIV2GIV_GRANT_AMOUNT}") / BigDecimal("#{charities.count}")).round(SHARE_PRECISION)
           
-          if grant.save!
-            # Create funds in-transit record for etrade-to-dwolla
-            TransitFund.create(
-              transaction_id: transaction.id,
-              source: "etrade",
-              destination: "dwolla",
-              amount: net_amount,
-              cleared: cleared
-            )
+          amount_per_charity = (preliminary_shares_per_charity * grant_share_price).floor2(2) # convert to dollars and cents
+          shares_per_charity = amount_per_charity / grant_share_price # calculate shares subtracted
+
+          giv2giv_fee = (amount_per_charity * GIV2GIV_GRANT_FEE).floor2(2)
+
+          net_amount = (amount_per_charity - giv2giv_fee).floor2(2)
+
+
+          next if amount_per_charity <= 0
+          
+          charities.each do |charity|
+            grant_record = Grant.new(
+                                      :donor_id => donor_id,
+                                      :endowment_id => endowment.id,
+                                      :charity_id => charity.id,
+                                      :shares_subtracted => shares_per_charity,
+                                      :grant_amount => amount_per_charity,
+                                      :giv2giv_fee => giv2giv_fee,
+                                      :net_amount => net_amount,
+                                      :grant_type => 'endowed',
+                                      :status => 'pending_approval'
+                                      )
+
+            grant_record.save
           end
-        else
-          raise 'Oops, Dwolla ID not available!'
+
+        end # donor_shares.each
+      end # endowments.each       
+
+      JobMailer.success_compute(App.giv["email_support"]).deliver
+    end # def grant_step_1
+
+    def update_grant_status
+      sent_grants = DwollaLibs.new.get_transactions_last_60_days
+
+      sent_grants.each do |dwolla_grant|
+
+        grant_status=nil
+
+        case dwolla_grant["Status"]
+          when 'processed'
+            grant_status = "accepted"
+          when 'pending'
+            grant_status = 'pending_acceptance'
+          else
+            grant_status = dwolla_grant["Status"]
         end
 
-      end #grants_array.each
+        giv2giv_grants = Grant.where("transaction_id = ?", dwolla_grant["Id"])
+
+        giv2giv_grants.each do |giv2giv_grant|
+          
+          giv2giv_grant.update_attributes(:status => grant_status)
+
+          if grant_status == 'reclaimed' # Save the grant for the next cycle
+            rollover_grant = giv2giv_grant.dup
+            rollover_grant.transaction_id = nil
+            rollover_grant.status='pending_approval'
+            rollover_grant.save!
+          end
+
+        end
+      end
     end
+
+    def approve_pending_grants
+
+      #if params[:password] == App.giv['giv_grant_password']
+
+      total_grants = 0
+
+      grants = Grant.select("charity_id AS charity_id, SUM(grant_amount) AS amount").where("status = ?", "pending_approval").group("charity_id")
+
+      text = "Hi! This is an unrestricted grant from donors at the crowd-endowment service giv2giv  Contact hello@giv2giv.org with any questions or to find out how to partner with us."
+      
+      grants.each do |grant|
+        charity = Charity.find(grant.charity_id)
+        next if charity.email.nil?
+
+        total_grants = total_grants + grant.amount
+
+        transaction_id = DwollaLibs.new.dwolla_send(charity.email, text, grant.amount)
+        if transaction_id.is_a? Integer
+          Grant.where("status = ? AND charity_id=?", "pending_approval", grant.charity_id).update_all(:transaction_id => transaction_id, :status => 'pending_acceptance')
+        else
+          ap transaction_id
+        end
+      end
+
+      # TODO sum fees, transfer to giv2giv
+
+      #client.update("This is the first test of the automated giv2giv tweeter. We're preparing to grant $" << total_grants.to_s)
+
+      puts "Total amount sent: " << total_grants.to_s
+
+    end
+
   end # end self
 end

@@ -247,13 +247,14 @@ class Api::CharityController < Api::BaseController
     
       if endowment.save!
         @charity.main_endowment_id = endowment.id
+        @charity.endowments << endowment unless @charity.endowments.count>=1
         @charity.save! if @charity.changed?
         donation = payment.stripe_charge(params.fetch(:'giv2giv-recurring'), amount, endowment.id, passthru_percent)
         render json: donation
       else
         render json: { :message => "Not found" }.to_json
       end
-    
+
     end
 
   end

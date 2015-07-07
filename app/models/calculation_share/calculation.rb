@@ -5,7 +5,6 @@ include OAuth::Helper
 include EtradeHelper
 
 SHARE_PRECISION = App.giv["share_precision"]
-GIV_GRANT_AMOUNT = App.giv["giv_grant_amount"]
 
 module CalculationShare
   class Calculation
@@ -75,126 +74,6 @@ module CalculationShare
         #examine etrade transactions, set matching TransitFunds.clear=true
       end
 
-
-      def grant_step_1
-                
-        endowments = Endowment.all
-
-        #endowment_share_balance = BigDecimal("#{endowment.donations.sum(:shares_added)}") - BigDecimal("#{endowment.donor_grants.sum(:shares_subtracted)}")
-        #endowment_grant_shares = (BigDecimal("#{endowment_share_balance}") * BigDecimal("#{GIV_GRANT_AMOUNT}")).round(SHARE_PRECISION)
-
-        grant_share_price = Share.last.grant_price
-
-        endowments.each do |endowment|
-
-          charities = endowment.charities.where("active = ?", "true")
-
-          next if charities.count < 1
-
-          donated_shares = endowment.donations.group(:donor_id).sum(:shares_added)
-
-          donated_shares.each do |donor_id, shares_donor_donated|
-
-            amount_per_charity = 0
-            shares_per_charity = 0
-
-            shares_donor_granted = endowment.grants.where("donor_id = ? AND endowment_id = ? AND (status = ? OR status = ?)", donor_id, endowment.id, "accepted", "pending_acceptance").sum(:shares_subtracted)
-
-            donor_share_balance = shares_donor_donated - shares_donor_granted # is BigDecimal - BigDecimal, so precision OK
-
-            next if donor_share_balance <= 0
-
-            preliminary_shares_per_charity = (donor_share_balance * BigDecimal("#{GIV_GRANT_AMOUNT}") / BigDecimal("#{charities.count}")).round(SHARE_PRECISION)
-            
-            amount_per_charity = (preliminary_shares_per_charity * grant_share_price).floor2(2) # convert to dollars and cents
-            shares_per_charity = amount_per_charity / grant_share_price # calculate shares subtracted
-
-            next if amount_per_charity <= 0
-            
-            charities.each do |charity|
-              grant_record = Grant.new(
-                                        :donor_id => donor_id,
-                                        :endowment_id => endowment.id,
-                                        :charity_id => charity.id,
-                                        :shares_subtracted => shares_per_charity,
-                                        :grant_amount => amount_per_charity,
-                                        :grant_type => 'endowed',
-                                        :status => 'pending_approval'
-                                        )
-
-              grant_record.save
-            end
-
-          end # donor_shares.each
-        end # endowments.each       
-
-        JobMailer.success_compute(App.giv["email_support"]).deliver
-      end # def grant_step_1
-
-
-      def update_grant_status
-        sent_grants = DwollaLibs.new.get_transactions_last_60_days
-
-        sent_grants.each do |dwolla_grant|
-
-          grant_status=nil
-
-          case dwolla_grant["Status"]
-            when 'processed'
-              grant_status = "accepted"
-            when 'pending'
-              grant_status = 'pending_acceptance'
-            else
-              grant_status = dwolla_grant["Status"]
-          end
-
-          giv2giv_grants = Grant.where("transaction_id = ?", dwolla_grant["Id"])
-
-          giv2giv_grants.each do |giv2giv_grant|
-            
-            giv2giv_grant.update_attributes(:status => grant_status)
-
-            if grant_status == 'reclaimed' # Save the grant for the next cycle
-              rollover_grant = giv2giv_grant.dup
-              rollover_grant.transaction_id = nil
-              rollover_grant.status='pending_approval'
-              rollover_grant.save!
-            end
-
-          end
-        end
-      end
-
-      def approve_pending_grants
-
-        #if params[:password] == App.giv['giv_grant_password']
-
-        total_grants = 0
-
-        grants = Grant.select("charity_id AS charity_id, SUM(grant_amount) AS amount").where("status = ?", "pending_approval").group("charity_id")
-
-        text = "Hi! This is an unrestricted grant from donors at the crowd-endowment service giv2giv  Contact hello@giv2giv.org with any questions or to find out how to partner with us."
-        
-        grants.each do |grant|
-          charity = Charity.find(grant.charity_id)
-          next if charity.email.nil?
-
-          total_grants = total_grants + grant.amount
-
-          transaction_id = DwollaLibs.new.dwolla_send(charity.email, text, grant.amount)
-          if transaction_id.is_a? Integer
-            Grant.where("status = ? AND charity_id=?", "pending_approval", grant.charity_id).update_all(:transaction_id => transaction_id, :status => 'pending_acceptance')
-          else
-            ap transaction_id
-          end
-        end
-
-        #client.update("This is the first test of the automated giv2giv tweeter. We're preparing to grant $" << total_grants.to_s)
-
-        puts "Total amount sent: " << total_grants.to_s
-
-      end
-
      def project_amount (options = {})
 
       default_options = {
@@ -223,9 +102,9 @@ module CalculationShare
         principal += monthly_addition
         principal += principal * (return_rate / 12) 
         if month % 4 == 0
-          grant_amount = principal * App.giv["giv_grant_amount"]
+          grant_amount = principal * App.giv["grant_amount"]
           total_grants += grant_amount
-          fee_amount = principal * App.giv["giv_fee_amount"]
+          fee_amount = principal * App.giv["fee_amount"]
           total_fees += fee_amount
           principal -= grant_amount
           principal -= fee_amount
@@ -279,8 +158,7 @@ module CalculationShare
         raise "eTrade connection problem" if !etrade_balance
 
         etrade_balance = BigDecimal(etrade_balance.to_s) - 1000 #1000 initial deposit by giv2giv
-        #puts "Etrade Balance : #{etrade_balance}"
-        return etrade_balance
+
       end
 
       def get_dwolla_balance

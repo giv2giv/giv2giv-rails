@@ -21,14 +21,6 @@ class PaymentAccount < ActiveRecord::Base
   end
 
 
-
-
-
-
-
-
-#add charity_id to donations and donor_subscriptions   Do we really need this??
-
   def stripe_charge(type, amount, endowment_id, passthru_percent)
 
     raise PaymentAccountInvalid unless self.valid?
@@ -101,68 +93,7 @@ class PaymentAccount < ActiveRecord::Base
   end # end stripe_charge
 
 
-# Unused now
-  def charity_stripe_charge(type, amount, charity)
-
-    raise PaymentAccountInvalid unless self.valid?
-    raise CharityInvalid unless charity.valid?
-    
-    num_of_charity = 1
-    current_donor = Donor.find(self.donor_id)
-
-    if amount.to_f < MINIMUM_DONATION
-      return { :message => "Minimum donation is $#{MINIMUM_DONATION}" }.to_json
-    end
-
-    amount = amount.to_f.round(2)
-    amount_cents = (amount * 100).to_i # convert to cents
-
-    if !current_donor
-      return { :message => "Wrong donor id" }.to_json
-    end
-
-    begin
-      if (type=='single_donation')
-        cust_charge = Stripe::Charge.create(
-          :amount => amount_cents,
-          :currency => "usd",
-          :description => "giv2giv.org donation to #{charity.name}",
-          :customer => self.stripe_cust_id,
-        )
-        canceled_at = DateTime.now
-      elsif (type=='per-month')
-        customer = Stripe::Customer.retrieve(self.stripe_cust_id)
-        subscription = customer.subscriptions.create(:plan => PLAN_ID, :quantity => amount_cents, :prorate => false)
-      end
-
-      stripe_charge = cust_charge || subscription
-
-      subscription = current_donor.donor_subscriptions.build(
-       :donor_id => current_donor.id,
-       :payment_account_id => self.id,
-       :charity_id => charity.id,
-       :unique_subscription_id => stripe_charge.id,
-       :type_subscription => type,
-       :canceled_at => canceled_at,
-       :gross_amount => amount
-       )
-
-      if subscription.save!
-        DonorMailer.new_subscription(current_donor, charity.name, type, amount).deliver
-        stripe_charge
-      else
-        { :message => "Error" }.to_json
-      end # end subscription.save
-
-    rescue Stripe::CardError => e
-      body = e.json_body
-      err  = body[:error]
-      { :message => "#{err[:message]}" }.to_json
-      return false
-    end
-
-  end # end charity_stripe_charge
-
+#Unused
   def knox_donation(type, amount, endowment_id)
 
     raise PaymentAccountInvalid unless self.valid?

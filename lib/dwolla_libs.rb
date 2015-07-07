@@ -6,12 +6,16 @@ class DwollaLibs
   API_SECRET = App.dwolla["api_secret"]
   TOKEN = App.dwolla["company_token"]
   PIN = App.dwolla["pin_account"]
+  SANDBOX = App.dwolla["sandbox_mode"]
+
   ACC_ID = App.dwolla["account_id"] 
+
   GRANT_SOURCE_ACCOUNT = App.dwolla["grant_source_account"]
 
   Dwolla::api_key = API_KEY
   Dwolla::api_secret = API_SECRET
   Dwolla::token = TOKEN
+  Dwolla::sandbox = SANDBOX
 
   def get_balance
     Dwolla::Balance.get

@@ -2,7 +2,7 @@ class DwollaController < ApplicationController
   require 'json'
   
 
-#This code is unused
+  #This code is unused
 
   PIN_DWOLLA = App.dwolla["pin_account"]
   DWOLLA_GRANT_SOURCE_ACCOUNT = App.dwolla["dwolla_grant_source_account"]

@@ -5,14 +5,11 @@ class StripeCallbacks
     invoice = event.data.object.invoice
 
     if invoice.blank?
-      #subscription = DonorSubscription.where('unique_subscription_id = ?', event.data.object.id) # stripe charge.id
       subscription = DonorSubscription.find_by unique_subscription_id: event.data.object.id
 
     else
       invoice = Stripe::Invoice.retrieve(event.data.object.invoice)
       subscription = DonorSubscription.find_by unique_subscription_id: invoice.lines.data.first.id
-
-      #subscription = DonorSubscription.where('unique_subscription_id = ?', invoice.lines.data.first.id) # stripe subscription.id
     end
 
     transaction = Stripe::BalanceTransaction.retrieve(event.data.object.balance_transaction)
@@ -36,7 +33,7 @@ class StripeCallbacks
   def transfer_created(event)
     transfer = event.data.object
 
-    TransitFund.create(
+    TransitFund.create!(
       transaction_id: transfer.id,
       source: "stripe",
       destination: "etrade",
@@ -50,7 +47,7 @@ class StripeCallbacks
     stripe_transfer = event.data.object
     our_transfer = TransitFund.where("transaction_id=?", transfer.id)
     our_transfer.cleared=true
-    our_transfer.save
+    our_transfer.save!
   end
   
 end
