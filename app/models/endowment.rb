@@ -13,7 +13,7 @@ class Endowment < ActiveRecord::Base
   extend FriendlyId
   friendly_id :name, use: :slugged
 
-  searchkick word_start: [:name], callbacks: false#, callbacks: :async
+  searchkick word_start: [:name], callbacks: :async
 
   def search_data
     {
@@ -61,9 +61,9 @@ class Endowment < ActiveRecord::Base
   def balance_on(date)
     dt = DateTime.parse(date.to_s)
     dt = dt + 11.hours + 59.minutes + 59.seconds
-    shares_added = @all_donations.where('created_at <= ?', dt).sum(:shares_added)
-    shares_subtracted = @all_grants.where('created_at <= ?', dt).sum(:shares_subtracted)
-    share_price = Share.where('created_at <= ?', dt).order("created_at DESC").first
+    shares_added = @all_donations.where('created_at <= ?', dt).sum(:shares_added) rescue 0.0
+    shares_subtracted = @all_grants.where('created_at <= ?', dt).sum(:shares_subtracted) rescue 0.0
+    share_price = Share.last
     #All three type BigDecimal
     balance = (shares_added - shares_subtracted) * share_price.donation_price rescue 0.0
     balance.floor2(2)

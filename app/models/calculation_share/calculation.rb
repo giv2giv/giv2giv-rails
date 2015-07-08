@@ -96,6 +96,7 @@ module CalculationShare
       total_fees = 0.0
 
       month = 1
+
       while month <= years * 12 do
         month = month + 1
         total_donations += monthly_addition
@@ -104,7 +105,7 @@ module CalculationShare
         if month % 4 == 0
           grant_amount = principal * App.giv["grant_amount"]
           total_grants += grant_amount
-          fee_amount = principal * App.giv["fee_amount"]
+          fee_amount = principal * App.giv["grant_fee"]
           total_fees += fee_amount
           principal -= grant_amount
           principal -= fee_amount

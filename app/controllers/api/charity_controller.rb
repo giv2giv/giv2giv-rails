@@ -1,6 +1,6 @@
 class Api::CharityController < Api::BaseController
 
-  skip_before_filter :require_authentication, :only => [:index, :show, :find_by_slug, :show_endowments, :near, :widget_data, :stripe, :dwolla, :dwolla_done]
+  skip_before_filter :require_authentication, :only => [:index, :show, :find_by_slug, :show_endowments, :near, :widget_data, :stripe, :dwolla, :dwolla_done, :autocomplete]
   before_action :set_charity, :only => [:show, :widget_data, :stripe, :dwolla, :dwolla_done, :show_endowments]
 
   include CharityImport

@@ -3,7 +3,7 @@ class Grant < ActiveRecord::Base
   belongs_to :endowment
   belongs_to :donor
 
-  VALID_STATUS = %w(pending_approval denied pending_acceptance accepted reclaimed failed canceled)
+  VALID_STATUS = %w(pending_approval denied pending_acceptance accepted reclaimed failed cancelled)
   VALID_GRANT_TYPES = %w(endowed pass_thru)
   validates :status, :presence => true, :inclusion => { :in => VALID_STATUS }
   validates :grant_type, :presence => true, :inclusion => { :in => VALID_GRANT_TYPES }
