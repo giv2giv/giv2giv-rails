@@ -35,6 +35,7 @@ Giv2givRails::Application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+  config.serve_static_assets = true
 
   config.action_mailer.default_url_options = { :host => App.mailer["domain"] }
   config.action_mailer.delivery_method = :test
