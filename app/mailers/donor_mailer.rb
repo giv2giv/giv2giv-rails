@@ -10,14 +10,14 @@ class DonorMailer < ActionMailer::Base
     donor_message = {  
      :subject=> "[ giv2giv.org ] Thank you for your donation",  
      :from_name=> "giv2giv.org",  
-     :text=>"Donation Successful! Thank you for your donation of $#{donation_amount} to the giv2giv.org fund <a href=https://giv2giv.org/#endowment/#{endowment.slug}>#{endowment.name}</a>. Want to see the breakdown by charity, or print a statement? Visit <a href=https://giv2giv.org/#endowment/#{endowment.slug}>giv2giv.org</a>",
+     :text=>"Donation Successful! Thank you for your donation of $#{donation_amount} to the giv2giv.org fund <a href=#{App.giv["web_url"]}/#endowment/#{endowment.slug}>#{endowment.name}</a>. Want to see the breakdown by charity, or print a statement? Visit <a href=#{App.giv["web_url"]}/#endowment/#{endowment.slug}>giv2giv.org</a>",
      :to=>[  
        { 
          :email=> donor.email,
          :name=> donor.name  
        }  
      ],  
-     :html=>"<h3>Donation Received!</h3><br /><hr />Thank you for your donation of #{donation_amount} to the giv2giv.org fund <a href=https://giv2giv.org/#endowment/#{endowment.slug}>#{endowment.name}</a>. Want to see the breakdown by charity, or print a statement? Visit <a href=https://giv2giv.org/#endowment/#{endowment.slug}>giv2giv.org</a><br><br>",
+     :html=>"<h3>Donation Received!</h3><br /><hr />Thank you for your donation of #{donation_amount} to the giv2giv.org fund <a href=#{App.giv["web_url"]}/#endowment/#{endowment.slug}>#{endowment.name}</a>. Want to see the breakdown by charity, or print a statement? Visit <a href=#{App.giv["web_url"]}/#endowment/#{endowment.slug}>giv2giv.org</a><br><br>",
      :from_email=>"hello@giv2giv.org"  
     }
 
@@ -35,14 +35,14 @@ class DonorMailer < ActionMailer::Base
         charity_message = {  
           :subject=> "[ giv2giv.org ] One of your endowments received a donation",
           :from_name=> "giv2giv.org",  
-          :text=>"A giv2giv.org endowment that has your charity as a grant recipient has received a donation. Learn more at <a href=https://giv2giv.org/#endowment/#{endowment.slug}>#{endowment.name}</a>.",
+          :text=>"A giv2giv.org endowment that has your charity as a grant recipient has received a donation. Learn more at <a href=#{App.giv["web_url"]}/#endowment/#{endowment.slug}>#{endowment.name}</a>.",
           :to=>[  
            {  
              :email=> charity.email,
              :name=> charity.name  
            }  
           ],  
-          :html=>"<h3>Donation Received!</h3><br /><hr />A giv2giv.org endowment that has your charity as a grant recipient has received a donation. Learn more at <a href=https://giv2giv.org/#endowment/#{endowment.slug}>#{endowment.name}</a>.<br>",
+          :html=>"<h3>Donation Received!</h3><br /><hr />A giv2giv.org endowment that has your charity as a grant recipient has received a donation. Learn more at <a href=#{App.giv["web_url"]}/#endowment/#{endowment.slug}>#{endowment.name}</a>.<br>",
           :from_email=>"hello@giv2giv.org"  
         }
         sending = m.messages.send charity_message
@@ -75,14 +75,14 @@ class DonorMailer < ActionMailer::Base
     message = {  
      :subject=> "[ giv2giv.org ] Grant sent",  
      :from_name=> "giv2giv.org",  
-     :text=>"Hello #{donor_name}. We just granted $#{grant_amount} out to charities on behalf of you and other donors at giv2giv. Want to see the breakdown by endowment or charity? Visit giv2giv.org",
+     :text=>"Hello #{donor_name}. We just granted $#{grant_amount} out to charities on behalf of you and other donors at giv2giv. Want to see the breakdown by endowment or charity? Visit " + App.giv["web_url"],
      :to=>[  
        {  
          :email=> email,
          :name=> donor_name  
        }  
      ],  
-     :html=>"Hello #{donor_name}. We just granted $#{grant_amount} out to charities on behalf of you and other donors at giv2giv. Want to see the breakdown by endowment or charity? Visit giv2giv.org",
+     :html=>"Hello #{donor_name}. We just granted $#{grant_amount} out to charities on behalf of you and other donors at giv2giv. Want to see the breakdown by endowment or charity? Visit " + App.giv["web_url"],
      :from_email=>"hello@giv2giv.org"  
     }  
     sending = m.messages.send message
@@ -93,14 +93,14 @@ class DonorMailer < ActionMailer::Base
     message = {  
      :subject=> "[ giv2giv.org ] Confirm your new password request",
      :from_name=> "giv2giv.org",  
-     :text=>"Hello #{donor.name}. We received a request to change your password. If you did not request a password reset, ignore this email.  If you do wish to reset your password, click here to confirm: https://wwwtest.giv2giv.org/#reset_password?reset_token=#{donor.password_reset_token}",
+     :text=>"Hello #{donor.name}. We received a request to change your password. If you did not request a password reset, ignore this email.  If you do wish to reset your password, click here to confirm: #{App.giv["web_url"]}/#reset_password?reset_token=#{donor.password_reset_token}",
      :to=>[
        {
          :email=> donor.email,
          :name=> donor.name
        }
      ],
-     :html=>"Hello #{donor.name}. We received a request to change your password. If you did not request a password reset, ignore this email. <br /><br /> If you do wish to reset your password, click here to confirm: https://wwwtest.giv2giv.org/#reset_password?reset_token=#{donor.password_reset_token}",
+     :html=>"Hello #{donor.name}. We received a request to change your password. If you did not request a password reset, ignore this email. <br /><br /> If you do wish to reset your password, click here to confirm: #{App.giv["web_url"]}/#reset_password?reset_token=#{donor.password_reset_token}",
      :from_email=>"hello@giv2giv.org"  
     }
     sending = m.messages.send message
@@ -117,7 +117,7 @@ class DonorMailer < ActionMailer::Base
          :email=> donor.email
        }  
      ],  
-     :html=>"Hello #{donor.name}. You've successfully reset your password at giv2giv.org <br />  Please log in at giv2giv.org to continue building a legacy!",
+     :html=>"Hello #{donor.name}. You've successfully reset your password at giv2giv.org <br />  Please log in at #{App.giv["web_url"]} to continue building a legacy!",
      :from_email=>"hello@giv2giv.org"  
     }  
     sending = m.messages.send message
@@ -128,7 +128,7 @@ class DonorMailer < ActionMailer::Base
     message = {  
      :subject=> "[ giv2giv.org ] New subscription",
      :from_name=> "giv2giv.org",  
-     :text=>"Hello giv2givers. We've got a new subscription! Donor #{donor.name} (#{donor.email}) started a "+type+" subscription to endowment #{endowment_name} at $#{amount}/month",
+     :text=>"Hello giv2givers. We've got a new subscription! Donor #{donor.name} (#{donor.email}) started a #{type} subscription to endowment #{endowment_name} at $#{amount}/month",
      :to=>[  
        {  
         :email => "kevinpuj@gmail.com",
