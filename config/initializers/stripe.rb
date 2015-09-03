@@ -7,9 +7,11 @@ StripeEvent.configure do |events|
     StripeCallbacks.new.charge_succeeded(event)
   end # end charge.succeeded
   events.subscribe 'transfer.created' do |event|
+    Rails.logger.debug event
     StripeCallbacks.new.transfer_created(event)
   end # end charge.succeeded
   events.subscribe 'transfer.paid' do |event|
+    Rails.logger.debug event
     StripeCallbacks.new.transfer_paid(event)
   end # end charge.succeeded
 	events.all do |event|  

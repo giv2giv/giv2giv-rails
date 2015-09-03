@@ -32,7 +32,7 @@ class StripeCallbacks
 
   def transfer_created(event)
     transfer = event.data.object
-
+    Rails.logger.debug transfer
     TransitFund.create!(
       transaction_id: transfer.id,
       source: "stripe",
@@ -44,7 +44,8 @@ class StripeCallbacks
   end
   
   def transfer_paid(event)
-    stripe_transfer = event.data.object
+    transfer = event.data.object
+    Rails.logger.debug transfer
     our_transfer = TransitFund.where("transaction_id=?", transfer.id)
     our_transfer.cleared=true
     our_transfer.save!

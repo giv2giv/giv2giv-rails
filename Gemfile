@@ -35,6 +35,9 @@ gem 'geocoder'
 #Charity logo/image support
 gem 'paperclip'
 
+#Donor network
+gem "omnicontacts"
+
 # CORS support
 gem 'rack-cors', :require => 'rack/cors'
 
@@ -42,7 +45,7 @@ gem 'rack-cors', :require => 'rack/cors'
 gem 'rufus-scheduler'
 
 # Gems used to interact with payment processors
-gem 'dwolla-ruby', :path => "../dwolla-ruby"
+gem 'dwolla-ruby'
 #gem 'ice_cube' # recurring billing
 gem 'stripe'
 

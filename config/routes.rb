@@ -2,6 +2,8 @@ Giv2givRails::Application.routes.draw do
 
   mount StripeEvent::Engine => '/stripe'
   match '/dwolla' => 'dwolla#receive_hook', :via => :post
+  match "/contacts/:importer/callback" => "omnicontacts#callback", :via => :get
+  match "/contacts/failure" => "omnicontacts#callback", :via => :get
 
   get '/auth/:provider/callback' => 'api/sessions#omniauth_callback'
 

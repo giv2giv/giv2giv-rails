@@ -158,7 +158,7 @@ module CalculationShare
         etrade_balance = Etrade.get_net_account_value
         raise "eTrade connection problem" if !etrade_balance
 
-        etrade_balance = BigDecimal(etrade_balance.to_s) - 1000 #1000 initial deposit by giv2giv
+        etrade_balance = BigDecimal(etrade_balance.to_s)
 
       end
 

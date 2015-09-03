@@ -118,7 +118,7 @@ class Api::CharityController < Api::BaseController
   end
 
   def autocomplete
-    render json: Charity.search(params[:q], fields: [{name: :word_start}], limit: 30).map {|charity| {value: charity.name, id: charity.id}}
+    render json: Charity.search(params[:q], fields: [{name: :word_start}], limit: 30).map {|charity| {value: charity.name, id: charity.id, city: charity.city, state: charity.state}}
   end
   
   def find_by_slug

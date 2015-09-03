@@ -92,11 +92,15 @@ class Api::EndowmentController < Api::BaseController
   def show
     #endowment = Endowment.find_by_id(params[:id])
 
-    if current_donor.present? && current_donor.id
+
+    #if current_donor.present? && current_donor.id
+    
+    if current_donor.nil?
+      endowment = Endowment.where("(id = ? OR slug = ?) AND visibility = ?", params[:id], params[:id], "public").last
+    else
       endowment = Endowment.where("(id = ? OR slug = ?) AND (visibility = ? OR donor_id = ?)",params[:id], params[:id], "public", current_donor.id).last
       my_balances = current_donor.my_balances(endowment.id)
-    else
-      endowment = Endowment.where("(id = ? OR slug = ?) AND visibility = ?", params[:id], params[:id], "public").last
+    
     end
 
     endowment_hash = {
@@ -107,7 +111,7 @@ class Api::EndowmentController < Api::BaseController
       "slug" => endowment.slug,
       "description" => endowment.description || "",
       "visibility" => endowment.visibility,
-      "my_balances" => my_balances || "",
+      "my_balances" => my_balances,
       "global_balances" => endowment.global_balances,
       "charities" => endowment.charities
     }
@@ -223,6 +227,7 @@ class Api::EndowmentController < Api::BaseController
 
     endowments.each do |endowment|
       my_balances = current_donor.my_balances(endowment.id) || ""
+
       endowment_hash = {
         "id" => endowment.id,
         "created_at" => endowment.created_at,

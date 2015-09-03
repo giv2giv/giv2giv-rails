@@ -11,14 +11,17 @@ class Charity < ActiveRecord::Base
 
   def search_data
     {
-      name: name
+      name: name,
+      secondary: secondary_name,
+      city: city,
+      state: state
     }
   end
 
   #geocode on save if address changed
-  after_validation :geocode, if: ->(charity){ charity.address.present? and charity.address_changed? }
+  #after_validation :geocode, if: ->(charity){ charity.address.present? and charity.address_changed? }
   #geocode on load if charity not yet geocoded
-  after_find :geocode, if: ->(charity){ charity.address.present? and charity.latitude.nil? }
+  after_find :geocode, if: ->(charity){ charity.address.present? and charity.latitude.nil? and (charity.id % 15 == 0) }
   after_initialize do |charity|
     if charity.latitude_changed?
       charity.save!

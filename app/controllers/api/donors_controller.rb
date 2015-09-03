@@ -113,9 +113,9 @@ class Api::DonorsController < Api::BaseController
                     :total_number_of_pending_grants => total_number_of_pending_grants,
                     :total_amount_of_pending_grants => total_amount_of_pending_grants,
                     :donor_balance_history => donor_balance_history || 0,
-                    #:donor_projected_balance => CalculationShare::Calculation.project_amount( {:principal=>donor_current_balance,:monthly_addition=>donor_active_subscriptions} ),
+                    :donor_projected_balance => CalculationShare::Calculation.project_amount( {:principal=>donor_current_balance,:monthly_addition=>donor_active_subscriptions} ),
                     :global_balance_history => global_balance_history || 0,
-                    #:global_projected_balance => CalculationShare::Calculation.project_amount( {:principal=>current_fund_balance_all_donors,:monthly_addition=>total_monthly_donations} )
+                    :global_projected_balance => CalculationShare::Calculation.project_amount( {:principal=>current_fund_balance_all_donors,:monthly_addition=>total_monthly_donations} )
                   }.to_json
   end
 

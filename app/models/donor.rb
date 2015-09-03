@@ -87,6 +87,8 @@ class Donor < ActiveRecord::Base
       is_subscribed = false
     end
 
+
+
     my_donations = self.donations.where("endowment_id = ?", endowment_id)
     my_grants = self.grants.where("endowment_id = ? AND status !='reclaimed'", endowment_id)
 
@@ -101,7 +103,7 @@ class Donor < ActiveRecord::Base
     my_endowment_share_balance = my_donations_shares - my_grants_shares
 
     my_endowment_balance = (my_endowment_share_balance * last_donation_price).floor2(2)
-    
+
     my_investment_gainloss = (my_endowment_balance - my_balance_pre_investment).floor2(2)
 
     if defined?(:my_donations_count) && my_donations_count > 0

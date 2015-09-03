@@ -224,8 +224,14 @@ module CharityImport
           puts "---Creating Charity with #{charity_options.inspect}" if @@verbose_with_misses
 
           charity = Charity.find_or_initialize_by(ein: ein)
-          charity.update(charity_options)
-          tag_charity(charity)
+          begin
+            charity.update(charity_options)
+            tag_charity(charity)
+            rescue Exception => e
+            if e.is_a? ActiveRecord::RecordNotUnique
+              Rails.logger.warn(e)
+            end
+          end
 
         end # end CSV.foreach
       end # end read_csv

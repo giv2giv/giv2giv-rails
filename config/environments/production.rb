@@ -54,7 +54,7 @@ Giv2givRails::Application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Enable threaded mode
-  config.threadsafe!
+  #config.threadsafe!
 
   # Load the environment if the a rake task is called.
   # see: http://stackoverflow.com/questions/4300240/rails-3-rake-task-cant-find-model-in-production
