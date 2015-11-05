@@ -30,6 +30,13 @@ class StripeCallbacks
 
   end
 
+  def card_denied(event)
+    p=PaymentAccount.find(event)
+    p.requires_reauth=true
+    p.save!
+    p.sendUpdatePaymentAccountEmail
+  end
+
   def transfer_created(event)
     transfer = event.data.object
     Rails.logger.debug transfer

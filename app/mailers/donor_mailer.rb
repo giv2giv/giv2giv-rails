@@ -1,6 +1,45 @@
-class DonorMailer < ActionMailer::Base
+class DonorMailer < BaseMailer
 
-  require 'mandrill'
+  def welcome(donor_id)
+    donor = Donor.find(donor_id)
+    subject = "Welcome to giv2giv!"
+    merge_vars = {
+      "FIRST_NAME" => donor.name
+    }
+    body = mandrill_template("registration-successful-welcome-to-giv2giv-grey", merge_vars)
+
+    send_mail(donor.email, subject, body)
+  end
+
+  def charge_success(donor_id, endowment, charge_amount) #thank you, and info to charity if applicable
+    donor = Donor.find(donor_id)
+    subject = "Thank you for your donation!"
+    merge_vars = {
+      "FIRST_NAME" => donor.name#,
+      #"ENDOWMENT_NAME" => endowment.name,
+      #"AMOUNT" => charge_amount
+    }
+    body = mandrill_template("registration-successful-welcome-to-giv2giv-grey", merge_vars)
+
+    send_mail(donor.email, subject, body)
+  end
+
+  def reset_password(donor)
+    subject = "giv2giv.org Password Reset Request"
+    merge_vars = {
+      "EMAIL" => donor.email,
+      "TOKEN" => donor.password_reset_token
+    }
+    body = mandrill_template("reset-password", merge_vars)
+    send_mail(donor.email, subject, body)
+  end
+
+end
+
+
+
+=begin
+
 
   ENV["MANDRILL_APIKEY"] = App.mailer["password"]
   
@@ -169,3 +208,5 @@ class DonorMailer < ActionMailer::Base
   
 
 end
+
+=end

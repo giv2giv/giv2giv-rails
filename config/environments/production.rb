@@ -72,7 +72,7 @@ Giv2givRails::Application.configure do
   config.action_mailer.smtp_settings = {
     :address   => App.mailer["address"],
     :port      => App.mailer["port"], # ports 587 and 2525 are also supported with STARTTLS
-    :enable_starttls_auto => App.mailer["port"], # detects and uses STARTTLS
+    :enable_starttls_auto => true,
     :user_name => App.mailer["user_name"],
     :password  => App.mailer["password"], # SMTP password is any valid API key
     :authentication => App.mailer["authentication"], # Mandrill supports 'plain' or 'login'

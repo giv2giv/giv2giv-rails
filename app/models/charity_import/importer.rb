@@ -5,25 +5,26 @@ require 'csv'
 module CharityImport
   class Importer
     CSV_DIRECTORY = 'tmp/charity_csv_files'
-    IRS_URL = 'http://www.irs.gov/pub/irs-soi/'
+    IRS_URL = 'https://www.irs.gov/pub/irs-soi/'
     LINK_REGEX = /eo_[^.]{2}.csv/
 
     DESIRED_DEDUCTION_CODES = ['1']
     DESIRED_FOUNDATION_CODES = ['0','2','3','9','10','11','12','13','14','15','16']
 
     @@verbose = true
-    @@verbose_with_misses = false
+    @@verbose_with_misses = true
 
     class << self
 
-      def run(verbose = true, with_misses = false, skip_downloading = false)
+      def run(verbose = true, with_misses = false, skip_download = false)
         @@verbose = verbose
         @@verbose_with_misses = with_misses
         files = nil
 
-        if skip_downloading
+        if skip_download
           files = files_from_dir
         else
+
           files = select_eo_links(get_irs_page)
           create_csv_dir_if_needed
           files.each { |file| download_eo_file(file) }
@@ -32,9 +33,9 @@ module CharityImport
         files.each { |file| read_csv(file) }
       end
 
-      def import_single_file(file_name, skip_downloading = true)
+      def import_single_file(file_name, skip_download = true)
 
-        if !skip_downloading
+        if !skip_download
           create_csv_dir_if_needed
           download_eo_file(file_name)
         end
@@ -49,7 +50,6 @@ module CharityImport
     private
 
       def get_irs_page
-        puts "Loading #{IRS_URL}" if @@verbose
         Nokogiri::HTML(Typhoeus.get(IRS_URL).body)
       end
 
@@ -63,7 +63,7 @@ module CharityImport
       end
 
       def files_from_dir
-        Dir.entries(charity_csv_dir).select{ |m| m =~ /\.xls/ }
+        Dir.entries(charity_csv_dir).select{ |m| m =~ /\.csv/ }
       end
 
       def create_csv_dir_if_needed

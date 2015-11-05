@@ -13,7 +13,7 @@ class Api::DonorsController < Api::BaseController
 
     respond_to do |format|
       if donor.save
-        DonorMailer.create_donor(donor.email, donor.name)
+        DonorMailer.welcome(donor.id)
         require 'gibbon'
         gb = Gibbon::API.new(App.mailer['mailchimp_key'])
         gb.lists.subscribe({:id => App.mailer['mailchimp_list_id'], :email => {:email => donor.email}, :merge_vars => {:FNAME => donor.name}, :double_optin => false})

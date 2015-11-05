@@ -21,10 +21,14 @@ class Charity < ActiveRecord::Base
   #geocode on save if address changed
   #after_validation :geocode, if: ->(charity){ charity.address.present? and charity.address_changed? }
   #geocode on load if charity not yet geocoded
-  after_find :geocode, if: ->(charity){ charity.address.present? and charity.latitude.nil? and (charity.id % 15 == 0) }
+  #after_find :geocode, if: ->(charity){ charity.address.present? and charity.latitude.nil? }
   after_initialize do |charity|
     if charity.latitude_changed?
-      charity.save!
+      begin
+        charity.save!
+      rescue ActiveRecord::RecordInvalid => invalid
+        puts charity
+      end
     end
   end
 
@@ -32,10 +36,17 @@ class Charity < ActiveRecord::Base
   validates :name, :presence => true
   
   extend FriendlyId
-  friendly_id :name, use: :slugged
+  friendly_id :friendly_name, use: :slugged
 
   def should_generate_new_friendly_id?
     slug.blank? || name_changed?
+  end
+
+  def friendly_name
+    case name
+      when 'edit' then "#{name}-#{id}"
+      else name
+    end
   end
 
   def last_donation_price

@@ -44,7 +44,7 @@ class Donor < ActiveRecord::Base
     token = generate_token(:password_reset_token)
     self.expire_password_reset = Time.zone.now + 1.day
     save!
-    DonorMailer.forgot_password(self).deliver
+    DonorMailer.reset_password(self).deliver
   end
 
   def generate_token(column)

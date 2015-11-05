@@ -52,6 +52,14 @@ class Api::CharityController < Api::BaseController
       "zip" => charity.zip,
       "latitude" => charity.latitude,
       "longitude" => charity.longitude,
+      "theme" => charity.theme,
+      "minimum_amount" => charity.minimum_amount,
+      "maximum_amount" => charity.maximum_amount,
+      "minimum_passthru_percentage" => charity.minimum_passthru_percentage,
+      "maximum_passthru_percentage" => charity.maximum_passthru_percentage,
+      "initial_amount" => charity.initial_amount,
+      "initial_passthru" => charity.initial_passthru,
+      "donors_add_fees" => charity.donors_add_fees,
       "tax_period" => charity.group_code,
       "asset_amount" => charity.group_code,
       "income_amount" => charity.group_code,
@@ -93,6 +101,14 @@ class Api::CharityController < Api::BaseController
       "zip" => @charity.zip,
       "latitude" => @charity.latitude,
       "longitude" => @charity.longitude,
+      "theme" => @charity.theme,
+      "minimum_amount" => @charity.minimum_amount,
+      "maximum_amount" => @charity.maximum_amount,
+      "minimum_passthru_percentage" => @charity.minimum_passthru_percentage,
+      "maximum_passthru_percentage" => @charity.maximum_passthru_percentage,
+      "initial_amount" => @charity.initial_amount,
+      "initial_passthru" => @charity.initial_passthru,
+      "donors_add_fees" => @charity.donors_add_fees,
       "tax_period" => @charity.group_code,
       "asset_amount" => @charity.group_code,
       "income_amount" => @charity.group_code,
@@ -180,6 +196,14 @@ class Api::CharityController < Api::BaseController
         "zip" => charity.zip,
         "latitude" => charity.latitude,
         "longitude" => charity.longitude,
+        "theme" => charity.theme,
+        "minimum_amount" => charity.minimum_amount,
+        "maximum_amount" => charity.maximum_amount,
+        "minimum_passthru_percentage" => charity.minimum_passthru_percentage,
+        "maximum_passthru_percentage" => charity.maximum_passthru_percentage,
+        "initial_amount" => charity.initial_amount,
+        "initial_passthru" => charity.initial_passthru,
+        "donors_add_fees" => charity.donors_add_fees,
         "tax_period" => charity.group_code,
         "asset_amount" => charity.group_code,
         "income_amount" => charity.group_code,
@@ -241,20 +265,21 @@ class Api::CharityController < Api::BaseController
       payment.stripe_cust_id = customer.id
       payment.save!
 
-      endowment = Endowment.find_or_initialize_by(id: @charity.main_endowment_id)
+      endowment = Endowment.where(id: @charity.main_endowment_id).first_or_initialize
       endowment.name = @charity.name.titleize
       endowment.visibility = 'public'
     
-      if endowment.save!
+      if endowment.changed?
+        endowment.save!
         @charity.main_endowment_id = endowment.id
-        @charity.endowments << endowment unless @charity.endowments.count>=1
-        @charity.save! if @charity.changed?
-        donation = payment.stripe_charge(params.fetch(:'giv2giv-recurring'), amount, endowment.id, passthru_percent)
-        render json: donation
-      else
-        render json: { :message => "Not found" }.to_json
-      end
+        c = @charity.endowments.find(endowment.id) rescue nil
+        @charity.endowments << endowment if c.nil? #only add if not already added
 
+        #@charity.endowments.find(endowment.id) || @charity.endowments << endowment  #only add if not already added
+        @charity.save! if @charity.changed?
+      end
+      donation = payment.stripe_charge(params.fetch(:'giv2giv-recurring'), amount, endowment.id, passthru_percent)
+      render json: donation
     end
 
   end

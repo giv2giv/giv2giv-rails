@@ -77,7 +77,8 @@ class PaymentAccount < ActiveRecord::Base
        )
 
       if subscription.save
-        DonorMailer.new_subscription(current_donor, endowment.name, type, amount, passthru_percent).deliver
+        DonorMailer.welcome(current_donor.id)
+        #DonorMailer.new_subscription(current_donor, endowment.name, type, amount, passthru_percent).deliver
         { :message => "Success" }.to_json
       else
         { :message => "Error" }.to_json
