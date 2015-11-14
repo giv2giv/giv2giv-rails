@@ -3,6 +3,8 @@ class Api::CharityController < Api::BaseController
   skip_before_filter :require_authentication, :only => [:index, :show, :find_by_slug, :show_endowments, :near, :widget_data, :stripe, :dwolla, :dwolla_done, :autocomplete]
   before_action :set_charity, :only => [:show, :widget_data, :stripe, :dwolla, :dwolla_done, :show_endowments]
 
+  helper_method :createRandomEmail
+
   include CharityImport
 
   def index
@@ -237,6 +239,7 @@ class Api::CharityController < Api::BaseController
   def stripe
     amount =  params.fetch(:'giv2giv-amount') { raise 'giv2giv-amount required' }
     stripeToken = params.fetch(:'giv2giv-stripeToken') { raise 'giv2giv-stripeToken required' }
+    shareEmail = params.fetch(:'giv2giv-share-email')
 
     email = params[:'giv2giv-email'].present? ? params.fetch(:'giv2giv-email') : createRandomEmail
     passthru_percent = params[:'giv2giv-passthru-percent'].chomp('%')
@@ -251,14 +254,19 @@ class Api::CharityController < Api::BaseController
 
       donor = Donor.where(:email => email).first_or_initialize
 
-      if donor.id.nil?
-        donor.name = 'Unknown'
+Rails.logger.debug shareEmail=='true'
+
+      unless donor.id
+        donor.name = params(:'giv2giv-name').present ? params.fetch(:'giv2giv-name') : 'Unknown'
+        donor.share_email = shareEmail=='true'
         donor.password = createRandomEmail
         donor.accepted_terms = true
         donor.accepted_terms_on = DateTime.now
         donor.type_donor = 'anonymous'
         donor.save!
       end
+      Rails.logger.debug 'here'
+      Rails.logger.debug donor.share_email
 
       payment = PaymentAccount.new({:donor=>donor})
       payment.processor = 'stripe';
@@ -268,16 +276,14 @@ class Api::CharityController < Api::BaseController
       endowment = Endowment.where(id: @charity.main_endowment_id).first_or_initialize
       endowment.name = @charity.name.titleize
       endowment.visibility = 'public'
-    
-      if endowment.changed?
-        endowment.save!
-        @charity.main_endowment_id = endowment.id
-        c = @charity.endowments.find(endowment.id) rescue nil
-        @charity.endowments << endowment if c.nil? #only add if not already added
+      endowment.save! if endowment.changed?
 
-        #@charity.endowments.find(endowment.id) || @charity.endowments << endowment  #only add if not already added
-        @charity.save! if @charity.changed?
-      end
+      @charity.main_endowment_id = endowment.id
+      c = @charity.endowments.find(endowment.id) rescue nil
+      @charity.endowments << endowment if c.nil? #only add if not already added
+      @charity.save! if @charity.changed?
+      #end
+
       donation = payment.stripe_charge(params.fetch(:'giv2giv-recurring'), amount, endowment.id, passthru_percent)
       render json: donation
     end

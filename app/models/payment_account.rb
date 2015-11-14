@@ -50,21 +50,20 @@ class PaymentAccount < ActiveRecord::Base
     end
 
     begin
-      if (type=='single_donation')
+      if (type=='per-month')
+        customer = Stripe::Customer.retrieve(self.stripe_cust_id)
+        subscription = customer.subscriptions.create(:plan => PLAN_ID, :quantity => amount_cents, :prorate => false)
+      else
         cust_charge = Stripe::Charge.create(
           :amount => amount_cents,
           :currency => "usd",
           :description => "giv2giv.org donation to #{endowment.name}",
           :customer => self.stripe_cust_id,
         )
-        canceled_at = DateTime.now
-      elsif (type=='per-month')
-        customer = Stripe::Customer.retrieve(self.stripe_cust_id)
-        subscription = customer.subscriptions.create(:plan => PLAN_ID, :quantity => amount_cents, :prorate => false)
+        canceled_at = DateTime.now        
       end
 
       stripe_charge = cust_charge || subscription
-
       subscription = current_donor.donor_subscriptions.build(
        :donor_id => current_donor.id,
        :payment_account_id => self.id,
@@ -77,8 +76,14 @@ class PaymentAccount < ActiveRecord::Base
        )
 
       if subscription.save
-        DonorMailer.welcome(current_donor.id)
-        #DonorMailer.new_subscription(current_donor, endowment.name, type, amount, passthru_percent).deliver
+        Rails.logger.debug 'and'
+        Rails.logger.debug current_donor.share_email
+        if endowment.charities.count==1 && endowment.charities.first.email && current_donor.share_email
+          #DonorMailer.charity_donation_thankyou_copy(endowment.charities.first.email, current_donor.id, endowment, amount)
+        end
+
+        #DonorMailer.welcome(current_donor.id)
+        #DonorMailer.donor_widget_donation_thankyou(current_donor.id, endowment, amount)
         { :message => "Success" }.to_json
       else
         { :message => "Error" }.to_json

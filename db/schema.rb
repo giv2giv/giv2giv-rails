@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150916021046) do
+ActiveRecord::Schema.define(version: 20151114212032) do
 
   create_table "avatars", force: true do |t|
     t.datetime "created_at"
@@ -126,9 +126,9 @@ ActiveRecord::Schema.define(version: 20150916021046) do
   end
 
   create_table "donors", force: true do |t|
-    t.string   "name",                  null: false
-    t.string   "email",                 null: false
-    t.string   "password",              null: false
+    t.string   "name",                                  null: false
+    t.string   "email",                                 null: false
+    t.string   "password",                              null: false
     t.string   "address"
     t.string   "city"
     t.string   "state"
@@ -141,9 +141,10 @@ ActiveRecord::Schema.define(version: 20150916021046) do
     t.string   "password_reset_token"
     t.datetime "expire_password_reset"
     t.string   "auth_token"
-    t.boolean  "accepted_terms",        null: false
-    t.datetime "accepted_terms_on",     null: false
+    t.boolean  "accepted_terms",                        null: false
+    t.datetime "accepted_terms_on",                     null: false
     t.boolean  "subscribed"
+    t.boolean  "share_email",           default: false
   end
 
   create_table "endowments", force: true do |t|

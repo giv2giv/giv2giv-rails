@@ -25,18 +25,26 @@ gem 'mysql2'
 
 gem 'mailchimp-api'
 gem 'mandrill-api'
+
+# Maybe add https://github.com/renz45/mandrill_mailer
+
 gem 'gibbon'
 
 gem 'koala'
 
-#Charity geocoding
+#Charity and Endowment geocoding
 gem 'geocoder'
+gem 'activejob_backport' # Backported for Rails 4.1, unnecessary if we update > Rails 4.2
 
 #Charity logo/image support
 gem 'paperclip'
 
-#Donor network
+#Donor network - Import email contacts from gmail, hotmail, yahoo etc
 gem "omnicontacts"
+
+#graph db to map donor / charity network
+gem "neo4j"
+
 
 # CORS support
 gem 'rack-cors', :require => 'rack/cors'

@@ -21,7 +21,7 @@ class Donor < ActiveRecord::Base
     donor.validates :type_donor
   end
 
-  before_create { generate_token(:auth_token) }
+  #before_create { generate_token(:auth_token) }
 
   class << self
     # needed because of the fulltext index
