@@ -244,6 +244,8 @@ class Api::CharityController < Api::BaseController
     email = params[:'giv2giv-email'].present? ? params.fetch(:'giv2giv-email') : createRandomEmail
     passthru_percent = params[:'giv2giv-passthru-percent'].chomp('%')
 
+    donation = nil
+
     Charity.transaction do
       # Create a Customer
       customer = Stripe::Customer.create(
@@ -253,20 +255,16 @@ class Api::CharityController < Api::BaseController
       )
 
       donor = Donor.where(:email => email).first_or_initialize
+      donor.share_email = shareEmail=='true'
 
-Rails.logger.debug shareEmail=='true'
-
-      unless donor.id
-        donor.name = params(:'giv2giv-name').present ? params.fetch(:'giv2giv-name') : 'Unknown'
-        donor.share_email = shareEmail=='true'
+      unless donor.persisted?
         donor.password = createRandomEmail
+        donor.name = params[:'giv2giv-name'].present? ? params.fetch(:'giv2giv-name') : 'Unknown'
+        donor.type_donor = 'anonymous'
         donor.accepted_terms = true
         donor.accepted_terms_on = DateTime.now
-        donor.type_donor = 'anonymous'
-        donor.save!
       end
-      Rails.logger.debug 'here'
-      Rails.logger.debug donor.share_email
+      donor.save!
 
       payment = PaymentAccount.new({:donor=>donor})
       payment.processor = 'stripe';
@@ -285,9 +283,12 @@ Rails.logger.debug shareEmail=='true'
       #end
 
       donation = payment.stripe_charge(params.fetch(:'giv2giv-recurring'), amount, endowment.id, passthru_percent)
-      render json: donation
     end
 
+    unless donation.nil?
+      render json: donation
+    end
+    
   end
 
   def dwolla

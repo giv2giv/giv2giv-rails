@@ -27,6 +27,7 @@ class StripeCallbacks
     endowment = Endowment.find(subscription.endowment_id)
 
     DonorMailer.charge_success(donor, endowment, charge_amount).deliver
+    #DonorMailer.donor_widget_donation_thankyou(current_donor.id, endowment, amount)
 
   end
 

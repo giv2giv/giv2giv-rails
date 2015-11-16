@@ -30,6 +30,8 @@ class PaymentAccount < ActiveRecord::Base
     num_of_charity = endowment.charities.count
     current_donor = Donor.find(self.donor_id)
 
+    Rails.logger.debug current_donor.inspect
+
     if amount.to_f < MINIMUM_DONATION
       return { :message => "Minimum donation is $#{MINIMUM_DONATION}" }.to_json
     end
@@ -76,14 +78,14 @@ class PaymentAccount < ActiveRecord::Base
        )
 
       if subscription.save
-        Rails.logger.debug 'and'
-        Rails.logger.debug current_donor.share_email
         if endowment.charities.count==1 && endowment.charities.first.email && current_donor.share_email
-          #DonorMailer.charity_donation_thankyou_copy(endowment.charities.first.email, current_donor.id, endowment, amount)
+          DonorMailer.charity_donation_notification(endowment.charities.first.email, current_donor.id, endowment, amount).deliver
+        elsif endowment.charities.count==1 && endowment.charities.first.email
+          DonorMailer.charity_anonymous_donation_notification(endowment.charities.first.email, "Anonymous", endowment, amount).deliver
         end
 
         #DonorMailer.welcome(current_donor.id)
-        #DonorMailer.donor_widget_donation_thankyou(current_donor.id, endowment, amount)
+        DonorMailer.widget_donor_thankyou(current_donor.id, endowment, amount)
         { :message => "Success" }.to_json
       else
         { :message => "Error" }.to_json

@@ -11,7 +11,7 @@ class DonorMailer < BaseMailer
     send_mail(donor.email, subject, body)
   end
 
-  def donor_widget_donation_thankyou(donor_id, endowment, charge_amount) #thank you, and info to charity if applicable
+  def widget_donor_thankyou(donor_id, endowment, charge_amount) #thank you, and info to charity if applicable
     donor = Donor.find(donor_id)
     subject = "Thank you for your donation!"
     website_address = build_url(endowment)
@@ -24,31 +24,47 @@ class DonorMailer < BaseMailer
       #"ENDOWMENT_NAME" => endowment.name,
       
     }
-    body = mandrill_template("thank-you-charities", merge_vars)
+    body = mandrill_template("widget-donor-thankyou", merge_vars)
 
     send_mail(donor.email, subject, body)
   end
 
-  def charity_donation_thankyou_copy(charity_email, donor_id, endowment, charge_amount) #thank you, and info to charity if applicable
+  def charity_donation_notification(charity_email, donor_id, endowment, charge_amount) #thank you, and info to charity if applicable
     donor = Donor.find(donor_id)
-    subject = "Thank you for your donation!"
+    subject = "You have received a donation through giv2giv.org"
     website_address = build_url(endowment)
 
     merge_vars = {
       "FIRST_NAME" => donor.name,
       "DONOR_EMAIL" => donor.email,
+      "AMOUNT" => charge_amount
+      #"ENDOWMENT_NAME" => endowment.name,
+      
+    }
+    body = mandrill_template("charity-donation-notification", merge_vars)
+
+    send_mail(charity_email, subject, body)
+  end
+
+  def charity_anonymous_donation_notification(charity_email, donor_name, endowment, charge_amount) #thank you, and info to charity if applicable
+    subject = "You have received an anonymous donation through giv2giv.org"
+    website_address = build_url(endowment)
+
+    merge_vars = {
+      "FIRST_NAME" => "An Anonymous Donor",
+      "DONOR_EMAIL" => "an unknown email address",
       "CHARITY_NAME" => endowment.name,
       "CHARITY_WEBSITE" => website_address,
       "AMOUNT" => charge_amount
       #"ENDOWMENT_NAME" => endowment.name,
       
     }
-    body = mandrill_template("widget-thank-you-charities", merge_vars)
+    body = mandrill_template("charity-donation-anonymous-notification", merge_vars)
 
     send_mail(charity_email, subject, body)
   end
 
-  def charge_success(donor_id, endowment, charge_amount) #thank you, and info to charity if applicable
+  def charge_success(donor_id, endowment, charge_amount) #thank you
     donor = Donor.find(donor_id)
     subject = "Thank you for your donation!"
     #website_address = build_url(endowment)
@@ -61,16 +77,24 @@ class DonorMailer < BaseMailer
       #"ENDOWMENT_NAME" => endowment.name,
       
     }
-    body = mandrill_template("thank-you-charities", merge_vars)
+    body = mandrill_template("widget-donor-thankyou", merge_vars)
 
     send_mail(donor.email, subject, body)
   end
 
-  def reset_password(donor)
+  def forgot_password(donor)
     subject = "giv2giv.org Password Reset Request"
     merge_vars = {
-      "EMAIL" => donor.email,
-      "TOKEN" => donor.password_reset_token
+      "RESET_URL" => App.giv['web_url'] + '/#reset_password?reset_token=' + donor.password_reset_token
+    }
+    body = mandrill_template("forgot-password", merge_vars)
+    send_mail(donor.email, subject, body)
+  end
+
+  def reset_password(donor)
+    subject = "giv2giv.org Password Reset"
+    merge_vars = {
+      "EMAIL" => donor.email
     }
     body = mandrill_template("reset-password", merge_vars)
     send_mail(donor.email, subject, body)
@@ -79,14 +103,14 @@ class DonorMailer < BaseMailer
   private
 
   def build_url(endowment)
+
+    if endowment.charities.count == 1
+      url = endowment.charities.first.website
+    end
 #
-#    if endowment.charities.count == 1
-#      url = endowment.charities.first.website
-#    end
-#
-#    unless url.present?
-#      App.giv['website_address'] + '/#endowment/' + endowment.slug
-#    end
+    if url.nil?
+      App.giv['web_url'] + '/#endowment/' + endowment.slug
+    end
 
   end
 
