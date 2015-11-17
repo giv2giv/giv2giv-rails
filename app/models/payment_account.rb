@@ -49,7 +49,7 @@ class PaymentAccount < ActiveRecord::Base
       return { :message => "Wrong donor id" }.to_json
     end
 
-    if mode!='live'
+    if mode != 'live'
       if endowment.charities.count==1 && endowment.charities.first.email && current_donor.share_info
         DonorMailer.charity_donation_notification(endowment.charities.first.email, current_donor, endowment, amount).deliver
       elsif endowment.charities.count==1 && endowment.charities.first.email

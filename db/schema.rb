@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150908183152) do
+ActiveRecord::Schema.define(version: 20151117035339) do
 
   create_table "charities", force: true do |t|
     t.string   "name",                                                     null: false
@@ -119,24 +119,25 @@ ActiveRecord::Schema.define(version: 20150908183152) do
   end
 
   create_table "donors", force: true do |t|
-    t.string   "name",                  null: false
-    t.string   "email",                 null: false
-    t.string   "password",              null: false
+    t.string   "name",                                 null: false
+    t.string   "email",                                null: false
+    t.string   "password",                             null: false
     t.string   "address"
     t.string   "city"
     t.string   "state"
     t.string   "zip"
     t.string   "country"
     t.string   "phone_number"
-    t.datetime "created_at",            null: false
-    t.datetime "updated_at",            null: false
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
     t.string   "type_donor"
     t.string   "password_reset_token"
     t.datetime "expire_password_reset"
     t.string   "auth_token"
     t.boolean  "accepted_terms"
-    t.datetime "accepted_terms_on",     null: false
+    t.datetime "accepted_terms_on",                    null: false
     t.boolean  "subscribed"
+    t.boolean  "share_info",            default: true
   end
 
   create_table "endowments", force: true do |t|
