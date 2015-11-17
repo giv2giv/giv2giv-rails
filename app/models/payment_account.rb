@@ -21,14 +21,13 @@ class PaymentAccount < ActiveRecord::Base
   end
 
 
-  def stripe_charge(mode, type, amount, endowment_id, passthru_percent)
+  def stripe_charge(mode, type, amount, endowment, passthru_percent)
 
     raise PaymentAccountInvalid unless self.valid?
-    raise EndowmentInvalid unless Endowment.find_by_id(endowment_id)
+    raise EndowmentInvalid unless endowment.valid?
 
-    endowment = Endowment.find_by_id(endowment_id)
     num_of_charity = endowment.charities.count
-    current_donor = Donor.find(self.donor_id)
+    current_donor = self.donor
 
     if amount.to_f < MINIMUM_DONATION
       return { :message => "Minimum donation is $#{MINIMUM_DONATION}" }.to_json
@@ -51,13 +50,12 @@ class PaymentAccount < ActiveRecord::Base
 
     if mode != 'live'
       if endowment.charities.count==1 && endowment.charities.first.email && current_donor.share_info
-        DonorMailer.charity_donation_notification(endowment.charities.first.email, current_donor, endowment, amount).deliver
+        #DonorMailer.charity_donation_notification(endowment.charities.first.email, current_donor, endowment, amount).deliver
       elsif endowment.charities.count==1 && endowment.charities.first.email
-        DonorMailer.charity_anonymous_donation_notification(endowment.charities.first.email, "Anonymous", endowment, amount).deliver
+        #DonorMailer.charity_anonymous_donation_notification(endowment.charities.first.email, "Anonymous", endowment, amount).deliver
       end
-      DonorMailer.widget_donor_thankyou(current_donor, endowment, amount)
-      { :message => "Success" }.to_json
-      exit
+      #DonorMailer.widget_donor_thankyou(current_donor, endowment, amount)
+      return { :message => "Success" }.to_json
     end
 
     begin
