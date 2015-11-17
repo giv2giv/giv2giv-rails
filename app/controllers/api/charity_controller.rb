@@ -239,12 +239,15 @@ class Api::CharityController < Api::BaseController
   def stripe
     amount =  params.fetch(:'giv2giv-amount') { raise 'giv2giv-amount required' }
     stripeToken = params.fetch(:'giv2giv-stripeToken') { raise 'giv2giv-stripeToken required' }
-    shareEmail = params.fetch(:'giv2giv-share-email')
+    shareInfo = params.fetch(:'giv2giv-share-info')
 
     email = params[:'giv2giv-email'].present? ? params.fetch(:'giv2giv-email') : createRandomEmail
     passthru_percent = params[:'giv2giv-passthru-percent'].chomp('%')
 
     donation = nil
+
+    mode = params[:'giv2giv-mode'].present? ? params.fetch(:'giv2giv-mode') : createRandomEmail
+    share_info = params[:'giv2giv-share_info'].present? ? params.fetch(:'giv2giv-share_info') : createRandomEmail
 
     Charity.transaction do
       # Create a Customer
@@ -255,7 +258,7 @@ class Api::CharityController < Api::BaseController
       )
 
       donor = Donor.where(:email => email).first_or_initialize
-      donor.share_email = shareEmail=='true'
+      donor.share_info = shareInfo=='true'
 
       unless donor.persisted?
         donor.password = createRandomEmail
@@ -283,6 +286,9 @@ class Api::CharityController < Api::BaseController
       #end
 
       donation = payment.stripe_charge(params.fetch(:'giv2giv-recurring'), amount, endowment.id, passthru_percent)
+      if mode != 'live'
+        raise ActiveRecord::Rollback
+      end
     end
 
     unless donation.nil?

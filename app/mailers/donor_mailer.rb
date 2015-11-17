@@ -11,8 +11,7 @@ class DonorMailer < BaseMailer
     send_mail(donor.email, subject, body)
   end
 
-  def widget_donor_thankyou(donor_id, endowment, charge_amount) #thank you, and info to charity if applicable
-    donor = Donor.find(donor_id)
+  def widget_donor_thankyou(donor, endowment, charge_amount) #thank you, and info to charity if applicable
     subject = "Thank you for your donation!"
     website_address = build_url(endowment)
 
@@ -29,8 +28,7 @@ class DonorMailer < BaseMailer
     send_mail(donor.email, subject, body)
   end
 
-  def charity_donation_notification(charity_email, donor_id, endowment, charge_amount) #thank you, and info to charity if applicable
-    donor = Donor.find(donor_id)
+  def charity_donation_notification(charity_email, donor, endowment, charge_amount) #thank you, and info to charity if applicable
     subject = "You have received a donation through giv2giv.org"
     website_address = build_url(endowment)
 

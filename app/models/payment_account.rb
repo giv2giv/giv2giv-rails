@@ -21,7 +21,7 @@ class PaymentAccount < ActiveRecord::Base
   end
 
 
-  def stripe_charge(type, amount, endowment_id, passthru_percent)
+  def stripe_charge(mode, type, amount, endowment_id, passthru_percent)
 
     raise PaymentAccountInvalid unless self.valid?
     raise EndowmentInvalid unless Endowment.find_by_id(endowment_id)
@@ -29,8 +29,6 @@ class PaymentAccount < ActiveRecord::Base
     endowment = Endowment.find_by_id(endowment_id)
     num_of_charity = endowment.charities.count
     current_donor = Donor.find(self.donor_id)
-
-    Rails.logger.debug current_donor.inspect
 
     if amount.to_f < MINIMUM_DONATION
       return { :message => "Minimum donation is $#{MINIMUM_DONATION}" }.to_json
@@ -49,6 +47,17 @@ class PaymentAccount < ActiveRecord::Base
 
     if !current_donor
       return { :message => "Wrong donor id" }.to_json
+    end
+
+    if mode!='live'
+      if endowment.charities.count==1 && endowment.charities.first.email && current_donor.share_info
+        DonorMailer.charity_donation_notification(endowment.charities.first.email, current_donor, endowment, amount).deliver
+      elsif endowment.charities.count==1 && endowment.charities.first.email
+        DonorMailer.charity_anonymous_donation_notification(endowment.charities.first.email, "Anonymous", endowment, amount).deliver
+      end
+      DonorMailer.widget_donor_thankyou(current_donor, endowment, amount)
+      { :message => "Success" }.to_json
+      exit
     end
 
     begin
@@ -78,14 +87,14 @@ class PaymentAccount < ActiveRecord::Base
        )
 
       if subscription.save
-        if endowment.charities.count==1 && endowment.charities.first.email && current_donor.share_email
-          DonorMailer.charity_donation_notification(endowment.charities.first.email, current_donor.id, endowment, amount).deliver
+        if endowment.charities.count==1 && endowment.charities.first.email && current_donor.share_info
+          DonorMailer.charity_donation_notification(endowment.charities.first.email, current_donor, endowment, amount).deliver
         elsif endowment.charities.count==1 && endowment.charities.first.email
           DonorMailer.charity_anonymous_donation_notification(endowment.charities.first.email, "Anonymous", endowment, amount).deliver
         end
 
         #DonorMailer.welcome(current_donor.id)
-        DonorMailer.widget_donor_thankyou(current_donor.id, endowment, amount)
+        DonorMailer.widget_donor_thankyou(current_donor, endowment, amount)
         { :message => "Success" }.to_json
       else
         { :message => "Error" }.to_json
