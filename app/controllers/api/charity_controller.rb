@@ -244,19 +244,22 @@ class Api::CharityController < Api::BaseController
     shareInfo = params[:'giv2giv-share-info'].present? ? params.fetch(:'giv2giv-share-info') : "true"
     email = params[:'giv2giv-email'].present? ? params.fetch(:'giv2giv-email') : createRandomEmail
     passthru_percent = params[:'giv2giv-passthru-percent'].chomp('%')
-
+    
     donation = nil
     if mode != 'live'
       mode='test'
     end
 
     Charity.transaction do
-      # Create a Customer
-      customer = Stripe::Customer.create(
-        :source => stripeToken,
-        :email  => email,
-        :description => "widget"
-      )
+
+      if mode=='live'
+        # Create a Customer
+        customer = Stripe::Customer.create(
+          :source => stripeToken,
+          :email  => email,
+          :description => "widget"
+        )
+      end
 
       donor = Donor.where(:email => email).first_or_initialize
       donor.share_info = shareInfo=='true'
@@ -272,7 +275,7 @@ class Api::CharityController < Api::BaseController
 
       payment = PaymentAccount.new({:donor=>donor})
       payment.processor = 'stripe';
-      payment.stripe_cust_id = customer.id
+      payment.stripe_cust_id = customer.id rescue mode
       payment.save!
 
       endowment = Endowment.where(id: @charity.main_endowment_id).first_or_initialize

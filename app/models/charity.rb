@@ -7,7 +7,7 @@ class Charity < ActiveRecord::Base
   geocoded_by :full_street_address
   #has_attached_file :image, styles: { small: "64x64", med: "100x100", large: "200x200" }
   
-  searchkick word_start: [:name], callbacks: false#, callbacks: :async
+  searchkick word_start: [:name], callbacks: false# or use   callbacks: :async
 
   def search_data
     {
@@ -19,9 +19,9 @@ class Charity < ActiveRecord::Base
   end
 
   #geocode on save if address changed
-  #after_validation :geocode, if: ->(charity){ charity.address.present? and charity.address_changed? }
+  after_validation :geocode, if: ->(charity){ charity.address.present? and charity.address_changed? }
   #geocode on load if charity not yet geocoded
-  #after_find :geocode, if: ->(charity){ charity.address.present? and charity.latitude.nil? }
+  after_find :geocode, if: ->(charity){ charity.address.present? and charity.latitude.nil? }
   after_initialize do |charity|
     if charity.latitude_changed?
       begin

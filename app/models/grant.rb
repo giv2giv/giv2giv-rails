@@ -8,9 +8,10 @@ class Grant < ActiveRecord::Base
   validates :status, :presence => true, :inclusion => { :in => VALID_STATUS }
   validates :grant_type, :presence => true, :inclusion => { :in => VALID_GRANT_TYPES }
 
-  GIV2GIV_PASSTHRU_FEE = App.giv["passthru_fee"].to_f
-  GIV2GIV_GRANT_AMOUNT = App.giv["grant_amount"]
-  GIV2GIV_GRANT_FEE = App.giv["grant_fee"].to_f
+  GIV2GIV_GRANT_PERCENT = App.giv["quarterly_grant_percent"]
+  MINIMUM_GRANT_AMOUNT = App.giv["minimum_grant_amount"]
+  GIV2GIV_PASSTHRU_FEE = 0
+  GIV2GIV_GRANT_FEE = 0
 
   class << self
 
@@ -89,17 +90,15 @@ class Grant < ActiveRecord::Base
 
           next if donor_share_balance <= 0
 
-          preliminary_shares_per_charity = (donor_share_balance * BigDecimal("#{GIV2GIV_GRANT_AMOUNT}") / BigDecimal("#{charities.count}")).round(SHARE_PRECISION)
+          preliminary_shares_per_charity = donor_share_balance * BigDecimal("#{GIV2GIV_GRANT_PERCENT}") / BigDecimal("#{charities.count}")
           
           amount_per_charity = (preliminary_shares_per_charity * grant_share_price).floor2(2) # convert to dollars and cents
           shares_per_charity = amount_per_charity / grant_share_price # calculate shares subtracted
 
-          giv2giv_fee = (amount_per_charity * GIV2GIV_GRANT_FEE).floor2(2)
+          grant_fee = (amount_per_charity * GIV2GIV_GRANT_FEE).floor2(2)
+          net_amount = amount_per_charity - grant_fee
 
-          net_amount = (amount_per_charity - giv2giv_fee).floor2(2)
-
-
-          next if amount_per_charity <= 0
+          next if amount_per_charity < MINIMUM_GRANT_AMOUNT
           
           charities.each do |charity|
             grant_record = Grant.new(
@@ -108,7 +107,7 @@ class Grant < ActiveRecord::Base
                                       :charity_id => charity.id,
                                       :shares_subtracted => shares_per_charity,
                                       :grant_amount => amount_per_charity,
-                                      :giv2giv_fee => giv2giv_fee,
+                                      :giv2giv_fee => grant_fee,
                                       :net_amount => net_amount,
                                       :grant_type => 'endowed',
                                       :status => 'pending_approval'
@@ -120,7 +119,7 @@ class Grant < ActiveRecord::Base
         end # donor_shares.each
       end # endowments.each       
 
-      JobMailer.success_compute(App.giv["email_support"]).deliver
+      JobMailer.success_compute(App.giv["email_contact"]).deliver
     end # def grant_step_1
 
     def update_grant_status
@@ -179,9 +178,6 @@ class Grant < ActiveRecord::Base
           ap transaction_id
         end
       end
-
-      # TODO sum fees, transfer to giv2giv
-
       #client.update("This is the first test of the automated giv2giv tweeter. We're preparing to grant $" << total_grants.to_s)
 
       puts "Total amount sent: " << total_grants.to_s

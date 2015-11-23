@@ -7,9 +7,9 @@ class StripeTransfer
     puts ". #{self.class} called at #{Time.now} (#{@count_grant})"
     ret = system 'bundle exec rake transit:send_stripe_funds'
     if ret == false
-      ErrorJobMailer.error_send_stripe_funds(App.giv["email_support"]).deliver
+      ErrorJobMailer.error_send_stripe_funds(App.giv["email_contact"]).deliver
     else
-      JobMailer.success_job_scheduler(App.giv["email_support"], "startgrantcalculation_step1").deliver
+      JobMailer.success_job_scheduler(App.giv["email_contact"], "startgrantcalculation_step1").deliver
       puts "Finished running task at #{DateTime.now}"
     end
   end
@@ -36,7 +36,7 @@ class SchedulerPrice
         else
           # if success do charity ignore grants
           #system 'bundle exec rake calcshare:charity_ignores_grant'
-          #JobMailer.success_job_scheduler(App.giv["email_support"], "compute_share_price").deliver
+          #JobMailer.success_job_scheduler(App.giv["email_contact"], "compute_share_price").deliver
           #puts "Finished running task at #{DateTime.now}"
         end
       rescue Exception => e
@@ -47,7 +47,7 @@ class SchedulerPrice
       # do charity ignore grants before send email error calculation shareprice
       #system 'bundle exec rake calcshare:charity_ignores_grant'
       
-      ErrorJobMailer.error_compute_share_price(App.giv["email_support"]).deliver
+      ErrorJobMailer.error_compute_share_price(App.giv["email_contact"]).deliver
       puts "Email notification has been sent"
     end # end count
   end
@@ -70,7 +70,7 @@ class GrantPrice
           puts "Task failed, try again in 5 minutes"
           job.scheduler.in '5m', self
         else
-          JobMailer.success_job_scheduler(App.giv["email_support"], "startgrantcalculation_step1").deliver
+          JobMailer.success_job_scheduler(App.giv["email_contact"], "startgrantcalculation_step1").deliver
           puts "Finished running task at #{DateTime.now}"
         end
       rescue Exception => e
@@ -78,7 +78,7 @@ class GrantPrice
         job.scheduler.in '5m'
       end
     else
-      ErrorJobMailer.error_compute_share_price(App.giv["email_support"]).deliver
+      ErrorJobMailer.error_compute_share_price(App.giv["email_contact"]).deliver
       puts "Email notification has been sent"
     end # end count_grant
   end

@@ -15,7 +15,7 @@ class ErrorJobMailer < ActionMailer::Base
        }  
      ],  
      :html=>"<h3>Calculation error in compute_share_price</h3><br /><hr />Date : #{DateTime.now}",
-     :from_email=>App.giv['email_support']
+     :from_email=>App.giv['email_contact']
     }  
     sending = m.messages.send message
   end
@@ -32,7 +32,7 @@ class ErrorJobMailer < ActionMailer::Base
        }  
      ],  
      :html=>"<h3>Calculation error in grant_step_1</h3><br /><hr />Date : #{DateTime.now}",
-     :from_email=>App.giv['email_support']
+     :from_email=>App.giv['email_contact']
     }  
     sending = m.messages.send message
   end
@@ -49,7 +49,7 @@ class ErrorJobMailer < ActionMailer::Base
        }  
      ],  
      :html=>"<h3>Error in sending funds from stripe to etrade</h3><br /><hr />Date : #{DateTime.now}",
-     :from_email=>App.giv['email_support']
+     :from_email=>App.giv['email_contact']
     }  
     sending = m.messages.send message
   end

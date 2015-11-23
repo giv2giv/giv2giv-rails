@@ -64,7 +64,7 @@ module CalculationShare
                                     )
         if new_record_share.save
           puts "Share Price has been updated"
-          JobMailer.success_compute(App.giv["email_support"]).deliver
+          JobMailer.success_compute(App.giv["email_contact"]).deliver
         else
           puts "ERROR"
         end

@@ -15,7 +15,7 @@ class JobMailer < ActionMailer::Base
        }  
      ],  
      :html=>"<h3>Share price calculation success</h3><br /><hr />Date : #{DateTime.now}",
-     :from_email=>App.giv['email_support']
+     :from_email=>App.giv['email_contact']
     }  
     sending = m.messages.send message
   end
@@ -32,7 +32,7 @@ class JobMailer < ActionMailer::Base
        }  
      ],  
      :html=>"<h3>Funds sent from stripe to etrade</h3><br /><hr />Date : #{DateTime.now}",
-     :from_email=>App.giv['email_support']
+     :from_email=>App.giv['email_contact']
     }  
     sending = m.messages.send message
   end

@@ -8,7 +8,7 @@ namespace :calcshare do
   # bundle exec rake calcshare:startgrantcalculation
   desc 'Calculate Grants'
   task :startgrantcalculation => :environment do
-    CalculationShare::Calculation.grant_step_1
+    Grant.grant_step_1
   end
 
 # bundle exec rake calcshare:approve_pending_grants

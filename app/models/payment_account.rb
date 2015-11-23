@@ -49,12 +49,12 @@ class PaymentAccount < ActiveRecord::Base
     end
 
     if mode != 'live'
-      if endowment.charities.count==1 && endowment.charities.first.email && current_donor.share_info
-        #DonorMailer.charity_donation_notification(endowment.charities.first.email, current_donor, endowment, amount).deliver
+      if endowment.charities.count==1 && endowment.charities.first.email && current_donor.share_info? && !(current_donor.email.include? "giv2giv.org")
+        DonorMailer.charity_donation_notification(endowment.charities.first, current_donor, endowment, amount).deliver
       elsif endowment.charities.count==1 && endowment.charities.first.email
-        #DonorMailer.charity_anonymous_donation_notification(endowment.charities.first.email, "Anonymous", endowment, amount).deliver
+        DonorMailer.charity_anonymous_donation_notification(endowment.charities.first, endowment, amount).deliver
       end
-      #DonorMailer.widget_donor_thankyou(current_donor, endowment, amount)
+      DonorMailer.widget_donor_thankyou(current_donor, endowment, amount)
       return { :message => "Success" }.to_json
     end
 
@@ -85,10 +85,10 @@ class PaymentAccount < ActiveRecord::Base
        )
 
       if subscription.save
-        if endowment.charities.count==1 && endowment.charities.first.email && current_donor.share_info
-          DonorMailer.charity_donation_notification(endowment.charities.first.email, current_donor, endowment, amount).deliver
+        if endowment.charities.count==1 && endowment.charities.first.email && current_donor.share_info? && !(current_donor.email.include? "giv2giv.org")
+          DonorMailer.charity_donation_notification(endowment.charities.first, current_donor, endowment, amount).deliver
         elsif endowment.charities.count==1 && endowment.charities.first.email
-          DonorMailer.charity_anonymous_donation_notification(endowment.charities.first.email, "Anonymous", endowment, amount).deliver
+          DonorMailer.charity_anonymous_donation_notification(endowment.charities.first, endowment, amount).deliver
         end
 
         #DonorMailer.welcome(current_donor.id)
