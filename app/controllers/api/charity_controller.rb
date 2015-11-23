@@ -270,6 +270,7 @@ class Api::CharityController < Api::BaseController
         donor.type_donor = 'anonymous'
         donor.accepted_terms = true
         donor.accepted_terms_on = DateTime.now
+        DonorMailer.welcome(current_donor)
       end
       donor.save!
 

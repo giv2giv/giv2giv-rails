@@ -5,7 +5,7 @@ class DonorMailer < BaseMailer
     merge_vars = {
       "FIRST_NAME" => donor.name
     }
-    send_mandrill(donor, subject, merge_vars, 'registration-successful-welcome-to-giv2giv-grey')
+    send_mandrill(donor, subject, merge_vars, 'welcome-donor')
   end
 
   def widget_donor_thankyou(donor, endowment, charge_amount) #thank you, and info to charity if applicable
@@ -49,31 +49,13 @@ class DonorMailer < BaseMailer
     
   end
 
-  def charge_success(donor_id, endowment, charge_amount) #thank you
-    donor = Donor.find(donor_id)
-    subject = "Thank you for your donation!"
-    #website_address = build_url(endowment)
-
-    merge_vars = {
-      "FIRST_NAME" => donor.name,
-      "CHARITY_NAME" => endowment.name,
-      "CHARITY_WEBSITE" => 'https://giv2giv.org',#website_address,
-      "AMOUNT" => ActionController::Base.helpers.number_to_currency(charge_amount)
-      #"ENDOWMENT_NAME" => endowment.name,
-      
-    }
-    body = mandrill_template("widget-donor-thankyou", merge_vars)
-
-    send_mail(donor.email, subject, body)
-  end
-
   def forgot_password(donor)
     subject = "giv2giv.org Password Reset Request"
     merge_vars = {
       "RESET_URL" => App.giv['web_url'] + '/#reset_password?reset_token=' + donor.password_reset_token
     }
-    body = mandrill_template("forgot-password", merge_vars)
-    send_mail(donor.email, subject, body)
+    send_mandrill(donor, subject, merge_vars, 'forgot-password')
+
   end
 
   def reset_password(donor)
@@ -81,8 +63,7 @@ class DonorMailer < BaseMailer
     merge_vars = {
       "EMAIL" => donor.email
     }
-    body = mandrill_template("reset-password", merge_vars)
-    send_mail(donor.email, subject, body)
+    send_mandrill(donor, subject, merge_vars, 'reset-password')
   end
 
   private
