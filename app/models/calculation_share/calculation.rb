@@ -103,9 +103,9 @@ module CalculationShare
         principal += monthly_addition
         principal += principal * (return_rate / 12) 
         if month % 4 == 0
-          grant_amount = principal * App.giv["grant_amount"]
+          grant_amount = principal * App.giv["quarterly_grant_percent"]
           total_grants += grant_amount
-          fee_amount = principal * App.giv["grant_fee"]
+          fee_amount = principal * App.giv["quarterly_fee"]
           total_fees += fee_amount
           principal -= grant_amount
           principal -= fee_amount

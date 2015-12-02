@@ -103,9 +103,10 @@ class Api::PaymentAccountsController < Api::BaseController
 
   def donate_subscription
     mode = params[:mode] == 'live' ? 'live' : "test"
+    endowment = Endowment.find(params[:endowment_id])
 
     respond_to do |format|
-      if current_payment_account && donation = current_payment_account.stripe_charge(mode, 'per-month',params[:amount], params[:endowment_id], params[:passthru])
+      if current_payment_account && donation = current_payment_account.stripe_charge(mode, 'per-month',params[:amount], endowment, params[:passthru])
         format.json { render json: donation }
       else
         format.json { head :not_found }
@@ -115,11 +116,13 @@ class Api::PaymentAccountsController < Api::BaseController
 
   def one_time_payment
     mode = params[:mode] == 'live' ? 'live' : "test"
+    endowment = Endowment.find(params[:endowment_id])
 
     respond_to do |format|
       if current_payment_account
+        
         if current_payment_account.processor=='stripe'
-          donation = current_payment_account.stripe_charge(mode, 'single_donation',params[:amount], params[:endowment_id], params[:passthru])
+          donation = current_payment_account.stripe_charge(mode, 'single_donation',params[:amount], endowment, params[:passthru])
         end
         format.json { render json: donation }
        else

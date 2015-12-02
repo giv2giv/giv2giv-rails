@@ -6,6 +6,7 @@ giv:
   web_url                : http://test.giv2giv.org/
   api_url                : https://apitest.giv2giv.org/
   quarterly_grant_percent           : .0125
+  quarterly_fee  : .0025
   minimum_donation_amount: 5
   minimum_grant_amount   : 20
   grant_password         : reallyLongUnguessablePassword!!
