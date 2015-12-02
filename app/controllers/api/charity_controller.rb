@@ -244,7 +244,7 @@ class Api::CharityController < Api::BaseController
     shareInfo = params[:'giv2giv-share-info'].present? ? params.fetch(:'giv2giv-share-info') : "true"
     email = params[:'giv2giv-email'].present? ? params.fetch(:'giv2giv-email') : createRandomEmail
     passthru_percent = params[:'giv2giv-passthru-percent'].chomp('%')
-    
+
     donation = nil
     if mode != 'live'
       mode='test'
@@ -262,7 +262,7 @@ class Api::CharityController < Api::BaseController
       end
 
       donor = Donor.where(:email => email).first_or_initialize
-      donor.share_info = shareInfo=='true'
+      donor.share_info = (shareInfo=='true')
 
       unless donor.persisted?
         donor.password = createRandomEmail
@@ -270,7 +270,7 @@ class Api::CharityController < Api::BaseController
         donor.type_donor = 'anonymous'
         donor.accepted_terms = true
         donor.accepted_terms_on = DateTime.now
-        DonorMailer.welcome(current_donor)
+        DonorMailer.welcome(donor)
       end
       donor.save!
 
@@ -289,6 +289,7 @@ class Api::CharityController < Api::BaseController
       @charity.endowments << endowment if c.nil? #only add if not already added
       @charity.save! if @charity.changed?
       #end
+
 
       donation = payment.stripe_charge(mode, params.fetch(:'giv2giv-recurring'), amount, endowment, passthru_percent)
 
