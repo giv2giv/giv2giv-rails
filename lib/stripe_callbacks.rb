@@ -19,7 +19,7 @@ class StripeCallbacks
     donation_amount = BigDecimal(transaction.net.to_s) / 100
     transaction_id = transaction.id.to_s
 
-    donation = Donation.add_donation(subscription.id, charge_amount, transaction_id, transaction_fee, donation_amount)
+    donation = Donation.add_donation(subscription, charge_amount, transaction_id, transaction_fee, donation_amount)
     
     Grant.add_passthru_grant(subscription, donation_amount)
 

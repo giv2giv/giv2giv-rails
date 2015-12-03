@@ -18,6 +18,8 @@ class Grant < ActiveRecord::Base
     def add_passthru_grant (subscription, original_donation_amount)
       #Called upon successful donation. Sells shares, makes grants to recipient charities
 
+      return if subscription.passthru_percent.nil?
+        
       total_grants = 0.0
 
       grantee_charities = Endowment.find(subscription.endowment_id).charities || return
@@ -49,7 +51,7 @@ class Grant < ActiveRecord::Base
                     :grant_type => 'pass_thru',
                     :status => 'pending_approval'
                     )
-          if grant.save
+          if grant.save!
             grants_array << grant
             total_grants += grant.net_amount
           end

@@ -179,7 +179,7 @@ Rails.logger.debug happy
       if !page["error_code"] #if no error code, transaction succeeded
         subscription.save
         DonorMailer.new_subscription(current_donor, endowment.name, type, amount).deliver
-        donation = Donation.add_donation(subscription.id, amount, page["trans_id"], transaction_fee, donation_amount)
+        donation = Donation.add_donation(subscription, amount, page["trans_id"], transaction_fee, donation_amount)
         { :message => "Success" }.to_json
       else
         { :message => "Error" }.to_json  

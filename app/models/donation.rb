@@ -9,18 +9,16 @@ class Donation < ActiveRecord::Base
 
   class << self
     
-    def add_donation(subscription_id, gross_amount, transaction_id, transaction_fee, net_amount)
+    def add_donation(subscription, gross_amount, transaction_id, transaction_fee, net_amount)
       
       share_price = Share.last.donation_price
 
-      donor_subscription = DonorSubscription.find(subscription_id)
-
       buy_shares = (BigDecimal("#{net_amount}") / BigDecimal("#{share_price}"))
 
-      Donation.where(:donor_id => donor_subscription.donor_id, :transaction_id => transaction_id, :gross_amount => gross_amount).first_or_initialize { |donation|
-        donation.donor_id=donor_subscription.donor_id
-        donation.endowment_id=donor_subscription.endowment_id
-        donation.payment_account_id=donor_subscription.payment_account_id
+      Donation.where(:donor_id => subscription.donor_id, :transaction_id => transaction_id, :gross_amount => gross_amount).first_or_initialize { |donation|
+        donation.donor_id=subscription.donor_id
+        donation.endowment_id=subscription.endowment_id
+        donation.payment_account_id=subscription.payment_account_id
         donation.transaction_fee=transaction_fee
         donation.net_amount=net_amount
         donation.shares_added=buy_shares
