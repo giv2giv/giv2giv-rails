@@ -18,7 +18,9 @@ class Grant < ActiveRecord::Base
     def add_passthru_grant (subscription, original_donation_amount)
       #Called upon successful donation. Sells shares, makes grants to recipient charities
 
-      return if subscription.passthru_percent.nil?
+      if subscription.passthru_percent.nil?
+        return
+      end
         
       total_grants = 0.0
 
@@ -34,7 +36,7 @@ class Grant < ActiveRecord::Base
 
       amount_per_charity = (net_amount / grantee_charities.count).floor2(2)
 
-      shares_per_charity = BigDecimal("#{amount_per_charity}") / share_price # BigDecimal/BigDecimal, truncated by database
+      shares_per_charity = BigDecimal("#{amount_per_charity}") / BigDecimal("#{share_price}") # BigDecimal/BigDecimal, will be truncated by database
 
       ActiveRecord::Base.transaction do
         grants_array = []

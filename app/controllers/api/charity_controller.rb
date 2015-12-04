@@ -290,7 +290,6 @@ class Api::CharityController < Api::BaseController
       @charity.save! if @charity.changed?
       #end
 
-
       donation = payment.stripe_charge(mode, params.fetch(:'giv2giv-recurring'), amount, endowment, passthru_percent)
 
       if mode!='live'

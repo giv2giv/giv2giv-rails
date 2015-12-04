@@ -106,7 +106,7 @@ class Api::PaymentAccountsController < Api::BaseController
     endowment = Endowment.find(params[:endowment_id])
 
     respond_to do |format|
-      if current_payment_account && donation = current_payment_account.stripe_charge(mode, 'per-month',params[:amount], endowment, params[:passthru])
+      if current_payment_account && donation = current_payment_account.stripe_charge(mode, 'per_month',params[:amount], endowment, params[:passthru])
         format.json { render json: donation }
       else
         format.json { head :not_found }

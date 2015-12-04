@@ -122,9 +122,9 @@ class Api::DonorsController < Api::BaseController
   def subscriptions
 
     if params.has_key?(:current_only)
-      subscriptions = current_donor.donor_subscriptions.where("canceled_at IS NULL AND type_subscription='per-month'")
+      subscriptions = current_donor.donor_subscriptions.where("canceled_at IS NULL AND type_subscription='per_month'")
     else
-      subscriptions = current_donor.donor_subscriptions.where("type_subscription='per-month'")
+      subscriptions = current_donor.donor_subscriptions.where("type_subscription='per_month'")
     end
 
     if params.has_key?(:group)

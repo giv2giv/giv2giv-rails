@@ -59,10 +59,11 @@ class PaymentAccount < ActiveRecord::Base
     end
 
     begin
-      if (type=='per-month')
+      if (type=='per_month')
         customer = Stripe::Customer.retrieve(self.stripe_cust_id)
         subscription = customer.subscriptions.create(:plan => PLAN_ID, :quantity => amount_cents, :prorate => false)
       else
+        type='single_donation'
         cust_charge = Stripe::Charge.create(
           :amount => amount_cents,
           :currency => "usd",
@@ -85,14 +86,6 @@ class PaymentAccount < ActiveRecord::Base
        )
 
       if subscription.save
-        if endowment.charities.count==1 && endowment.charities.first.email && current_donor.share_info? && !(current_donor.email.include? "giv2giv.org")
-          DonorMailer.charity_donation_notification(endowment.charities.first, current_donor, endowment, amount).deliver
-        elsif endowment.charities.count==1 && endowment.charities.first.email
-          DonorMailer.charity_anonymous_donation_notification(endowment.charities.first, endowment, amount).deliver
-        end
-
-        #DonorMailer.welcome(current_donor.id)
-        DonorMailer.widget_donor_thankyou(current_donor, endowment, amount)
         { :message => "Success" }.to_json
       else
         { :message => "Error" }.to_json

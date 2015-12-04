@@ -28,6 +28,12 @@ class StripeCallbacks
 
     DonorMailer.widget_donor_thankyou(donor, endowment, charge_amount)
 
+    if endowment.charities.count==1 && endowment.charities.first.email && donor.share_info? && !(donor.email.include? "giv2giv.org")
+      DonorMailer.charity_donation_notification(endowment.charities.first, donor, endowment, charge_amount).deliver
+    elsif endowment.charities.count==1 && endowment.charities.first.email
+      DonorMailer.charity_anonymous_donation_notification(endowment.charities.first, endowment, charge_amount).deliver
+    end
+
   end
 
   def card_denied(event)
