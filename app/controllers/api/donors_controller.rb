@@ -55,7 +55,7 @@ class Api::DonorsController < Api::BaseController
 
     last_donation_price = Share.last.donation_price rescue 0.0
     if current_donor && current_donor.id
-      share_balance = BigDecimal("#{current_donor.donations.sum(:shares_added)}") - BigDecimal("#{current_donor.grants.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:shares_subtracted)}")
+      share_balance = Share.shares_outstanding
       donor_current_balance = (BigDecimal("#{share_balance}") * BigDecimal("#{last_donation_price}")).floor2(2)
       donor_total_amount_of_donations = current_donor.donations.sum(:gross_amount).to_f rescue 0.0
       donor_total_amount_of_grants = current_donor.grants.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:grant_amount).to_f rescue 0.0
@@ -295,11 +295,12 @@ end
 def global_balance_on(date)
   dt = DateTime.parse(date.to_s)
   dt = dt + 11.hours + 59.minutes + 59.seconds
+  shares_outstanding = Share.shares_outstanding(dt)
   shares_added = @all_donations.where('created_at <= ?', dt).sum(:shares_added)
   shares_subtracted = @all_grants.where('created_at <= ?', dt).sum(:shares_subtracted)
   share_price = donation_price_on(date)
   #All three type BigDecimal
-  balance = (shares_added - shares_subtracted) * share_price
+  balance = shares_outstanding * share_price
   balance.floor2(2)
 end
 

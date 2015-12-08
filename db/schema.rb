@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151117035339) do
+ActiveRecord::Schema.define(version: 20151208033545) do
 
   create_table "avatars", force: true do |t|
     t.datetime "created_at"
@@ -189,13 +189,12 @@ ActiveRecord::Schema.define(version: 20151117035339) do
 
   add_index "external_accounts", ["donor_id"], name: "index_external_accounts_on_donor_id", using: :btree
 
-  create_table "giv_payments", force: true do |t|
-    t.float    "amount",                                limit: 24
+  create_table "fees", force: true do |t|
+    t.decimal  "shares_outstanding", precision: 30, scale: 20, null: false
+    t.decimal  "shares_subtracted",  precision: 30, scale: 20, null: false
+    t.decimal  "amount",             precision: 10, scale: 2,  null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "from_etrade_to_dwolla_transaction_id"
-    t.string   "from_dwolla_to_giv2giv_transaction_id"
-    t.string   "status"
   end
 
   create_table "grants", force: true do |t|
@@ -259,6 +258,7 @@ ActiveRecord::Schema.define(version: 20151117035339) do
     t.decimal  "grant_price",                 precision: 10, scale: 2
     t.decimal  "dwolla_balance",              precision: 30, scale: 2,  null: false
     t.decimal  "transit_balance",             precision: 30, scale: 2,  null: false
+    t.decimal  "shares_subtracted_by_fees",   precision: 30, scale: 2
   end
 
   create_table "stripe_logs", force: true do |t|

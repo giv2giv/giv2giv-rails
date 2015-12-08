@@ -34,9 +34,12 @@ module CalculationShare
         shares_added_by_donation = Donation.where("created_at >= ?", last_share_created_at).sum(:shares_added)
 
         # shares removed by grant
-        shares_subtracted_by_grants = Grant.where("status = ? AND created_at >= ?", 'accepted', last_share_created_at).sum(:shares_subtracted)
+        shares_subtracted_by_grants = Grant.where("created_at >= ? AND (status = ? OR status = ?)", last_share_created_at, 'accepted', 'pending_acceptance').sum(:shares_subtracted)
 
-        share_total_end = (BigDecimal(share_total_beginning.to_s) + BigDecimal(shares_added_by_donation.to_s) - BigDecimal(shares_subtracted_by_grants.to_s)).round(SHARE_PRECISION)
+        # shares removed by fees
+        shares_subtracted_by_fees = Fee.where("created_at >= ?", last_share_created_at).sum(:shares_subtracted)
+
+        share_total_end = (BigDecimal(share_total_beginning.to_s) + BigDecimal(shares_added_by_donation.to_s) - BigDecimal(shares_subtracted_by_grants.to_s) - BigDecimal(shares_subtracted_by_fees.to_s)).round(SHARE_PRECISION)
 
         # get donation share price
         # current_balance / shares_outstanding
@@ -58,6 +61,7 @@ module CalculationShare
                                      :share_total_beginning => share_total_beginning,
                                      :shares_added_by_donation => shares_added_by_donation,
                                      :shares_subtracted_by_grants => shares_subtracted_by_grants,
+                                     :shares_subtracted_by_fees => shares_subtracted_by_fees,
                                      :share_total_end => share_total_end,
                                      :donation_price => donation_share_price,
                                      :grant_price => grant_share_price

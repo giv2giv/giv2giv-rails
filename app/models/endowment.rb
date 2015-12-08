@@ -42,7 +42,7 @@ class Endowment < ActiveRecord::Base
   end
 
   def share_balance
-    BigDecimal("#{self.donations.sum(:shares_added)}") - BigDecimal("#{self.grants.sum(:shares_subtracted)}")
+    BigDecimal("#{self.donations.sum(:shares_added)}") - BigDecimal("#{self.grants.where('status = ? OR status = ?', 'accepted', 'pending_acceptance').sum(:shares_subtracted)}")
   end
 
   def last_donation_price
