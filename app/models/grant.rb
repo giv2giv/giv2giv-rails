@@ -10,8 +10,6 @@ class Grant < ActiveRecord::Base
 
   GIV2GIV_GRANT_PERCENT = App.giv["quarterly_grant_percent"]
   MINIMUM_GRANT_AMOUNT = App.giv["minimum_grant_amount"]
-  GIV2GIV_PASSTHRU_FEE = 0
-  GIV2GIV_GRANT_FEE = 0
 
   class << self
 
@@ -28,11 +26,7 @@ class Grant < ActiveRecord::Base
 
       share_price = Share.last.grant_price
 
-      grant_pre_fee_amount = (original_donation_amount * BigDecimal("#{subscription.passthru_percent}") / 100).floor2(2)
-
-      giv2giv_fee = (grant_pre_fee_amount * GIV2GIV_PASSTHRU_FEE).floor2(2)
-
-      net_amount = (grant_pre_fee_amount - giv2giv_fee).floor2(2)
+      net_amount = grant_pre_fee_amount = (original_donation_amount * BigDecimal("#{subscription.passthru_percent}") / 100).floor2(2)
 
       amount_per_charity = (net_amount / grantee_charities.count).floor2(2)
 
@@ -49,7 +43,6 @@ class Grant < ActiveRecord::Base
                     :shares_subtracted => shares_per_charity,
                     :grant_amount => grant_pre_fee_amount,
                     :net_amount => net_amount,
-                    :giv2giv_fee => giv2giv_fee,
                     :grant_type => 'pass_thru',
                     :status => 'pending_approval'
                     )
@@ -96,11 +89,8 @@ class Grant < ActiveRecord::Base
 
           preliminary_shares_per_charity = donor_share_balance * BigDecimal("#{GIV2GIV_GRANT_PERCENT}") / BigDecimal("#{charities.count}")
           
-          amount_per_charity = (preliminary_shares_per_charity * grant_share_price).floor2(2) # convert to dollars and cents
+          net_amount = amount_per_charity = (preliminary_shares_per_charity * grant_share_price).floor2(2) # convert to dollars and cents
           shares_per_charity = amount_per_charity / grant_share_price # calculate shares subtracted
-
-          grant_fee = (amount_per_charity * GIV2GIV_GRANT_FEE).floor2(2)
-          net_amount = amount_per_charity - grant_fee
 
           next if amount_per_charity < MINIMUM_GRANT_AMOUNT
           
@@ -111,7 +101,6 @@ class Grant < ActiveRecord::Base
                                       :charity_id => charity.id,
                                       :shares_subtracted => shares_per_charity,
                                       :grant_amount => amount_per_charity,
-                                      :giv2giv_fee => grant_fee,
                                       :net_amount => net_amount,
                                       :grant_type => 'endowed',
                                       :status => 'pending_approval'
@@ -159,7 +148,36 @@ class Grant < ActiveRecord::Base
       end
     end
 
-    def approve_pending_grants
+    def approve_pending_passthru_grants
+
+      #if params[:password] == App.giv['giv_grant_password']
+
+      total_grants = 0
+
+      grants = Grant.select("charity_id AS charity_id, SUM(grant_amount) AS amount").where("grant_type = ? AND status = ?", "pass_thru", "pending_approval").group("charity_id")
+
+      text = "Hi! This is an unrestricted grant from donors at the crowd-endowment service giv2giv  Contact hello@giv2giv.org with any questions or to find out how to partner with us."
+      
+      grants.each do |grant|
+        charity = Charity.find(grant.charity_id)
+        next if charity.email.nil?
+
+        total_grants = total_grants + grant.amount
+
+        transaction_id = DwollaLibs.new.dwolla_send(charity.email, text, grant.amount)
+        if transaction_id.is_a? Integer
+          Grant.where("status = ? AND charity_id=?", "pending_approval", grant.charity_id).update_all(:transaction_id => transaction_id, :status => 'pending_acceptance')
+        else
+          ap transaction_id
+        end
+      end
+      #client.update("This is the first test of the automated giv2giv tweeter. We're preparing to grant $" << total_grants.to_s)
+
+      puts "Total amount sent: " << total_grants.to_s
+
+    end
+
+    def approve_pending_endowed_grants
 
       #if params[:password] == App.giv['giv_grant_password']
 

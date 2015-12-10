@@ -1,6 +1,11 @@
 class Share < ActiveRecord::Base
 	validates :stripe_balance, :presence => true
 	validates :etrade_balance, :presence => true
+
+	def fee_price
+		self.grant_price
+	end
+
 	class << self
 		def shares_outstanding(datetime=nil)
 			if datetime.nil?
@@ -12,4 +17,5 @@ class Share < ActiveRecord::Base
 			d-g-f
 		end
 	end
+
 end
