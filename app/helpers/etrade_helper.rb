@@ -2,8 +2,8 @@ module EtradeHelper
   require 'oauth'
   include OAuth::Helper
 
-  CUST_KEY = App.etrade["oauth_consumer_key"]
-  CUST_SECRET = App.etrade["consumer_secret"]
+  ETRADE_KEY = App.etrade["oauth_consumer_key"]
+  ETRADE_SECRET = App.etrade["consumer_secret"]
   ETRADE_SITE = App.etrade["etrade_site"]
   SANDBOX_MODE = App.etrade["sandbox_mode"]
   
@@ -12,7 +12,7 @@ module EtradeHelper
 
   def get_accounts
     return false if TOKEN.nil?
-    consumer =  OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {
+    consumer =  OAuth::Consumer.new(ETRADE_KEY, ETRADE_SECRET, {
                   :site => ETRADE_SITE,
                   :http_method => :get
                 })
@@ -30,7 +30,7 @@ module EtradeHelper
   def get_transaction_history
     #last 30 days
     return false if TOKEN.nil?
-    consumer = OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {:site => ETRADE_SITE, :http_method => :get})
+    consumer = OAuth::Consumer.new(ETRADE_KEY, ETRADE_SECRET, {:site => ETRADE_SITE, :http_method => :get})
     access_token = OAuth::Token.new(TOKEN, SECRET)
     account_id = self.get_accounts["json.accountListResponse"]["response"][0]["accountId"]
  
@@ -48,7 +48,7 @@ end
 
 =begin
   def get_accounts
-    consumer = OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {:site => ETRADE_SITE, :http_method => :get})
+    consumer = OAuth::Consumer.new(ETRADE_KEY, ETRADE_SECRET, {:site => ETRADE_SITE, :http_method => :get})
     access_token = OAuth::Token.new(TOKEN, SECRET)
     if SANDBOX_MODE
       consumer.request(:get, "/accounts/sandbox/rest/accountlist", access_token).body
@@ -71,7 +71,7 @@ end
   end
 
   def get_detailed_account_balance(account_id)
-    consumer = OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {:site => ETRADE_SITE, :http_method => :get})
+    consumer = OAuth::Consumer.new(ETRADE_KEY, ETRADE_SECRET, {:site => ETRADE_SITE, :http_method => :get})
     access_token = OAuth::Token.new(TOKEN, SECRET)
     if SANDBOX_MODE
       consumer.request(:get, "/accounts/sandbox/rest/accountbalance/#{account_id}", access_token)
@@ -95,13 +95,13 @@ end
   #Begin transactions
   def get_transaction_history(account_id)
   #last 30 days
-    consumer = OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {:site => ETRADE_SITE, :http_method => :get})
+    consumer = OAuth::Consumer.new(ETRADE_KEY, ETRADE_SECRET, {:site => ETRADE_SITE, :http_method => :get})
     access_token = OAuth::Token.new(TOKEN, SECRET)
     consumer.request(:get, "/accounts/rest/#{account_id.to_s}/transactions", access_token).body
   end
 
   def get_fees(account_id)
-    consumer = OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {:site => ETRADE_SITE, :http_method => :get})
+    consumer = OAuth::Consumer.new(ETRADE_KEY, ETRADE_SECRET, {:site => ETRADE_SITE, :http_method => :get})
     access_token = OAuth::Token.new(TOKEN, SECRET)
     if SANDBOX_MODE
       consumer.request(:get, "/accounts/sandbox/rest/#{account_id}/transactions/WITHDRAWALS/fee", access_token).body

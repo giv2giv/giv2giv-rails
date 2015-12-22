@@ -1,8 +1,8 @@
 class Etrade < ActiveRecord::Base
   validates :balance, :presence => true
 
-  CUST_KEY = App.etrade["oauth_consumer_key"]
-  CUST_SECRET = App.etrade["consumer_secret"]
+  ETRADE_KEY = App.etrade["oauth_consumer_key"]
+  ETRADE_SECRET = App.etrade["consumer_secret"]
 
   class << self
 
@@ -11,10 +11,10 @@ class Etrade < ActiveRecord::Base
 		  require 'uri'
 		  include OAuth::Helper
 
-		  consumer = OAuth::Consumer.new(CUST_KEY, CUST_SECRET, {:site => "https://etws.etrade.com", :http_method => :get})
+		  consumer = OAuth::Consumer.new(ETRADE_KEY, ETRADE_SECRET, {:site => "https://etws.etrade.com", :http_method => :get})
 		  request_token = consumer.get_request_token()
 
-		  puts "In your browser, go to https://us.etrade.com/e/t/etws/authorize?key=#{URI.escape(CUST_KEY)}&token=#{URI.escape(request_token.token)}"
+		  puts "In your browser, go to https://us.etrade.com/e/t/etws/authorize?key=#{URI.escape(ETRADE_KEY)}&token=#{URI.escape(request_token.token)}"
 		  puts "Once you have authorized this app, enter your pin here and press enter : "
 
 		  pin = $stdin.readline().chomp

@@ -85,26 +85,32 @@ class Grant < ActiveRecord::Base
 
           donor_share_balance = shares_donor_donated - shares_donor_granted # is BigDecimal - BigDecimal, so precision OK
 
-          next if donor_share_balance <= 0
+          if donor_share_balance <= 0
+            puts "donor_share_balance <= 0"
+            next
+          end
 
           preliminary_shares_per_charity = donor_share_balance * BigDecimal("#{GIV2GIV_GRANT_PERCENT}") / BigDecimal("#{charities.count}")
           
           net_amount = amount_per_charity = (preliminary_shares_per_charity * grant_share_price).floor2(2) # convert to dollars and cents
           shares_per_charity = amount_per_charity / grant_share_price # calculate shares subtracted
 
-          next if amount_per_charity < MINIMUM_GRANT_AMOUNT
+          if amount_per_charity < MINIMUM_GRANT_AMOUNT
+            puts "#{endowment.name} under minimum amount"
+            next
+          end
           
           charities.each do |charity|
             grant_record = Grant.new(
-                                      :donor_id => donor_id,
-                                      :endowment_id => endowment.id,
-                                      :charity_id => charity.id,
-                                      :shares_subtracted => shares_per_charity,
-                                      :grant_amount => amount_per_charity,
-                                      :net_amount => net_amount,
-                                      :grant_type => 'endowed',
-                                      :status => 'pending_approval'
-                                      )
+                        :donor_id => donor_id,
+                        :endowment_id => endowment.id,
+                        :charity_id => charity.id,
+                        :shares_subtracted => shares_per_charity,
+                        :grant_amount => amount_per_charity,
+                        :net_amount => net_amount,
+                        :grant_type => 'endowed',
+                        :status => 'pending_approval'
+                        )
 
             grant_record.save
           end

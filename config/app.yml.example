@@ -22,6 +22,8 @@ mailer:
   domain:                 yourdomain.org
   user_name:              hello@yourdomain.org
   password:               long-password
+  mailchimp_key:          Key for mailchimp to subscribe donors to a mailing list
+  mailchimp_list_id:      your mailchimp id
 
 stripe:
   api_key:             sk_test_yb0dcOLvlXCEfaQTEFfMCGGZ #test

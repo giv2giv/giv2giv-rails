@@ -21,7 +21,7 @@ namespace :grant do
 # bundle exec rake grant:update_grant_status
   desc 'Update Grant Status'
   task :update_grant_status => :environment do
-    CalculationShare::Calculation.update_grant_status
+    Grant.update_grant_status
   end
 
 end
