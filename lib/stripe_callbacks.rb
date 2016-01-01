@@ -36,11 +36,11 @@ class StripeCallbacks
 
   end
 
-  def card_denied(event)
+  def charge_failed(event)
     p=PaymentAccount.find(event)
     p.requires_reauth=true
     p.save!
-    p.sendUpdatePaymentAccountEmail
+    DonorMailer.charge_failed(p.donor)
   end
 
   def transfer_created(event)

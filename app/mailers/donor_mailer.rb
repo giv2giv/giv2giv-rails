@@ -55,7 +55,6 @@ class DonorMailer < BaseMailer
       "RESET_URL" => App.giv['web_url'] + '/#reset_password?reset_token=' + donor.password_reset_token
     }
     send_mandrill(donor, subject, merge_vars, 'forgot-password')
-
   end
 
   def reset_password(donor)
@@ -64,6 +63,14 @@ class DonorMailer < BaseMailer
       "EMAIL" => donor.email
     }
     send_mandrill(donor, subject, merge_vars, 'reset-password')
+  end
+
+  def charge_failed(donor)
+    subject = "giv2giv.org Donation failed!"
+    merge_vars = {
+      "UPDATE_URL" => App.giv['web_url']
+    }
+    send_mandrill(donor, subject, merge_vars, 'charge-failed')
   end
 
   private

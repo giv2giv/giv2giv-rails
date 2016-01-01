@@ -14,6 +14,10 @@ StripeEvent.configure do |events|
     Rails.logger.debug event
     StripeCallbacks.new.transfer_paid(event)
   end # end charge.succeeded
+  events.subscribe 'charge.failed' do |event|
+    Rails.logger.debug event
+    StripeCallbacks.new.charge_failed(event)
+  end # end card.denied
 	events.all do |event|  
   	log_entry = StripeLog.create_or_update(event)
     # Handle all event types - logging, etc.
