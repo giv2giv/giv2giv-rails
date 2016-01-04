@@ -83,7 +83,6 @@ class Endowment < ActiveRecord::Base
       "endowment_total_donations" => self.donations.sum(:gross_amount).floor2(2),
       "endowment_monthly_donations" => monthly_addition.floor2(2),
       "endowment_transaction_fees" => self.donations.sum(:transaction_fee).floor2(2),
-      "endowment_fees" => self.grants.sum(:giv2giv_fee).floor2(2),
       "endowment_grants" => self.grants.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:grant_amount).floor2(2),
       "endowment_balance_history" => balance_history,
       "endowment_balance" => (share_balance * last_donation_price).floor2(2),

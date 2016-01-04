@@ -37,7 +37,9 @@ class StripeCallbacks
   end
 
   def charge_failed(event)
+    Rails.logger.debug event
     p=PaymentAccount.find(event)
+    Rails.logger.debug p
     p.requires_reauth=true
     p.save!
     DonorMailer.charge_failed(p.donor)

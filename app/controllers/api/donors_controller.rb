@@ -51,6 +51,7 @@ class Api::DonorsController < Api::BaseController
   end
 
   def balance_information
+
     load_global_and_donor_balances
 
     last_donation_price = Share.last.donation_price rescue 0.0

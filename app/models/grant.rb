@@ -168,12 +168,12 @@ class Grant < ActiveRecord::Base
         charity = Charity.find(grant.charity_id)
         next if charity.email.nil?
 
-        total_grants = total_grants + grant.amount
-
         transaction_id = DwollaLibs.new.dwolla_send(charity.email, text, grant.amount)
         if transaction_id.is_a? Integer
+          total_grants = total_grants + grant.amount
           Grant.where("status = ? AND charity_id=?", "pending_approval", grant.charity_id).update_all(:transaction_id => transaction_id, :status => 'pending_acceptance')
         else
+          ap 'There was a problem.'
           ap transaction_id
         end
       end
@@ -189,7 +189,7 @@ class Grant < ActiveRecord::Base
 
       total_grants = 0
 
-      grants = Grant.select("charity_id AS charity_id, SUM(grant_amount) AS amount").where("status = ?", "pending_approval").group("charity_id")
+      grants = Grant.select("charity_id AS charity_id, SUM(grant_amount) AS amount").where("grant_type = ? AND status = ?", "endowed", "pending_approval").group("charity_id")
 
       text = "Hi! This is an unrestricted grant from donors at the crowd-endowment service giv2giv  Contact hello@giv2giv.org with any questions or to find out how to partner with us."
       
@@ -197,12 +197,12 @@ class Grant < ActiveRecord::Base
         charity = Charity.find(grant.charity_id)
         next if charity.email.nil?
 
-        total_grants = total_grants + grant.amount
-
         transaction_id = DwollaLibs.new.dwolla_send(charity.email, text, grant.amount)
         if transaction_id.is_a? Integer
+          total_grants = total_grants + grant.amount
           Grant.where("status = ? AND charity_id=?", "pending_approval", grant.charity_id).update_all(:transaction_id => transaction_id, :status => 'pending_acceptance')
         else
+          ap 'There was a problem.'
           ap transaction_id
         end
       end

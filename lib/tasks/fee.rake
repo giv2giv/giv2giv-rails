@@ -6,10 +6,10 @@ namespace :fee do
     Fee.calculate_fee
   end
 
-  # bundle exec rake fee:approve_fee
-  desc 'Approve Fee'
-  task :approve_fee => :environment do
-    Fee.approve_fee
+  # bundle exec rake fee:charge_fee
+  desc 'Charge Fee'
+  task :charge_fee => :environment do
+    Fee.charge_fee
   end
 
 end

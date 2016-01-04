@@ -1,5 +1,7 @@
 class Fee < ActiveRecord::Base
 
+  QUARTERLY_FEE = App.giv['quarterly_fee']
+
   class << self
 
     def calculate_fee
@@ -14,7 +16,7 @@ class Fee < ActiveRecord::Base
 
     	shares_outstanding = Share.shares_outstanding
 
-    	fee_amount = (BigDecimal(quarterly_fee.to_s) * BigDecimal(current_balance.to_s)).ceil2(2)
+    	fee_amount = (BigDecimal(QUARTERLY_FEE.to_s) * BigDecimal(current_balance.to_s)).ceil2(2)
 
     	shares_subtracted = fee_amount / share_price
 
@@ -32,7 +34,7 @@ class Fee < ActiveRecord::Base
 
     end
 
-    def approve_fee
+    def charge_fee
       fee = Fee.where(:cleared => false).last
 
       puts "In your browser, go to https://etrade.com and transfer $#{fee.amount} to your bank account."
@@ -50,13 +52,6 @@ class Fee < ActiveRecord::Base
     end
   end
 
-
-    end
-
   private
-    def quarterly_fee
-      App.giv['quarterly_fee']
-    end
 
-  end
 end

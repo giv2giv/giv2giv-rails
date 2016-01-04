@@ -1,4 +1,5 @@
 include OAuth::Helper
+include EtradeHelper
 
 require 'bigdecimal'
 
@@ -88,8 +89,10 @@ class Share < ActiveRecord::Base
       end
     end #compute_share_price
 
+    def get_current_balance
+      get_stripe_balance + get_etrade_balance + get_dwolla_balance + get_transit_balance
+    end
     
-
     private
 
     def get_stripe_balance
@@ -112,7 +115,6 @@ class Share < ActiveRecord::Base
     end
 
     def get_etrade_balance
-      include EtradeHelper
       # just let return error message default from api
       etrade_balance = Etrade.get_net_account_value
       raise "eTrade connection problem" if !etrade_balance
