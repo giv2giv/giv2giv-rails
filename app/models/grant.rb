@@ -162,7 +162,7 @@ class Grant < ActiveRecord::Base
 
       grants = Grant.select("charity_id AS charity_id, SUM(grant_amount) AS amount").where("grant_type = ? AND status = ?", "pass_thru", "pending_approval").group("charity_id")
 
-      text = "Hi! This is an unrestricted grant from donors at the crowd-endowment service giv2giv  Contact hello@giv2giv.org with any questions or to find out how to partner with us."
+      text = "Hi! This is an unrestricted grant from donors at the crowd-endowment service https://giv2giv.org  Contact hello@giv2giv.org with any questions or to find out how to create your own fund online."
       
       grants.each do |grant|
         charity = Charity.find(grant.charity_id)
@@ -191,7 +191,7 @@ class Grant < ActiveRecord::Base
 
       grants = Grant.select("charity_id AS charity_id, SUM(grant_amount) AS amount").where("grant_type = ? AND status = ?", "endowed", "pending_approval").group("charity_id")
 
-      text = "Hi! This is an unrestricted grant from donors at the crowd-endowment service giv2giv  Contact hello@giv2giv.org with any questions or to find out how to partner with us."
+      text = "Hi! This is an unrestricted grant from donors at https://giv2giv.org  Contact hello@giv2giv.org with any questions or to learn how to create your own fund."
       
       grants.each do |grant|
         charity = Charity.find(grant.charity_id)
