@@ -56,10 +56,8 @@ knox:
 
 dwolla:
   sandbox_mode:        "true"
-  api_key:        dwolla-api-key
-  api_secret:     dwolla-api-secret
+  api_key:        dwolla-api-key # Your application's oauth key
+  api_secret:     dwolla-api-secret # Your application's oauth key
   account_id:     dwolla-account-id
   pin_account:    dwolla-pin
-  company_token:  dwolla-token
-  dwolla_grant_source_account: dwolla-grant-source-account
-  dwolla_fee_destination_account: dwolla-grant-destination-account
+  company_token:  dwolla-token # An access token created from https://www.dwolla.com/applications or uat.dwolla.com/applications

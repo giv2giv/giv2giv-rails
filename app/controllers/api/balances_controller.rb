@@ -1,8 +1,10 @@
 class Api::BalancesController < Api::BaseController
-  before_filter :require_authentication
   
+  skip_before_filter :require_authentication, :only => [:show_grants]
+
   def show_grants
-    grants = Grant.where("status = ?",'pending_approval')
+
+    grants = Grant.where("status = ?",'pending_acceptance')
 
     show_grants = grants.group(:charity_id).map do |grant|
       {
@@ -17,6 +19,7 @@ class Api::BalancesController < Api::BaseController
   end
 
   def deny_grant
+
     charity_id = params[:id]
 
     if charity_id && params[:password] == App.giv['giv_grant_password']
