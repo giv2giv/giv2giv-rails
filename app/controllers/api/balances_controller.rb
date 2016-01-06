@@ -4,7 +4,7 @@ class Api::BalancesController < Api::BaseController
 
   def show_grants
 
-    grants = Grant.where("status = ?",'pending_acceptance')
+    grants = Grant.where("status = ?",'pending_approval')
 
     show_grants = grants.group(:charity_id).map do |grant|
       {
