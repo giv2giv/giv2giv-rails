@@ -59,7 +59,7 @@ class Grant < ActiveRecord::Base
 
     end
 
-    def grant_step_1
+    def calculate_pending_endowed_grants
               
       endowments = Endowment.all
 
@@ -149,6 +149,24 @@ class Grant < ActiveRecord::Base
       end
     end
 
+    def list_pending_passthru_grants
+
+      total_grants = 0
+
+      grants = Grant.where("status = ? AND grant_type=?",'pending_approval', "pass_thru")
+
+      show_grants = grants.group(:charity_id).map do |grant|
+        {
+          'charity_id' => grant.charity_id,
+          'charity_name' => grant.charity.name,
+          'charity_email' => grant.charity.email,
+          'grant_amount' => grants.where("charity_id = ?", grant.charity_id).sum(:grant_amount) #TODO there must be a way to include sum in the mapped hash
+        }
+      end
+      ap show_grants.sort_by { |hash| hash['grant_amount'].to_i }
+
+    end
+
     def approve_pending_passthru_grants
 
       #if params[:password] == App.giv['giv_grant_password']
@@ -176,6 +194,24 @@ class Grant < ActiveRecord::Base
       #client.update("This is the first test of the automated giv2giv tweeter. We're preparing to grant $" << total_grants.to_s)
 
       puts "Total amount sent: " << total_grants.to_s
+
+    end
+
+    def list_pending_endowed_grants
+
+      total_grants = 0
+
+      grants = Grant.where("status = ? AND grant_type=?",'pending_approval', "endowed")
+
+      show_grants = grants.group(:charity_id).map do |grant|
+        {
+          'charity_id' => grant.charity_id,
+          'charity_name' => grant.charity.name,
+          'charity_email' => grant.charity.email,
+          'grant_amount' => grants.where("charity_id = ?", grant.charity_id).sum(:grant_amount) #TODO there must be a way to include sum in the mapped hash
+        }
+      end
+      ap show_grants.sort_by { |hash| hash['grant_amount'].to_i }
 
     end
 

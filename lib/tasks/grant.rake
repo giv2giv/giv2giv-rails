@@ -1,15 +1,27 @@
 namespace :grant do
 
-  # bundle exec rake grant:startgrantcalculation
-  desc 'Calculate Grants'
-  task :startgrantcalculation => :environment do
-    Grant.grant_step_1
+  # bundle exec rake grant:calculate_pending_endowed_grants
+  desc 'Calculate Endowed Grants'
+  task :calculate_pending_endowed_grants => :environment do
+    Grant.calculate_pending_endowed_grants
+  end
+
+# bundle exec rake grant:list_pending_passthru_grants
+  desc 'List Pending Passthru Grants'
+  task :list_pending_passthru_grants => :environment do
+    Grant.list_pending_passthru_grants
   end
 
 # bundle exec rake grant:approve_pending_passthru_grants
   desc 'Approve Pending Passthru Grants'
   task :approve_pending_passthru_grants => :environment do
     Grant.approve_pending_passthru_grants
+  end
+
+# bundle exec rake grant:list_pending_endowed_grants
+  desc 'List Pending Endowed Grants'
+  task :list_pending_endowed_grants => :environment do
+    Grant.list_pending_endowed_grants
   end
 
 # bundle exec rake grant:approve_pending_endowed_grants
