@@ -95,11 +95,6 @@ class Grant < ActiveRecord::Base
           net_amount = amount_per_charity = (preliminary_shares_per_charity * grant_share_price).floor2(2) # convert to dollars and cents
           shares_per_charity = amount_per_charity / grant_share_price # calculate shares subtracted
 
-          if amount_per_charity < MINIMUM_GRANT_AMOUNT
-            puts "#{endowment.name} under minimum amount"
-            next
-          end
-          
           charities.each do |charity|
             grant_record = Grant.new(
                         :donor_id => donor_id,
@@ -167,6 +162,7 @@ class Grant < ActiveRecord::Base
       grants.each do |grant|
         charity = Charity.find(grant.charity_id)
         next if charity.email.nil?
+        next if grant.amount < MINIMUM_GRANT_AMOUNT
 
         transaction_id = DwollaLibs.new.dwolla_send(charity.email, text, grant.amount)
         if transaction_id.is_a? Integer
@@ -196,6 +192,7 @@ class Grant < ActiveRecord::Base
       grants.each do |grant|
         charity = Charity.find(grant.charity_id)
         next if charity.email.nil?
+        next if grant.amount < MINIMUM_GRANT_AMOUNT
 
         transaction_id = DwollaLibs.new.dwolla_send(charity.email, text, grant.amount)
         if transaction_id.is_a? Integer
