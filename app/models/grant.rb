@@ -153,14 +153,15 @@ class Grant < ActiveRecord::Base
 
       total_grants = 0
 
-      grants = Grant.where("status = ? AND grant_type=?",'pending_approval', "pass_thru")
+      grants = Grant.where('grant_type=? AND status = ?', 'pass_thru', 'pending_approval')
 
-      show_grants = grants.group(:charity_id).map do |grant|
+      show_grants = grants.group(:charity_id, :donor_id).map do |grant|
         {
           'charity_id' => grant.charity_id,
           'charity_name' => grant.charity.name,
           'charity_email' => grant.charity.email,
-          'grant_amount' => grants.where("charity_id = ?", grant.charity_id).sum(:grant_amount) #TODO there must be a way to include sum in the mapped hash
+          'donor' => grant.donor.name,
+          'grant_amount' => grants.where("donor_id = ? AND charity_id = ?", grant.donor.id, grant.charity_id).sum(:grant_amount) #TODO there must be a way to include sum in the mapped hash
         }
       end
       ap show_grants.sort_by { |hash| hash['grant_amount'].to_i }
@@ -191,7 +192,6 @@ class Grant < ActiveRecord::Base
           ap transaction_id
         end
       end
-      #client.update("This is the first test of the automated giv2giv tweeter. We're preparing to grant $" << total_grants.to_s)
 
       puts "Total amount sent: " << total_grants.to_s
 
