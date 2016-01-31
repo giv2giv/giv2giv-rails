@@ -23,7 +23,7 @@ class BaseMailer < ActionMailer::Base
 
       require "mandrill"
 
-      mandrill = Mandrill::API.new App.mailer["password"]
+      mandrill_handler = Mandrill::API.new App.mailer["password"]
 
       template_name = which_template
       template_content = []
@@ -46,7 +46,7 @@ class BaseMailer < ActionMailer::Base
       }
       async = true
 
-      result = mandrill.messages.send_template template_name, template_content, message, async
+      result = mandrill_handler.messages.send_template template_name, template_content, message, async
           # [{"_id"=>"abc123abc123abc123abc123abc123",
           #     "status"=>"sent",
           #     "reject_reason"=>"hard-bounce",
@@ -63,13 +63,13 @@ end
   def mandrill_template(template_name, attributes)
   	require "mandrill"
 
-    mandrill = Mandrill::API.new App.mailer["password"]
+    mandrill_handler = Mandrill::API.new App.mailer["password"]
 
     merge_vars = attributes.map do |key, value|
       { name: key, content: value }
     end
 
-    mandrill.templates.render template_name, [], merge_vars
+    mandrill_handler.templates.render template_name, [], merge_vars
   end
 end
 
