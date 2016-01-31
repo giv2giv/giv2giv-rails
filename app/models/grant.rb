@@ -170,13 +170,11 @@ class Grant < ActiveRecord::Base
 
     def approve_pending_passthru_grants
 
-      #if params[:password] == App.giv['giv_grant_password']
-
       total_grants = 0
 
       grants = Grant.select("charity_id AS charity_id, SUM(grant_amount) AS amount").where("grant_type = ? AND status = ?", "pass_thru", "pending_approval").group("charity_id")
 
-      text = "Hi! This is an unrestricted grant from donors at the crowd-endowment service https://giv2giv.org  Contact hello@giv2giv.org with any questions or to find out how to create your own fund online."
+      text = "Hi! This is an unrestricted grant from donors at the crowd-endowment service https://giv2giv.org  Contact hello@giv2giv.org with any questions or to find out how to create your own fund online.<p><p>giv2giv is a donor advised fund. Donors are prohibited from receiving goods, services or benefits from charities that receive grants from giv2giv. By accepting this grant, you acknowledge that no goods, services or benefits have been provided to donors that use the giv2giv platform and that grants are not being used to satisfy any part of pre-existing pledges or obligations made by these donors."
       
       grants.each do |grant|
         charity = Charity.find(grant.charity_id)
@@ -216,8 +214,6 @@ class Grant < ActiveRecord::Base
     end
 
     def approve_pending_endowed_grants
-
-      #if params[:password] == App.giv['giv_grant_password']
 
       total_grants = 0
 
