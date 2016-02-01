@@ -4,26 +4,20 @@ class OneTimeUtilities
 
 	def recalculate_share_prices
 		
-		# Get each share, along with the next one as well
+		# Get each share, along with the previous one as well
 
-		Share.where("created_at > ?", "2015-06-01").each do |share|
+		Share.where("id > ?", "30").each do |share|
 
-			next_share = Share.where("id > ?", share.id).order(:id).first
+			last_share = Share.where("id < ?", share.id).order(:id).last
 
-			if next_share.nil?
-				next_share = Share.new
-				next_share.created_at = DateTime.new(2100,1,1)
-			end
+			#Compute based on previous share price not new one!
 
-			modifier = 0
-			# Pull all donations between this and the next share computation
-			donations = Donation.where(created_at: (share.created_at..next_share.created_at))
-			grants = Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').where(created_at: (share.created_at..next_share.created_at))
-			fees = Fee.where(created_at: (share.created_at..next_share.created_at))
+			# Pull all donations between this and the last share computation
+			donations = Donation.where(created_at: (last_share.created_at..share.created_at))
+			grants = Grant.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').where(created_at: (last_share.created_at..share.created_at))
+			share_price = last_share.donation_price
 
-			if share.created_at > DateTime.new(2015,9,2)
-				modifier = 478.02
-			end
+			modifier = 478.02
 
       current_balance = share.stripe_balance + share.etrade_balance + share.dwolla_balance + share.transit_balance - modifier
 
@@ -34,10 +28,7 @@ class OneTimeUtilities
       # shares removed by grant
       shares_subtracted_by_grants = grants.sum(:shares_subtracted)
 
-      # shares removed by fees
-      shares_subtracted_by_fees = fees.sum(:shares_subtracted)
-
-      share_total_end = (BigDecimal(share_total_beginning.to_s) + BigDecimal(shares_added_by_donation.to_s) - BigDecimal(shares_subtracted_by_grants.to_s) - BigDecimal(shares_subtracted_by_fees.to_s))
+      share_total_end = BigDecimal(share_total_beginning.to_s) + BigDecimal(shares_added_by_donation.to_s) - BigDecimal(shares_subtracted_by_grants.to_s)
 
       # get donation share price
       # current_balance / shares_outstanding
@@ -53,46 +44,6 @@ class OneTimeUtilities
       share.grant_price = preliminary_share_price.floor2(2)
       share.save!
 
-      #Update each donation transacted based on new share price
-			donations.each do |donation|
-				donation.shares_added = BigDecimal(donation.net_amount.to_s) / share.donation_price
-				donation.save!
-			end
-			#Update each grant transacted based on new share price
-			grants.each do |grant|
-				grant.shares_subtracted = BigDecimal(grant.net_amount.to_s) / share.grant_price
-				grant.save!
-			end
-
-			#No fees exist at time of authorship 
-
-			donations.reload
-			grants.reload
-
-			shares_added_by_donation = donations.sum(:shares_added)
-
-      # shares removed by grant
-      shares_subtracted_by_grants = grants.sum(:shares_subtracted)
-
-
-			# Update share end/beginning values
-			share.share_total_end = share.share_total_beginning + shares_added_by_donation - shares_subtracted_by_grants
-			share.shares_added_by_donation = shares_added_by_donation
-			share.shares_subtracted_by_grants = shares_subtracted_by_grants
-			share.shares_subtracted_by_fees = 0
-
-if share.id==18
-	ap share
-end
-			share.save!
-if share.id==18
-	ap share
-end
-			next_share.share_total_beginning = share.share_total_end
-
-			if next_share.persisted?
-  			next_share.save!
-  		end
   	end
 	end
 
