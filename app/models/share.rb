@@ -37,7 +37,7 @@ class Share < ActiveRecord::Base
         ap e
       end
 
-      current_balance = stripe_balance + etrade_balance + dwolla_balance + transit_balance - 478.02
+      current_balance = stripe_balance + etrade_balance + dwolla_balance + transit_balance
     
       last_share = Share.order("created_at DESC").first
 
