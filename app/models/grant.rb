@@ -151,8 +151,6 @@ class Grant < ActiveRecord::Base
 
     def list_pending_passthru_grants
 
-      total_grants = 0
-
       grants = Grant.where('grant_type=? AND status = ?', 'pass_thru', 'pending_approval')
 
       show_grants = grants.group(:charity_id, :donor_id).map do |grant|
@@ -161,7 +159,7 @@ class Grant < ActiveRecord::Base
           'charity_name' => grant.charity.name,
           'charity_email' => grant.charity.email,
           'donor' => grant.donor.name,
-          'grant_amount' => grants.where("donor_id = ? AND charity_id = ?", grant.donor.id, grant.charity_id).sum(:grant_amount) #TODO there must be a way to include sum in the mapped hash
+          'grant_amount' => grants.where("donor_id = ? AND charity_id = ?", grant.donor.id, grant.charity_id).sum(:grant_amount)
         }
       end
       ap show_grants.sort_by { |hash| hash['grant_amount'].to_i }
@@ -174,7 +172,7 @@ class Grant < ActiveRecord::Base
 
       grants = Grant.select("charity_id AS charity_id, SUM(grant_amount) AS amount").where("grant_type = ? AND status = ?", "pass_thru", "pending_approval").group("charity_id")
 
-      text = "Hi! This is an unrestricted grant from donors at the crowd-endowment service https://giv2giv.org  Contact hello@giv2giv.org with any questions or to find out how to create your own fund online.<p><p>giv2giv is a donor advised fund. Donors are prohibited from receiving goods, services or benefits from charities that receive grants from giv2giv. By accepting this grant, you acknowledge that no goods, services or benefits have been provided to donors that use the giv2giv platform and that grants are not being used to satisfy any part of pre-existing pledges or obligations made by these donors."
+      text = "Hi! This is an unrestricted grant from donors at https://giv2giv.org  Contact hello@giv2giv.org with any questions or to learn how to create your own fund."
       
       grants.each do |grant|
         charity = Charity.find(grant.charity_id)
@@ -190,6 +188,7 @@ class Grant < ActiveRecord::Base
           ap transaction_id
         end
       end
+      #client.update("This is the first test of the automated giv2giv tweeter. We're preparing to grant $" << total_grants.to_s)
 
       puts "Total amount sent: " << total_grants.to_s
 

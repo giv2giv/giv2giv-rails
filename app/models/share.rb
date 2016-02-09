@@ -28,10 +28,14 @@ class Share < ActiveRecord::Base
 
 		def compute_share_price
 
-      stripe_balance = get_stripe_balance
-      etrade_balance = get_etrade_balance
-      dwolla_balance = get_dwolla_balance
-      transit_balance = get_transit_balance
+      begin
+        stripe_balance = get_stripe_balance
+        etrade_balance = get_etrade_balance
+        dwolla_balance = get_dwolla_balance
+        transit_balance = get_transit_balance
+      rescue Exception => e
+        ap e
+      end
 
       current_balance = stripe_balance + etrade_balance + dwolla_balance + transit_balance - 478.02
     
@@ -116,18 +120,22 @@ class Share < ActiveRecord::Base
 
     def get_etrade_balance
       # just let return error message default from api
-      etrade_balance = Etrade.get_net_account_value
-      raise "eTrade connection problem" if !etrade_balance
-
-      etrade_balance = BigDecimal(etrade_balance.to_s)
-
+      begin
+        etrade_balance = Etrade.get_net_account_value
+        etrade_balance = BigDecimal(etrade_balance.to_s)
+      rescue Exception=>e
+        raise "eTrade connection problem - Have you run 'bundle exec rake etradeauth:start' ?"
+      end
+      
     end
 
     def get_dwolla_balance
-      return 0
-      #dwolla_balance = DwollaLibs.new.get_balance
-      #raise "Dwolla connection problem" if !dwolla_balance
-      #BigDecimal('#{dwolla_balance}')
+      begin
+        dwolla_balance = DwollaLibs.new.get_balance
+        BigDecimal(dwolla_balance.to_s)
+      rescue Exception=>e
+        raise "Dwolla connection problem - Do you have a current App.dwolla['company_token'] ?"
+      end
     end
 
     def get_transit_balance
