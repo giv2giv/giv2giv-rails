@@ -8,11 +8,6 @@ class BaseMailer < ActionMailer::Base
 
   protected
 
-  def send_mail2(email, subject, body)
-  	require "mandrill"
-    mail(to: email, subject: subject, body: body, content_type: "text/html")
-  end
-
   def send_mandrill(recipient, subject, attributes, which_template)
 
     begin

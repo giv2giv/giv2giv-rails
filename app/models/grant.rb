@@ -10,6 +10,7 @@ class Grant < ActiveRecord::Base
 
   GIV2GIV_GRANT_PERCENT = App.giv["quarterly_grant_percent"]
   MINIMUM_GRANT_AMOUNT = App.giv["minimum_grant_amount"]
+  MAXIMUM_PASSTHRU_GRANT_AMOUNT = App.giv["maximum_passthru_grant_amount"]
 
   class << self
 
@@ -180,13 +181,18 @@ class Grant < ActiveRecord::Base
       
       grants.each do |grant|
         charity = Charity.find(grant.charity_id)
+
         next if charity.email.nil?
-        next if grant.amount < MINIMUM_GRANT_AMOUNT
+
+        #Gibbon::Request.lists.subscribe({:id => App.mailchimp['all_charities_list_id'], :email => {:email => charity.email}, :merge_vars => {:FNAME => donor.name}, :double_optin => false}) rescue nil
+
+        next if grant.amount > MAXIMUM_PASSTHRU_GRANT_AMOUNT
 
         transaction_id = DwollaLibs.new.dwolla_send(charity.email, text, grant.amount)
         if transaction_id.is_a? Integer
           total_grants = total_grants + grant.amount
           Grant.where("status = ? AND charity_id=?", "pending_approval", grant.charity_id).update_all(:transaction_id => transaction_id, :status => 'pending_acceptance')
+          #CharityMailer.passthru_grant_issued(charity)
         else
           ap 'There was a problem.'
           ap transaction_id
@@ -211,7 +217,7 @@ class Grant < ActiveRecord::Base
           'grant_amount' => grants.where("charity_id = ?", grant.charity_id).sum(:grant_amount) #TODO there must be a way to include sum in the mapped hash
         }
       end
-      ap show_grants.sort_by { |hash| hash['grant_amount'].to_i }
+      ap show_grants.select{|grant| grant['grant_amount'] > MINIMUM_GRANT_AMOUNT}.sort_by { |hash| hash['grant_amount'].to_i }
 
     end
 
@@ -228,12 +234,23 @@ class Grant < ActiveRecord::Base
       grants.each do |grant|
         charity = Charity.find(grant.charity_id)
         next if charity.email.nil?
-        next if grant.amount < MINIMUM_GRANT_AMOUNT
+        transaction_id = nil
+        if grant.amount > MINIMUM_GRANT_AMOUNT
+          #Gibbon::Request.lists.unsubscribe({:id => App.mailchimp['charities_receiving_grants_list_id'], :email => {:email => charity.email}, :delete_member => true, :send_notify => false, :send_goodbye => false})
+          #Gibbon::Request.lists.subscribe({:id => App.mailchimp['charities_under_minimum_list_id'], :email => {:email => charity.email}, :merge_vars => {:FNAME => donor.name}, :double_optin => false})
+        #else
+          #Gibbon::Request.lists.unsubscribe({:id => App.mailchimp['charities_under_minimum_list_id'], :email => {:email => charity.email}, :delete_member => true, :send_notify => false, :send_goodbye => false})
+          #Gibbon::Request.lists.subscribe({:id => App.mailchimp['charities_receiving_grants_list_id'], :email => {:email => donor.email}, :merge_vars => {:FNAME => donor.name}, :double_optin => false})
+          #
+          transaction_id = DwollaLibs.new.dwolla_send(charity.email, text, grant.amount)
+        else
+          CharityMailer.endowment_grant_held(charity)
+        end
 
-        transaction_id = DwollaLibs.new.dwolla_send(charity.email, text, grant.amount)
         if transaction_id.is_a? Integer
           total_grants = total_grants + grant.amount
           Grant.where("status = ? AND charity_id=?", "pending_approval", grant.charity_id).update_all(:transaction_id => transaction_id, :status => 'pending_acceptance')
+          CharityMailer.endowment_grant_issued(charity, ActionController::Base.helpers.number_to_currency(grant.amount))
         else
           ap 'There was a problem.'
           ap transaction_id
