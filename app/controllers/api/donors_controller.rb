@@ -57,13 +57,13 @@ class Api::DonorsController < Api::BaseController
     last_donation_price = Share.last.donation_price rescue 0.0
     if current_donor && current_donor.id
       share_balance = Share.shares_outstanding
-      donor_current_balance = (BigDecimal("#{share_balance}") * BigDecimal("#{last_donation_price}")).floor2(2)
       donor_total_amount_of_donations = current_donor.donations.sum(:gross_amount).to_f rescue 0.0
       donor_total_amount_of_grants = current_donor.grants.where("(status = ? OR status = ?)", 'accepted', 'pending_acceptance').sum(:grant_amount).to_f rescue 0.0
       donor_total_amount_of_pending_grants = current_donor.grants.where("(status = ? OR status = ?)", 'pending_acceptance', 'pending_approval').sum(:grant_amount).to_f rescue 0.0
       donor_total_number_of_pending_grants = current_donor.grants.where("(status = ? OR status = ?)", 'pending_acceptance', 'pending_approval').count
       donor_balance_history = (donor_first_donation_date..Date.today).select {|d| (d.day % 7 ) == 0 || d==Date.today}.map { |date| {"date"=>date, "balance"=>donor_balance_on(date)} }
       donor_active_subscriptions = current_donor.donor_subscriptions.where("canceled_at IS NULL OR canceled_at = ?", false).sum(:gross_amount).floor2(2)
+      donor_current_balance = donor_total_amount_of_donations-donor_total_amount_of_grants-donor_total_amount_of_pending_grants
     else
       donor_current_balance = 0.0
       donor_total_amount_of_donations = 0.0

@@ -187,7 +187,7 @@ class Grant < ActiveRecord::Base
         transaction_id = DwollaLibs.new.dwolla_send(charity.email, text, grant.amount)
         if transaction_id.is_a? Integer
           total_grants = total_grants + grant.amount
-          Grant.where("status = ? AND charity_id=?", "pending_approval", grant.charity_id).update_all(:transaction_id => transaction_id, :status => 'pending_acceptance')
+          Grant.where("grant_type = ? AND status = ? AND charity_id=?", "pass_thru", "pending_approval", grant.charity_id).update_all(:transaction_id => transaction_id, :status => 'pending_acceptance')
           #CharityMailer.passthru_grant_issued(charity)
         else
           ap 'There was a problem.'
@@ -238,18 +238,16 @@ class Grant < ActiveRecord::Base
           #Gibbon::Request.lists.subscribe({:id => App.mailchimp['charities_receiving_grants_list_id'], :email => {:email => donor.email}, :merge_vars => {:FNAME => donor.name}, :double_optin => false})
           #
           transaction_id = DwollaLibs.new.dwolla_send(charity.email, text, grant.amount)
+          if transaction_id.is_a? Integer
+            total_grants = total_grants + grant.amount
+            Grant.where("grant_type= ? AND status = ? AND charity_id=?", "endowed", "pending_approval", grant.charity_id).update_all(:transaction_id => transaction_id, :status => 'pending_acceptance')
+            CharityMailer.endowment_grant_issued(charity, ActionController::Base.helpers.number_to_currency(grant.amount))
+            ap "Sent #{grant.amount} to #{charity.name}"
+          end
         else
-          CharityMailer.endowment_grant_held(charity)
+            CharityMailer.endowment_grant_held(charity) unless charity.main_endowment_id.nil?
         end
 
-        if transaction_id.is_a? Integer
-          total_grants = total_grants + grant.amount
-          Grant.where("status = ? AND charity_id=?", "pending_approval", grant.charity_id).update_all(:transaction_id => transaction_id, :status => 'pending_acceptance')
-          CharityMailer.endowment_grant_issued(charity, ActionController::Base.helpers.number_to_currency(grant.amount))
-        else
-          ap 'There was a problem.'
-          ap transaction_id
-        end
       end
       #client.update("This is the first test of the automated giv2giv tweeter. We're preparing to grant $" << total_grants.to_s)
 
