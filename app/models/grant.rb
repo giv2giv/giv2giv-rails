@@ -47,7 +47,7 @@ class Grant < ActiveRecord::Base
                     :grant_type => 'pass_thru',
                     :status => 'pending_approval'
                     )
-          if grant.save!
+          if net_amount > 0 && grant.save!
             grants_array << grant
             total_grants += grant.net_amount
           end
