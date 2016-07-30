@@ -37,8 +37,18 @@ class StripeCallbacks
   end
 
   def charge_failed(event)
-    Rails.logger.debug event
-    p=PaymentAccount.find(event)
+
+    invoice = event.data.object.invoice
+ 
+    if invoice.blank?
+      subscription = DonorSubscription.find_by unique_subscription_id: event.data.object.id
+ 
+    else
+      invoice = Stripe::Invoice.retrieve(event.data.object.invoice)
+      subscription = DonorSubscription.find_by unique_subscription_id: invoice.lines.data.first.id
+    end
+
+    p=PaymentAccount.find(subscription.payment_account_id)
     Rails.logger.debug p
     p.requires_reauth=true
     p.save!
